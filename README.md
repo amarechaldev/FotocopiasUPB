@@ -30,4 +30,6 @@ The product backlog (user stories with acceptance criteria) is managed in this r
 
 ## Development
 
-*To be completed by the development team: technology, how to install and run the app.*
+**Technology:** a React web app, deployed on Vercel, with Supabase for storage. Staff use it from the tablet's browser.
+
+*To be completed by the development team: how to install and run the app.*
