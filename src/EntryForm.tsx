@@ -1,6 +1,7 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { todayInBolivia } from './domain/dates'
-import { fetchAreas, registerEntry, type Area } from './lib/entries'
+import { fetchAnilladoSizes, fetchAreas, registerEntry, type Area } from './lib/entries'
 
 type Status =
   | { kind: 'idle' }
@@ -20,17 +21,27 @@ function emptyFields(): Fields {
   return { entryDate: todayInBolivia(), name: '', description: '', areaId: '', copias: '' }
 }
 
+type Lists = {
+  areas: Area[]
+  sizes: number[]
+}
+
 export function EntryForm() {
-  const [areas, setAreas] = useState<Area[] | null>(null)
-  const [areasError, setAreasError] = useState(false)
+  const [lists, setLists] = useState<Lists | null>(null)
+  const [listsError, setListsError] = useState(false)
   const [fields, setFields] = useState<Fields>(emptyFields)
+  const [anillados, setAnillados] = useState<AnilladoRow[]>([])
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
-  // Load the departments once, when the form first appears.
+  // A counter that survives redraws without causing one (unlike state).
+  const lastKey = useRef(0)
+  const newKey = () => ++lastKey.current
+
+  // Load the departments and anillado sizes once, when the form first appears.
   useEffect(() => {
-    fetchAreas()
-      .then(setAreas)
-      .catch(() => setAreasError(true))
+    Promise.all([fetchAreas(), fetchAnilladoSizes()])
+      .then(([areas, sizes]) => setLists({ areas, sizes }))
+      .catch(() => setListsError(true))
   }, [])
 
   function update(field: keyof Fields, value: string) {
@@ -47,18 +58,23 @@ export function EntryForm() {
         name: fields.name.trim(),
         description: fields.description.trim(),
         copias: fields.copias === '' ? 0 : Number(fields.copias),
+        anillados: anillados.map((row) => ({
+          sizeMm: Number(row.sizeMm),
+          quantity: Number(row.quantity),
+        })),
       })
       setStatus({ kind: 'saved', id })
       setFields(emptyFields()) // ready for the next person
+      setAnillados([])
     } catch (error) {
       setStatus({ kind: 'failed', message: error instanceof Error ? error.message : String(error) })
     }
   }
 
-  if (areasError) {
-    return <p>No se pudo cargar la lista de áreas. Por favor, use el cuaderno.</p>
+  if (listsError) {
+    return <p>No se pudo cargar el formulario. Por favor, use el cuaderno.</p>
   }
-  if (areas === null) {
+  if (lists === null) {
     return <p>Cargando…</p>
   }
 
@@ -80,7 +96,7 @@ export function EntryForm() {
           <option value="" disabled>
             Elija su área
           </option>
-          {areas.map((area) => (
+          {lists.areas.map((area) => (
             <option key={area.id} value={area.id}>
               {area.name}
             </option>
@@ -125,6 +141,13 @@ export function EntryForm() {
           onChange={(e) => update('copias', e.target.value)}
         />
       </label>
+
+      <AnilladosField
+        rows={anillados}
+        sizes={lists.sizes}
+        onChange={setAnillados}
+        newKey={newKey}
+      />
 
       <button type="submit" disabled={status.kind === 'saving'}>
         Guardar
