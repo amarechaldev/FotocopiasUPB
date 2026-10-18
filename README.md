@@ -32,4 +32,12 @@ The product backlog (user stories with acceptance criteria) is managed in this r
 
 **Technology:** a React web app, deployed on Vercel, with Supabase for storage. Staff use it from the tablet's browser.
 
-*To be completed by the development team: how to install and run the app.*
+Requires [Node.js](https://nodejs.org/) 24 or later.
+
+```sh
+npm install       # install dependencies
+npm run dev       # start the app at http://localhost:5173
+npm run build     # production build, into dist/
+npm run test      # unit tests
+npm run lint      # lint
+```
