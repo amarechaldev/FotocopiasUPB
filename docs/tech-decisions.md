@@ -4,6 +4,7 @@ Technical choices made by the development team, one line per decision, newest fi
 
 | Date | Decision | Reason | Alternatives considered |
 | --- | --- | --- | --- |
+| 2026-10-17 | The form uses the browser's native date field; the tablet must be set to Spanish so it shows dd/mm/aaaa. Dates our own code displays are always formatted dd/mm/yyyy. | Native touch calendar with no extra code; the date is rarely changed (defaults to today). | Our own dd/mm/yyyy date control, the same on every device. |
 | 2026-10-17 | Migrations are applied by pasting them into the Supabase SQL Editor. | One database and one developer; avoids installing and linking the Supabase CLI during the first sprint. | Supabase CLI (`supabase db push`), to revisit if a second environment (e.g. testing) is added. |
 | 2026-10-17 | Entries are saved through a database function (`register_entry`, security definer) called with `rpc`; the browser cannot read, change or delete entries directly. | An entry and its anillados are saved together or not at all (one transaction), and the public key cannot be used to read or erase records. | Two direct inserts from the browser (`entries`, then `entry_anillados`) with RLS insert policies. |
 | 2026-10-17 | Entries reference departments by id (`areas` table), and anillados by size (`anillado_sizes` table). Departments are hidden with `active = false`, never deleted. | Renaming a department does not break old entries; old reports keep working when a department is removed. | Storing the department name as text in each entry. |
