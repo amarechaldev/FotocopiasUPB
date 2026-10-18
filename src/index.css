@@ -5,13 +5,35 @@ body {
 }
 
 main {
-  padding: 2rem;
-  text-align: center;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1.5rem;
 }
 
-/* Large touch target for the tablet */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Label text above its field, both full width */
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  min-height: 3.5rem; /* large touch targets for the tablet */
+  padding: 0 1rem;
+  box-sizing: border-box;
+}
+
 button {
   font-size: 1.5rem;
-  padding: 1rem 2rem;
-  min-height: 3rem;
+  font-weight: 600;
 }
