@@ -54,7 +54,7 @@ Priced by size, 13 sizes:
 | 9 | 4.50 | Formula |
 | 12 | 5.00 | Deduced from a typed amount (2 × 12 mm = Bs 10) |
 | 14 | 5.50 | Deduced from a typed amount |
-| 17 | ? | Not found in the file |
+| 17 | 6 | Asked directly |
 | 20 | 6.50 | Formula |
 | 23 | 7.00 | Formula |
 | 25 | 7.50 | Formula |
@@ -62,7 +62,7 @@ Priced by size, 13 sizes:
 | 33 | 8.50 | Formula |
 | 40 | 10.00 | Formula |
 | 45 | 12.00 | Formula |
-| 50 | ? | Not found in the file |
+| 50 | 20 | Asked directly |
 
 Prices marked "deduced" or "?" must be confirmed with the operator.
 
