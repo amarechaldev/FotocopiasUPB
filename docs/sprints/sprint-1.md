@@ -37,6 +37,8 @@
 
 At the start of each session, 5 minutes: what I finished last time, what I will do today, and what is blocking me. Is the sprint goal still on track?
 
+oct 17: I was blocked for two days because I have other commitments. Going forward with the plan from now on. Today, I will start my journey on REACT, the plan is to have a hello world working today.
+
 ## Review
 
 *To be completed on October 21: which stories were accepted, what was shown to the operator, and her feedback.*
