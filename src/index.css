@@ -1,0 +1,17 @@
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 1.25rem;
+}
+
+main {
+  padding: 2rem;
+  text-align: center;
+}
+
+/* Large touch target for the tablet */
+button {
+  font-size: 1.5rem;
+  padding: 1rem 2rem;
+  min-height: 3rem;
+}

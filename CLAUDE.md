@@ -45,7 +45,7 @@ The user has a CS PhD but has never built or deployed a web app.
 - `npm run dev`: local dev server (http://localhost:5173)
 - `npm run build`: production build (must pass before pushing)
 - `npm run test`: unit tests
-- `npm run lint`: ESLint
+- `npm run lint`: oxlint (config in `.oxlintrc.json`)
 
 ## Layout (to be created in Sprint 1)
 
