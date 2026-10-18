@@ -59,6 +59,8 @@ The user has a CS PhD but has never built or deployed a web app.
 - Code, identifiers, commits and comments in English; **all user-facing text in Spanish**.
 - Domain words kept as in the business: `copias`, `anillados`, `area` (department).
 - Money: store and compute in centavos (integers); format as Bs only for display.
+- Dates shown to users are always day/month/year (`17/10/2026`), formatted by our code; dates are
+  stored and passed around as ISO `YYYY-MM-DD`.
 - Billing period runs from the 23rd to the 22nd (Bolivia time, America/La_Paz). Timestamps are stored
   in UTC (`timestamptz`) and converted for display and period calculations.
 - Departments and anillado sizes/prices are reference tables seeded by migrations (developer-maintained
