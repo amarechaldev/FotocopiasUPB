@@ -63,8 +63,12 @@ The user has a CS PhD but has never built or deployed a web app.
   in UTC (`timestamptz`) and converted for display and period calculations.
 - Departments and anillado sizes/prices are reference tables seeded by migrations (developer-maintained
   in the MVP, per the decision log).
-- Secrets: only `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, in `.env.local` (git-ignored) and in
-  Vercel env vars. The Supabase `service_role` key never goes in the repo or in frontend code.
+- Secrets: only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (see `.env.example`), in
+  `.env.local` (git-ignored) and in Vercel env vars. The Supabase secret / `service_role` key never goes
+  in the repo or in frontend code.
+- Writes go through Postgres functions called with `supabase.rpc(...)` (e.g. `register_entry`), not
+  direct inserts: one transaction per entry, and the browser gets no direct access to `entries`.
+- Migrations are applied by pasting them into the Supabase SQL Editor, in order, once each.
 
 ## Constraints that drive the design
 
@@ -79,4 +83,7 @@ The user has a CS PhD but has never built or deployed a web app.
 - One branch per story (e.g. `story/1-service-registration`), small commits, PR into `main`.
 - A story is done only per `docs/definition-of-done.md`: deployed, tested on the Android tablet from
   the deployed URL, in Spanish, pushed, issue moved to Done.
+- Board (GitHub Projects): the user moves cards to In Progress. Claude has no Projects access; it closes
+  finished task issues with `gh issue close` (with a short comment), and the board's "Item closed"
+  workflow moves them to Done.
 - Commit only when the user asks.
