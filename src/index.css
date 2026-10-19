@@ -61,3 +61,31 @@ legend {
   gap: 0.75rem;
   align-items: end;
 }
+
+/* Saved / failed messages: large and colored, readable at a glance */
+.message {
+  padding: 1rem 1.25rem;
+  border-radius: 0.5rem;
+}
+
+.message p {
+  margin: 0.5rem 0 0;
+}
+
+.message.success {
+  background: #e6f4ea;
+  border: 2px solid #1e8e3e;
+  color: #0d652d;
+}
+
+.message.error {
+  background: #fce8e6;
+  border: 2px solid #d93025;
+  color: #a50e0e;
+}
+
+.message.error small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #5f6368;
+}

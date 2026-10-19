@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { todayInBolivia } from './domain/dates'
+import { describeContents } from './domain/summary'
 import { fetchAnilladoSizes, fetchAreas, registerEntry, type Area } from './lib/entries'
 
 type Status =
   | { kind: 'idle' }
   | { kind: 'saving' }
-  | { kind: 'saved'; id: number }
+  | { kind: 'saved'; id: number; areaName: string; contents: string }
   | { kind: 'failed'; message: string }
 
 type Fields = {
@@ -44,29 +45,51 @@ export function EntryForm() {
       .catch(() => setListsError(true))
   }, [])
 
+  // The confirmation belongs to the previous person: hide it as soon as
+  // someone starts a new entry. A failure message stays until the next save.
+  function clearConfirmation() {
+    setStatus((current) => (current.kind === 'saved' ? { kind: 'idle' } : current))
+  }
+
   function update(field: keyof Fields, value: string) {
     setFields((current) => ({ ...current, [field]: value }))
+    clearConfirmation()
+  }
+
+  function updateAnillados(rows: AnilladoRow[]) {
+    setAnillados(rows)
+    clearConfirmation()
   }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault() // stop the browser from reloading the page
     setStatus({ kind: 'saving' })
+    const entry = {
+      entryDate: fields.entryDate,
+      areaId: Number(fields.areaId),
+      name: fields.name.trim(),
+      description: fields.description.trim(),
+      copias: fields.copias === '' ? 0 : Number(fields.copias),
+      anillados: anillados.map((row) => ({
+        sizeMm: Number(row.sizeMm),
+        quantity: Number(row.quantity),
+      })),
+    }
     try {
-      const id = await registerEntry({
-        entryDate: fields.entryDate,
-        areaId: Number(fields.areaId),
-        name: fields.name.trim(),
-        description: fields.description.trim(),
-        copias: fields.copias === '' ? 0 : Number(fields.copias),
-        anillados: anillados.map((row) => ({
-          sizeMm: Number(row.sizeMm),
-          quantity: Number(row.quantity),
-        })),
+      const id = await registerEntry(entry)
+      setStatus({
+        kind: 'saved',
+        id,
+        areaName: lists?.areas.find((area) => area.id === entry.areaId)?.name ?? '',
+        contents: describeContents(
+          entry.copias,
+          entry.anillados.map((a) => a.quantity),
+        ),
       })
-      setStatus({ kind: 'saved', id })
       setFields(emptyFields()) // ready for the next person
       setAnillados([])
     } catch (error) {
+      // The form keeps what was typed, so it can be copied into the notebook.
       setStatus({ kind: 'failed', message: error instanceof Error ? error.message : String(error) })
     }
   }
@@ -145,7 +168,7 @@ export function EntryForm() {
       <AnilladosField
         rows={anillados}
         sizes={lists.sizes}
-        onChange={setAnillados}
+        onChange={updateAnillados}
         newKey={newKey}
       />
 
@@ -153,9 +176,22 @@ export function EntryForm() {
         Guardar
       </button>
 
-      {status.kind === 'saving' && <p>Guardando…</p>}
-      {status.kind === 'saved' && <p>Guardada (n.º {status.id})</p>}
-      {status.kind === 'failed' && <p>No se pudo guardar: {status.message}</p>}
+      {status.kind === 'saving' && <p className="message">Guardando…</p>}
+      {status.kind === 'saved' && (
+        <div className="message success" role="status">
+          <strong>✓ Registro guardado (n.º {status.id})</strong>
+          <p>
+            {status.areaName} · {status.contents}
+          </p>
+        </div>
+      )}
+      {status.kind === 'failed' && (
+        <div className="message error" role="alert">
+          <strong>✗ No se pudo guardar</strong>
+          <p>Por favor, anote este pedido en el cuaderno.</p>
+          <small>Detalle: {status.message}</small>
+        </div>
+      )}
     </form>
   )
 }
