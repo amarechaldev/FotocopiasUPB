@@ -40,16 +40,22 @@ export async function fetchAnilladoSizes(): Promise<number[]> {
   return data.map((row) => row.size_mm)
 }
 
+// On a weak connection a request can hang for minutes; give up after this,
+// so staff get a clear answer while they are still at the counter.
+const SAVE_TIMEOUT_MS = 15_000
+
 // Saves the entry and its anillados in one transaction, and returns the entry's number.
 export async function registerEntry(entry: NewEntry): Promise<number> {
-  const { data, error } = await supabase.rpc('register_entry', {
-    p_entry_date: entry.entryDate,
-    p_area_id: entry.areaId,
-    p_name: entry.name,
-    p_description: entry.description,
-    p_copias: entry.copias,
-    p_anillados: entry.anillados.map((a) => ({ size_mm: a.sizeMm, quantity: a.quantity })),
-  })
+  const { data, error } = await supabase
+    .rpc('register_entry', {
+      p_entry_date: entry.entryDate,
+      p_area_id: entry.areaId,
+      p_name: entry.name,
+      p_description: entry.description,
+      p_copias: entry.copias,
+      p_anillados: entry.anillados.map((a) => ({ size_mm: a.sizeMm, quantity: a.quantity })),
+    })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
   if (error) throw error
   return data
 }
