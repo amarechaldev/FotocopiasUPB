@@ -62,6 +62,15 @@ legend {
   align-items: end;
 }
 
+/* Holds the saved / failed message at the top of the form */
+.result {
+  scroll-margin-top: 1rem; /* small gap above it after scrolling */
+}
+
+.result:empty {
+  display: none;
+}
+
 /* Saved / failed messages: large and colored, readable at a glance */
 .message {
   padding: 1rem 1.25rem;
