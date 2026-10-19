@@ -45,6 +45,15 @@ export function EntryForm() {
       .catch(() => setListsError(true))
   }, [])
 
+  // The Guardar button is at the bottom of a long form, so the result message
+  // would appear off screen: bring it into view whenever a save ends.
+  const messageRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (status.kind === 'saved' || status.kind === 'failed') {
+      messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [status.kind])
+
   // The confirmation belongs to the previous person: hide it as soon as
   // someone starts a new entry. A failure message stays until the next save.
   function clearConfirmation() {
@@ -103,6 +112,24 @@ export function EntryForm() {
 
   return (
     <form onSubmit={handleSubmit}>
+      <div ref={messageRef} className="result">
+        {status.kind === 'saved' && (
+          <div className="message success" role="status">
+            <strong>✓ Registro guardado (n.º {status.id})</strong>
+            <p>
+              {status.areaName} · {status.contents}
+            </p>
+          </div>
+        )}
+        {status.kind === 'failed' && (
+          <div className="message error" role="alert">
+            <strong>✗ No se pudo guardar</strong>
+            <p>Por favor, anote este pedido en el cuaderno.</p>
+            <small>Detalle: {status.message}</small>
+          </div>
+        )}
+      </div>
+
       <label>
         Fecha
         <input
@@ -173,25 +200,8 @@ export function EntryForm() {
       />
 
       <button type="submit" disabled={status.kind === 'saving'}>
-        Guardar
+        {status.kind === 'saving' ? 'Guardando…' : 'Guardar'}
       </button>
-
-      {status.kind === 'saving' && <p className="message">Guardando…</p>}
-      {status.kind === 'saved' && (
-        <div className="message success" role="status">
-          <strong>✓ Registro guardado (n.º {status.id})</strong>
-          <p>
-            {status.areaName} · {status.contents}
-          </p>
-        </div>
-      )}
-      {status.kind === 'failed' && (
-        <div className="message error" role="alert">
-          <strong>✗ No se pudo guardar</strong>
-          <p>Por favor, anote este pedido en el cuaderno.</p>
-          <small>Detalle: {status.message}</small>
-        </div>
-      )}
     </form>
   )
 }
