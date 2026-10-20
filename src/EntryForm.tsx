@@ -105,10 +105,10 @@ export function EntryForm() {
   }
 
   if (listsError) {
-    return <p>No se pudo cargar el formulario. Por favor, use el cuaderno.</p>
+    return <p className="notice">No se pudo cargar el formulario. Por favor, use el cuaderno.</p>
   }
   if (lists === null) {
-    return <p>Cargando…</p>
+    return <p className="notice">Cargando…</p>
   }
 
   return (
@@ -131,76 +131,84 @@ export function EntryForm() {
         )}
       </div>
 
-      <label>
-        Fecha
-        <input
-          type="date"
-          required
-          value={fields.entryDate}
-          onChange={(e) => update('entryDate', e.target.value)}
-        />
-      </label>
+      <fieldset>
+        <legend>Datos</legend>
 
-      <label>
-        Área
-        <select required value={fields.areaId} onChange={(e) => update('areaId', e.target.value)}>
-          <option value="" disabled>
-            Elija su área
-          </option>
-          {lists.areas.map((area) => (
-            <option key={area.id} value={area.id}>
-              {area.name}
+        <label>
+          Fecha
+          <input
+            type="date"
+            required
+            value={fields.entryDate}
+            onChange={(e) => update('entryDate', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Área
+          <select required value={fields.areaId} onChange={(e) => update('areaId', e.target.value)}>
+            <option value="" disabled>
+              Elija su área
             </option>
-          ))}
-        </select>
-      </label>
+            {lists.areas.map((area) => (
+              <option key={area.id} value={area.id}>
+                {area.name}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <label>
-        Nombre
-        <input
-          type="text"
-          required
-          pattern=".*\S.*"
-          autoComplete="off"
-          title="Escriba su nombre"
-          value={fields.name}
-          onChange={(e) => update('name', e.target.value)}
+        <label>
+          Nombre
+          <input
+            type="text"
+            required
+            pattern=".*\S.*"
+            autoComplete="off"
+            title="Escriba su nombre"
+            value={fields.name}
+            onChange={(e) => update('name', e.target.value)}
+          />
+        </label>
+
+        <label>
+          Descripción
+          <input
+            type="text"
+            required
+            pattern=".*\S.*"
+            autoComplete="off"
+            title="Escriba qué fotocopia, p. ej. Exámenes"
+            value={fields.description}
+            onChange={(e) => update('description', e.target.value)}
+          />
+        </label>
+      </fieldset>
+
+      <fieldset>
+        <legend>Pedido</legend>
+
+        <label>
+          Copias
+          <input
+            type="number"
+            inputMode="numeric"
+            min="0"
+            step="1"
+            value={fields.copias}
+            onChange={(e) => update('copias', e.target.value)}
+          />
+        </label>
+
+        <AnilladosField
+          rows={anillados}
+          sizes={lists.sizes}
+          onChange={updateAnillados}
+          newKey={newKey}
         />
-      </label>
+      </fieldset>
 
-      <label>
-        Descripción
-        <input
-          type="text"
-          required
-          pattern=".*\S.*"
-          autoComplete="off"
-          title="Escriba qué fotocopia, p. ej. Exámenes"
-          value={fields.description}
-          onChange={(e) => update('description', e.target.value)}
-        />
-      </label>
-
-      <label>
-        Copias
-        <input
-          type="number"
-          inputMode="numeric"
-          min="0"
-          step="1"
-          value={fields.copias}
-          onChange={(e) => update('copias', e.target.value)}
-        />
-      </label>
-
-      <AnilladosField
-        rows={anillados}
-        sizes={lists.sizes}
-        onChange={updateAnillados}
-        newKey={newKey}
-      />
-
-      <button type="submit" disabled={status.kind === 'saving'}>
+      <button type="submit" className="primary" disabled={status.kind === 'saving'}>
         {status.kind === 'saving' ? 'Guardando…' : 'Guardar'}
       </button>
     </form>
