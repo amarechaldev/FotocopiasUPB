@@ -3,6 +3,7 @@ import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { todayInBolivia } from './domain/dates'
 import { describeContents } from './domain/summary'
 import { fetchAnilladoSizes, fetchAreas, registerEntry, type Area } from './lib/entries'
+import { errorDetail } from './lib/errorDetail'
 
 type Status =
   | { kind: 'idle' }
@@ -99,7 +100,7 @@ export function EntryForm() {
       setAnillados([])
     } catch (error) {
       // The form keeps what was typed, so it can be copied into the notebook.
-      setStatus({ kind: 'failed', message: error instanceof Error ? error.message : String(error) })
+      setStatus({ kind: 'failed', message: errorDetail(error) })
     }
   }
 
