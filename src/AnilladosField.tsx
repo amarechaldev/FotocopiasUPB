@@ -28,7 +28,7 @@ export function AnilladosField({ rows, sizes, onChange, newKey }: Props) {
   }
 
   return (
-    <fieldset>
+    <fieldset className="anillados">
       <legend>Anillados</legend>
 
       {rows.map((row) => (
@@ -64,7 +64,7 @@ export function AnilladosField({ rows, sizes, onChange, newKey }: Props) {
             />
           </label>
 
-          <button type="button" className="secondary" onClick={() => removeRow(row.key)}>
+          <button type="button" className="danger" onClick={() => removeRow(row.key)}>
             Quitar
           </button>
         </div>
