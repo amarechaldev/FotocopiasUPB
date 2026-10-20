@@ -39,6 +39,10 @@ At the start of each session, 5 minutes: what I finished last time, what I will 
 
 oct 17: I was blocked for two days because I have other commitments. Going forward with the plan from now on. Today, I will start my journey on REACT, the plan is to have a hello world working today.
 
+Oct 19: Couldn't advance yesterday for personal commitments, but I'm pretty sure that today I will be able to put myself at the correct level.
+
+Oct 20: Yesterday was very productive and everything in sprint 1 is finished, I fixed a couple of bugs and there are no more bugs detected, everything goes well. Will try to add some CSS to make it nicer today.
+
 ## Review
 
 *To be completed on October 21: which stories were accepted, what was shown to the operator, and her feedback.*
