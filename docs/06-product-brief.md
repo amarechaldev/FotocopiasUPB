@@ -12,9 +12,9 @@ Every month, the operator must deliver a report of her billable services to the 
 
 | Who | Role | Why they matter |
 | --- | --- | --- |
-| **Operator** | Primary user and customer. Reviews entries, manages prices and departments, produces the monthly report. | Owns the problem and decides whether the app is adopted. |
-| **Staff** (internal staff and visiting teachers) | Register each service they use, on the shared tablet at the service. Visiting teachers have a personal code; internal staff do not. | If registering is harder than writing on paper, they will keep using paper. |
-| **University Administrator** (and her assistant) | Receives the monthly report, checks it and collects the managers' signatures. | Can reject a record that lacks acceptable proof of each request. |
+| **Operator** | Primary user and customer. Reviews and corrects entries, can edit any staff profile, produces the monthly report. Manages prices and departments after the MVP. | Owns the problem and decides whether the app is adopted. |
+| **Staff** (internal staff and visiting teachers) | Each one has a personal account (name, one or more departments, PIN) and registers each service they use on the shared phone or tablet at the service. | If registering is harder than writing on paper, they will keep using paper. |
+| **University Administrator** (and her assistant) | Receives the monthly report, checks it and collects the managers' signatures. Requires each entry to be made from a personal account protected by a PIN (non-negotiable). | Can reject the record; actively shapes the product. |
 | **Department managers** | Sign the monthly summary for their department, which is charged to their budget. | Need correct totals per department. |
 
 ## Goals
@@ -22,7 +22,7 @@ Every month, the operator must deliver a report of her billable services to the 
 - Every service is recorded reliably, without department errors nor illegible handwriting and without writing into a paper notebook.
 - The detailed report is printed with a good format and without calculations errors.
 - The general report is generated in minutes and without errors.
-- The University accepts the new process without physical signatures.
+- The University accepts the new process, with PIN-protected personal accounts replacing physical signatures.
 
 ## Non-Goals
 
@@ -34,22 +34,27 @@ Payments are not included in this project, nor accounting. Conversion of service
 - The operator must be able to print all entries (like the photocopy she currently takes of the paper notebook), totals must be included.
 - A general report for department managers must be produced.
 - The operator must be able to edit individual entries.
+- Each staff member creates a personal account (name, one or more departments, PIN) in a separate screen on the shared device, and registers requests with their PIN. Required by the University.
+- Each person can edit their own profile; the operator can edit any profile.
 
 ## Planned after MVP
 
 - Some fields like anillados prices and the list of departments won't be editable for now, they change once a year.
-- Visiting teachers enter their personal code to identify themselves, replacing the signature (needed before full rollout, not for the pilot). Codes are trusted as entered, just as signatures are today; there is no list of valid codes.
-- Name and department are filled in automatically from a teacher's code.
 - The university may want to access the app directly to check the records.
+
+## Open Questions
+
+- How forgotten PINs are reset (the operator should be able to do it; the process is still to be discussed).
 
 ## Constraints
 
-- **Internet only through the operator's connection.** Both Wi-Fi and mobile data are extremely unreliable at the service location, but the operator has a private connection that works. The tablet uses that connection; staff never need one of their own. If the connection drops, staff fall back to the paper notebook, and the operator enters those entries in the app later.
-- **Shared tablet at the service.** Staff register on a tablet at the service location, provided by the operator. Using staff's own phones was discarded (October 2026). The operator also has a computer, which she uses to prepare the report today.
+- **Internet only through the operator's connection.** Both Wi-Fi and mobile data are extremely unreliable at the service location, but the operator has a private connection that works. The shared device uses that connection; staff never need one of their own. If the connection drops, staff fall back to the paper notebook, and the operator enters those entries in the app later.
+- **Shared phone or tablet at the service.** Staff register on a shared device at the service location, provided by the operator: an old phone or a tablet, her choice. The app must work well on a phone-sized screen. Using staff's own phones was discarded (October 2026). The operator also has a computer, which she uses to prepare the report today.
+- **PIN-protected personal accounts.** The University requires every entry to be made from a personal account protected by a PIN (non-negotiable). Staff use the service only occasionally, so PINs will be forgotten.
 - **Registration as quick as paper.** Staff register while their copies are printing; it must take no longer than writing on paper.
 - **Conversions stay with the operator.** The app records equivalent copies as the operator states them (e.g. a color copy = 5 copies); it does not convert services itself.
 - **Prices set by the operator.** One price per copy and one price per anillado size (13 sizes). Prices can change once a year.
-- **Departments change.** The list (12 in September 2026) can grow or shrink, and a visiting teacher can be charged to any of several departments.
+- **Departments change.** The list (12 in September 2026) can grow or shrink, and a staff member can make requests for several departments.
 - **Fixed billing period and output.** The period runs from the 23rd to the 22nd. The report must match the current summary: per department, copies, copies amount, anillados, anillados amount and total, plus grand totals.
 - **Volume.** 300–500 entries per month.
 
@@ -71,10 +76,12 @@ Targets are proposals, to be confirmed with the operator.
 
 | Risk | Why it matters | How to handle it |
 | --- | --- | --- |
-| **The University rejects records without signatures** | Blocks adoption entirely | Start with a pilot in a few small departments without visiting teachers (Internacionalización, Orientación, DAAE Cultura, DAAE Deportes), and show its first report to the University before rolling out to all departments. |
+| **The University rejects the record** | Blocks adoption entirely | Meet its requirement: PIN-protected personal accounts in the MVP. Start with a pilot in a few small departments without visiting teachers (Internacionalización, Orientación, DAAE Cultura, DAAE Deportes), and show its first report to the University before rolling out to all departments. |
 | **Staff resist the change**, especially if registering takes longer than on paper | Paper keeps coming back, and with it the manual work | Learn from the pilot departments before full rollout. Keep paper as a fallback. The operator encourages staff at the counter. |
 | **Records are lost** if the connection drops or the device fails | Lost income, and the "no lost records" promise is broken | Staff see clearly whether each entry was saved; if not, they use the paper notebook and the operator enters it later. Regular backup or export. During the pilot, the pilot departments keep a paper record to compare with. |
+| **Staff forget their PIN** | Registration stops at the counter; staff go back to paper, and resets add work for the operator | The operator can reset PINs (process to be discussed). During the pilot, count how often PINs are forgotten. |
+
 **Pilot limitations:**
 
-- **Visiting teachers are not tested.** The pilot departments were chosen because they have no visiting teachers, so validation with teacher codes, and whether the University accepts it, will only be tested at full rollout.
+- **Visiting teachers are not tested.** The pilot departments were chosen because they have no visiting teachers, so accounts with several departments will only be tested at full rollout.
 - **Small sample.** The four pilot departments had about 27 entries in September 2026. That is enough to check that the app works and that totals are correct, but not to judge registration speed or staff habits under real load.
