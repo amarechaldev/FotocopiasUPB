@@ -45,6 +45,8 @@ Oct 20: Yesterday was very productive and everything in sprint 1 is finished, I 
 
 Oct 21: Added CSS and showed the product to the Operator yesterday. Registered multiple comments on the documents mantained by the PO side.
 
+Oct 21 after planning: ended the sprint with the PO side and made a lof of adjustments to the backlog. Closed the sprint with the SM.
+
 ## Review
 
 **Sprint goal: met**, one day early, despite about two days lost to other commitments.
@@ -79,8 +81,33 @@ Oct 21: Added CSS and showed the product to the Operator yesterday. Registered m
 
 ## Retrospective
 
-*To be completed on October 21.*
+*Held on October 21.*
 
-- **What went well:**
-- **What didn't go well:**
-- **What I will change:**
+**Actual capacity:** about 12–15 hours, in bursts (some days a lot, some days nothing), shared between PO and Dev work. Planned: 16.5 hours of Dev work, 3 hours a day. Main job and family come first, so irregular time is expected to continue.
+
+**What went well:**
+
+- The sprint goal was met, and a first version was built, deployed and working within a week.
+- The plan was visible: tasks as sub-issues (#10–#14), one PR per task, small commits, and technical decisions recorded in [tech-decisions.md](../tech-decisions.md).
+- The operator saw the product before the Review, and her feedback reshaped the backlog.
+- The polish (#26) was a PO decision that the Dev agreed with: the roles worked as intended.
+- The "Done before the PO checked it" problem was spotted and fixed during the sprint (the "Ready for review" column, and the DoD updated).
+
+**What didn't go well:**
+
+- The Daily Log did not help. It was written at the start of a session, from memory, sometimes days after the work, so things were missed.
+- Planning assumed 3 even hours a day of Dev work. Real time was irregular, and much of it went to PO work, so the hour estimates did not mean much.
+- The 17 October entry raised an impediment (two days lost), but nothing was re-checked: no Sunday cut-line check, and no entry says whether the goal was on track.
+- No React was learned: the Developer assistant wrote the code. This was a conscious choice, accepted for now. The trade-off is that bugs can only be found by testing, and fixed with the assistant's help.
+
+**Insights:**
+
+- When a sprint finishes early, the first question is which backlog item is most valuable next. The operator is always available, so check guesses with her (the polish was based on a guess; her real feedback was the entry list).
+- The old tablet worked at the demo, but slowly: the Review note says it "could not connect". *PO: correct the Review note.* Slowness matters for "registration as quick as paper" and for choosing between a phone and a tablet.
+
+**Actions for Sprint 2:**
+
+| # | Action | Owner | How it is checked at the next Retrospective |
+| --- | --- | --- | --- |
+| A1 | **End-of-session note.** In the last 2 minutes of every working session, add a line to the Daily Log: done / next / blocked / hours worked / goal on track (yes or no). Start each session by reading the last note. | Dev | There is a note for every working session, written without relying on memory. |
+| A2 | **Plan by real capacity.** In Sprint 2 Planning, plan about 12 hours for the week, split into PO time and Dev time, with no "Day" column. Compare planned with actual hours (from A1). | SM (at planning) | Planned and actual hours are shown side by side in sprint-2.md. |
