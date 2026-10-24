@@ -19,6 +19,12 @@ export type NewEntry = {
   anillados: Anillado[]
 }
 
+// An entry saved with an account: the name comes from the account, the PIN proves it.
+export type AccountEntry = Omit<NewEntry, 'name'> & {
+  accountId: number
+  pin: string // 4 digits, as text
+}
+
 // Active departments, in the order of the monthly report.
 export async function fetchAreas(): Promise<Area[]> {
   const { data, error } = await supabase
@@ -51,6 +57,24 @@ export async function registerEntry(entry: NewEntry): Promise<number> {
       p_entry_date: entry.entryDate,
       p_area_id: entry.areaId,
       p_name: entry.name,
+      p_description: entry.description,
+      p_copias: entry.copias,
+      p_anillados: entry.anillados.map((a) => ({ size_mm: a.sizeMm, quantity: a.quantity })),
+    })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
+  return data
+}
+
+// Saves the entry for the account if the PIN is right, and returns the entry's number.
+// Errors come back as codes (see entryErrorMessage).
+export async function registerAccountEntry(entry: AccountEntry): Promise<number> {
+  const { data, error } = await supabase
+    .rpc('register_account_entry', {
+      p_account_id: entry.accountId,
+      p_pin: entry.pin,
+      p_entry_date: entry.entryDate,
+      p_area_id: entry.areaId,
       p_description: entry.description,
       p_copias: entry.copias,
       p_anillados: entry.anillados.map((a) => ({ size_mm: a.sizeMm, quantity: a.quantity })),
