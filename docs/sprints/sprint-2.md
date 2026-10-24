@@ -47,7 +47,9 @@
 
 Action A1: in the last 2 minutes of every working session, add a line: done / next / blocked / hours worked / goal on track (yes or no). Start each session by reading the last line.
 
-Oct 23 - Oct 24 before sleep: I finished the Sprint 2 planning with PO, SM and dev. Did some tasks (34, 35, 36) / Next is 37, testing on a tablet. Testing URL was created by vercel. / no block / worked 2 hours, 1.5 on planning, 0.5 with dev / goal on track, only 37 is missing to end 28 which is planned for sunday, 29 not started yet.
+Oct 23: I finished the Sprint 2 planning with PO, SM and dev. Did some tasks (34, 35, 36) / Next is 37, testing on a tablet. Testing URL was created by vercel. / no block / worked 2 hours, 1.5 on planning, 0.5 with dev / goal on track, only 37 is missing to end 28 which is planned for sunday, 29 not started yet.
+
+Oct 24 a): Finished #28 staff accounts, with tests both in a test build and live build, everything passes. / next is starting #29, staff requires login / worked for 40 minutes until now, but I'm not finished for today. / goal is on track, will start #29 now.
 
 ## Review
 
