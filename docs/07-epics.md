@@ -53,9 +53,9 @@ The operator generates a report with totals and prices per department, to be sig
 
 - Prices: Bs 0.30 per copy, and one price per anillado size (see [05-report-analysis.md](05-report-analysis.md)). Set up by the developer in the MVP.
 
-## E5: Staff Accounts
+## E5: Accounts and Access
 
-Each staff member has a personal account protected by a PIN, and registers requests with it. Required by the University (non-negotiable).
+Each staff member has a personal account protected by a PIN, and registers requests with it. Required by the University (non-negotiable). The operator logs in with a password to reach her own screens.
 
 - **Value:** every entry is tied to a personal account, which the University accepts in place of a handwritten signature.
 - **Goals served:** 4 (University acceptance), 1 (reliable recording).
@@ -70,6 +70,7 @@ Each staff member has a personal account protected by a PIN, and registers reque
 - PIN reset: the operator launches it while the person is present, and the person immediately chooses a new PIN. Nobody can see a PIN.
 - Staff editing their own profile comes with the full rollout; until then, the operator edits profiles.
 - Personal teacher codes are no longer used: everyone has an account and a PIN.
+- Operator login: she logs in on her computer (not the shared device) with a password. Her screens (entries, corrections, reports, profiles) can only be opened after logging in; staff accounts cannot open them. All operator stories depend on it.
 
 ## E6: Settings (after the MVP)
 

@@ -60,7 +60,7 @@ Oct 21 after planning: ended the sprint with the PO side and made a lof of adjus
 
 - She is very happy with what she saw.
 - She expected to see the registered entries in the app, not only in the database. She understood it was planned but not built yet: the entry list should be the next focus.
-- The demo ran on a phone, because the tablet could not connect. She is now interested in using an old phone instead of a tablet.
+- The demo also ran on the old tablet, but slowly, so it was shown on a phone. She is now interested in using an old phone instead of a tablet. Device speed matters for "registration as quick as paper".
 - New requirement from the University, non-negotiable and needed for the MVP: every entry must be made from a personal account protected by a PIN. This becomes epic E5 (Staff Accounts).
 
 **Follow-up meeting with the operator (October 21), on descriptions and operator entries:**
@@ -103,7 +103,7 @@ Oct 21 after planning: ended the sprint with the PO side and made a lof of adjus
 **Insights:**
 
 - When a sprint finishes early, the first question is which backlog item is most valuable next. The operator is always available, so check guesses with her (the polish was based on a guess; her real feedback was the entry list).
-- The old tablet worked at the demo, but slowly: the Review note says it "could not connect". *PO: correct the Review note.* Slowness matters for "registration as quick as paper" and for choosing between a phone and a tablet.
+- The old tablet worked at the demo, but slowly: the Review note first said it "could not connect" (corrected by the PO on October 24). Slowness matters for "registration as quick as paper" and for choosing between a phone and a tablet.
 
 **Actions for Sprint 2:**
 

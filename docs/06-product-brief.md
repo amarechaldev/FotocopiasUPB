@@ -35,6 +35,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 - A general report for department managers must be produced.
 - The operator must be able to edit individual entries.
 - Each staff member creates a personal account (name, one or more departments with one marked as default, PIN) in a separate screen on the shared device, and registers requests with their name and PIN. They are logged out automatically after each entry. Required by the University.
+- The operator logs in on her computer with a password; her screens cannot be opened without it.
 - The operator can edit any staff profile and reset a forgotten PIN: she launches the reset, and the person immediately chooses a new PIN, entered twice. Nobody, including the operator, can see a PIN.
 - Common descriptions are suggested while still allowing free text; descriptions that are too vague (e.g. "copias") are blocked with a clear message.
 - The operator can register entries on behalf of other people (e.g. paper entries after a connection drop). On her screen, entries show a "modified" or "manually entered" status, not printed in the reports.
