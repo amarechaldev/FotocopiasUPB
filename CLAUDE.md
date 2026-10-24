@@ -85,7 +85,9 @@ The user has a CS PhD but has never built or deployed a web app.
 - One branch per story (e.g. `story/1-service-registration`), small commits, PR into `main`.
 - A story is done only per `docs/definition-of-done.md`: deployed, tested on the Android tablet from
   the deployed URL, in Spanish, pushed, issue moved to Done.
-- Board (GitHub Projects): the user moves cards to In Progress. Claude has no Projects access; it closes
-  finished task issues with `gh issue close` (with a short comment), and the board's "Item closed"
-  workflow moves them to Done.
+- Board (GitHub Projects): the user moves cards to In Progress and Ready for review; only the PO moves
+  them to Done. Claude has no Projects access and **never closes issues** (closing triggers the board's
+  "Item closed" workflow, which moves the card to Done and skips the PO check). When a task is finished,
+  Claude adds a short comment to the issue (what was done, how it was verified) and asks the user to move
+  it to Ready for review.
 - Commit only when the user asks.
