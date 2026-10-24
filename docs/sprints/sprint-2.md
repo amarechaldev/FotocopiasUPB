@@ -1,6 +1,6 @@
 # Sprint 2
 
-**Dates:** October 22–28, 2026 (Review and Retrospective on October 28). Planning on October 24, so about five working days.
+**Dates:** October 22–28, 2026 (Review and Retrospective on October 28). Planning on October 23-24, so about five working days.
 
 ## Plan
 
