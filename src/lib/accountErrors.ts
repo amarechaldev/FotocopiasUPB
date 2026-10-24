@@ -1,7 +1,7 @@
 import { errorDetail } from './errorDetail'
 
 // The error codes raised by create_account (supabase/migrations/0002_accounts.sql).
-const MESSAGES: Record<string, string> = {
+export const ACCOUNT_MESSAGES: Record<string, string> = {
   name_required: 'Escriba su nombre.',
   pin_invalid: 'El PIN debe tener 4 números.',
   areas_required: 'Elija al menos un área.',
@@ -17,5 +17,5 @@ export function accountErrorMessage(error: unknown): string {
     typeof error === 'object' && error !== null && 'message' in error
       ? String(error.message)
       : ''
-  return MESSAGES[message] ?? errorDetail(error)
+  return ACCOUNT_MESSAGES[message] ?? errorDetail(error)
 }
