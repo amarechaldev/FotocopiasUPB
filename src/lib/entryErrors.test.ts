@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { entryErrorMessage } from './entryErrors'
+import { entryErrorMessage, isRefusal } from './entryErrors'
 
 describe('entryErrorMessage', () => {
   test('wrong PIN gets a clear message', () => {
@@ -16,5 +16,12 @@ describe('entryErrorMessage', () => {
 
   test('other errors fall back to the connection detail', () => {
     expect(entryErrorMessage(new TypeError('Failed to fetch'))).toBe('Sin conexión a internet')
+  })
+})
+
+describe('isRefusal', () => {
+  test('a wrong PIN is a refusal, a lost connection is not', () => {
+    expect(isRefusal({ message: 'pin_wrong' })).toBe(true)
+    expect(isRefusal(new TypeError('Failed to fetch'))).toBe(false)
   })
 })

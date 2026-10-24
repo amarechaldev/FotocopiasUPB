@@ -6,11 +6,19 @@ export const ENTRY_MESSAGES: Record<string, string> = {
   account_invalid: 'Su cuenta no se encontró. Recargue la página y elija su nombre de nuevo.',
 }
 
+function errorCode(error: unknown): string {
+  return typeof error === 'object' && error !== null && 'message' in error
+    ? String(error.message)
+    : ''
+}
+
 // A Spanish message for the person saving an entry, from whatever was thrown.
 export function entryErrorMessage(error: unknown): string {
-  const message =
-    typeof error === 'object' && error !== null && 'message' in error
-      ? String(error.message)
-      : ''
-  return ENTRY_MESSAGES[message] ?? errorDetail(error)
+  return ENTRY_MESSAGES[errorCode(error)] ?? errorDetail(error)
+}
+
+// True when the database refused the entry for a reason the person can fix right away
+// (e.g. a wrong PIN), as opposed to a connection or server failure.
+export function isRefusal(error: unknown): boolean {
+  return Object.hasOwn(ENTRY_MESSAGES, errorCode(error))
 }
