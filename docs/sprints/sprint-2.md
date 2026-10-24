@@ -41,7 +41,7 @@
 | 7 (#40) | Test #29 on phone and tablet, deploy, switch off saving without a PIN, Ready for review | #29 | 0.75 | |
 | | **Dev total** | | **~7.75** | |
 
-**Checkpoint:** if #28 is not in Ready for review by Sunday, October 26, #29 is at risk. The PO then decides whether to split the "department outside my account" warning into its own story.
+**Checkpoint:** if #28 is not in Ready for review by Sunday, October 25, #29 is at risk. The PO then decides whether to split the "department outside my account" warning into its own story.
 
 ## Daily Log
 
