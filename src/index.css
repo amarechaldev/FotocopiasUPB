@@ -54,6 +54,27 @@ body {
   opacity: 0.8;
 }
 
+/* Screen switcher: "Registrar pedido" / "Crear cuenta" */
+.app-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 0;
+}
+
+.app-nav button {
+  color: var(--color-primary);
+  background: var(--color-surface);
+  border: 2px solid var(--color-primary);
+}
+
+.app-nav button[aria-current='page'] {
+  color: #fff;
+  background: var(--color-primary);
+}
+
 main {
   max-width: 40rem;
   margin: 0 auto;
@@ -93,15 +114,17 @@ fieldset > legend {
   letter-spacing: 0.05em;
 }
 
-/* Anillados: a light panel inside "Pedido" */
-fieldset.anillados {
+/* Anillados: a light panel inside "Pedido"; also "Área principal" */
+fieldset.anillados,
+fieldset.panel {
   background: var(--color-panel);
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: 1rem;
 }
 
-fieldset.anillados > legend {
+fieldset.anillados > legend,
+fieldset.panel > legend {
   float: left; /* keeps the legend inside the panel */
   width: 100%;
   margin-bottom: 0;
@@ -183,6 +206,55 @@ button.danger {
   color: var(--color-error-text);
   background: var(--color-surface);
   border: 1px solid var(--color-error);
+}
+
+/* Tick boxes and round choices: the whole row is the touch target */
+.choices {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem;
+}
+
+label.choice {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--control-height);
+  padding: 0 1rem;
+  font-weight: normal;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+label.choice:has(input:checked) {
+  border: 2px solid var(--color-primary);
+  font-weight: 600;
+}
+
+label.choice input {
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--color-primary);
+}
+
+/* PIN digits shown as dots without type="password" (see AccountForm) */
+input.pin {
+  -webkit-text-security: disc;
+  letter-spacing: 0.4em;
+  font-size: 1.5rem;
+}
+
+/* Short explanation under a group title */
+.hint {
+  margin: -0.5rem 0 0;
+  font-size: 1rem;
+  color: var(--color-muted);
 }
 
 /* Size, quantity and "Quitar" side by side */
