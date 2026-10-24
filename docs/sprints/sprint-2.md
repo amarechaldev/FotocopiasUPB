@@ -32,9 +32,9 @@
 
 | # | Task | Story | Planned hours | Actual hours |
 | --- | --- | --- | --- | --- |
-| 1 (#34) | DB: accounts and departments with a default, hashed PIN, unique name (ignoring case and accents), create and list functions | #28 | 1.25 | |
-| 2 (#35) | Logic and tests: PIN check, name search; data access code | #28 | 1 | |
-| 3 (#36) | "Crear cuenta" screen (departments, default picker, PIN twice, errors, confirmation) | #28 | 1.5 | |
+| 1 (#34) | DB: accounts and departments with a default, hashed PIN, unique name (ignoring case and accents), create and list functions | #28 | 1.25 | 0.10 |
+| 2 (#35) | Logic and tests: PIN check; data access code | #28 | 1 | 0.10 |
+| 3 (#36) | "Crear cuenta" screen (departments, default picker, PIN twice, errors, confirmation) | #28 | 1.5 | 0.10 |
 | 4 (#37) | Test #28 on phone and tablet, fix, PR, Ready for review | #28 | 0.75 | |
 | 5 (#38) | DB: entries tied to an account, PIN checked on save | #29 | 1 | |
 | 6 (#39) | Login step: name search, PIN, default department, warning outside the account, logout after save | #29 | 1.5 | |
@@ -46,6 +46,8 @@
 ## Daily Log
 
 Action A1: in the last 2 minutes of every working session, add a line: done / next / blocked / hours worked / goal on track (yes or no). Start each session by reading the last line.
+
+Oct 23 - Oct 24 before sleep: I finished the Sprint 2 planning with PO, SM and dev. Did some tasks (34, 35, 36) / Next is 37, testing on a tablet. Testing URL was created by vercel. / no block / worked 2 hours, 1.5 on planning, 0.5 with dev / goal on track, only 37 is missing to end 28 which is planned for sunday, 29 not started yet.
 
 ## Review
 
