@@ -42,7 +42,7 @@ export async function fetchAnilladoSizes(): Promise<number[]> {
 
 // On a weak connection a request can hang for minutes; give up after this,
 // so staff get a clear answer while they are still at the counter.
-const SAVE_TIMEOUT_MS = 15_000
+export const SAVE_TIMEOUT_MS = 15_000
 
 // Saves the entry and its anillados in one transaction, and returns the entry's number.
 export async function registerEntry(entry: NewEntry): Promise<number> {
