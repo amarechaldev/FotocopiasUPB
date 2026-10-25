@@ -68,7 +68,7 @@ The user has a CS PhD but has never built or deployed a web app.
 - Secrets: only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (see `.env.example`), in
   `.env.local` (git-ignored) and in Vercel env vars. The Supabase secret / `service_role` key never goes
   in the repo or in frontend code.
-- Writes go through Postgres functions called with `supabase.rpc(...)` (e.g. `register_entry`), not
+- Writes go through Postgres functions called with `supabase.rpc(...)` (e.g. `register_account_entry`), not
   direct inserts: one transaction per entry, and the browser gets no direct access to `entries`.
 - Migrations are applied by pasting them into the Supabase SQL Editor, in order, once each.
 

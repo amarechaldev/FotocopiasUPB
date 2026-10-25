@@ -10,10 +10,12 @@ export type Anillado = {
   quantity: number
 }
 
-export type NewEntry = {
+// An entry saved with an account: the name comes from the account, the PIN proves it.
+export type AccountEntry = {
+  accountId: number
+  pin: string // 4 digits, as text
   entryDate: string // YYYY-MM-DD
   areaId: number
-  name: string
   description: string
   copias: number
   anillados: Anillado[]
@@ -44,13 +46,16 @@ export async function fetchAnilladoSizes(): Promise<number[]> {
 // so staff get a clear answer while they are still at the counter.
 export const SAVE_TIMEOUT_MS = 15_000
 
-// Saves the entry and its anillados in one transaction, and returns the entry's number.
-export async function registerEntry(entry: NewEntry): Promise<number> {
+// Saves the entry and its anillados in one transaction if the PIN is right,
+// and returns the entry's number.
+// Errors come back as codes (see entryErrorMessage).
+export async function registerAccountEntry(entry: AccountEntry): Promise<number> {
   const { data, error } = await supabase
-    .rpc('register_entry', {
+    .rpc('register_account_entry', {
+      p_account_id: entry.accountId,
+      p_pin: entry.pin,
       p_entry_date: entry.entryDate,
       p_area_id: entry.areaId,
-      p_name: entry.name,
       p_description: entry.description,
       p_copias: entry.copias,
       p_anillados: entry.anillados.map((a) => ({ size_mm: a.sizeMm, quantity: a.quantity })),

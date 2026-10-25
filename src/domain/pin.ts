@@ -8,3 +8,9 @@ export function checkPin(pin: string, confirmation: string): string | null {
   if (pin !== confirmation) return 'Los dos PIN no coinciden. Escríbalos de nuevo.'
   return null
 }
+
+// What a PIN field keeps of what was typed: digits only, at most 4
+// (the numeric keyboard can still type "." or ",").
+export function pinDigits(text: string): string {
+  return text.replace(/\D/g, '').slice(0, 4)
+}

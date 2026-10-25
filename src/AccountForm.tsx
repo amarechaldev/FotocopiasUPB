@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { chooseDefault, noAreas, toggleArea, type AreaSelection } from './domain/areaSelection'
-import { checkPin } from './domain/pin'
+import { checkPin, pinDigits } from './domain/pin'
 import { ACCOUNT_MESSAGES, accountErrorMessage } from './lib/accountErrors'
 import { createAccount } from './lib/accounts'
 import { fetchAreas, type Area } from './lib/entries'
@@ -40,10 +40,9 @@ export function AccountForm() {
     setStatus((current) => (current.kind === 'created' ? { kind: 'idle' } : current))
   }
 
-  // Digits only, at most 4: the numeric keyboard can still type "." or ",".
   function pinValue(text: string) {
     clearConfirmation()
-    return text.replace(/\D/g, '').slice(0, 4)
+    return pinDigits(text)
   }
 
   async function handleSubmit(event: FormEvent) {

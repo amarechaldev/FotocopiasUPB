@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { checkPin } from './pin'
+import { checkPin, pinDigits } from './pin'
 
 describe('checkPin', () => {
   test('4 digits, typed twice', () => {
@@ -26,5 +26,12 @@ describe('checkPin', () => {
 
   test('the format is checked before the match', () => {
     expect(checkPin('12', '34')).toBe('El PIN debe tener 4 números.')
+  })
+})
+
+describe('pinDigits', () => {
+  test('keeps digits only, at most 4', () => {
+    expect(pinDigits('12.3,45')).toBe('1234')
+    expect(pinDigits('0a1')).toBe('01')
   })
 })
