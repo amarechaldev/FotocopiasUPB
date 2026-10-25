@@ -51,6 +51,8 @@ Oct 23: I finished the Sprint 2 planning with PO, SM and dev. Did some tasks (34
 
 Oct 24 a): Finished #28 staff accounts, with tests both in a test build and live build, everything passes. / next is starting #29, staff requires login / worked for 40 minutes until now, but I'm not finished for today. / goal is on track, will start #29 now.
 
+Oct 24 b): I finished #29 requests require login / next I'll ask PO the next task, the sprint goal is already finished / one hour / goal achieved.
+
 ## Review
 
 *To be completed on October 28.*
