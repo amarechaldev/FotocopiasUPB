@@ -11,7 +11,7 @@
 1. [#28 Create my staff account](https://github.com/amarechaldev/FotocopiasUPB/issues/28) (E5)
 2. [#29 Requests require login](https://github.com/amarechaldev/FotocopiasUPB/issues/29) (E5)
 
-**Next in the backlog** (first candidates for Sprint 3, in order): operator login (E5), [#4 Operator sees and filters entries](https://github.com/amarechaldev/FotocopiasUPB/issues/4) (E2), [#5 Operator edits and deletes entries](https://github.com/amarechaldev/FotocopiasUPB/issues/5) (E2). The operator screens need the operator login first.
+**Added on October 24, after the sprint goal was met** (#28 and #29 accepted), in order: [#41 Operator login](https://github.com/amarechaldev/FotocopiasUPB/issues/41) (E5), [#4 Operator sees and filters entries](https://github.com/amarechaldev/FotocopiasUPB/issues/4) (E2), [#5 Operator edits and deletes entries](https://github.com/amarechaldev/FotocopiasUPB/issues/5) (E2). The operator screens need the operator login first. The sprint goal does not change: these stories are extra, and any not finished by October 28 return to the backlog.
 
 **Notes:**
 
@@ -36,9 +36,9 @@
 | 2 (#35) | Logic and tests: PIN check; data access code | #28 | 1 | 0.10 |
 | 3 (#36) | "Crear cuenta" screen (departments, default picker, PIN twice, errors, confirmation) | #28 | 1.5 | 0.10 |
 | 4 (#37) | Test #28 on phone and tablet, fix, PR, Ready for review | #28 | 0.75 | |
-| 5 (#38) | DB: entries tied to an account, PIN checked on save | #29 | 1 | |
-| 6 (#39) | Login step: name search, PIN, default department, warning outside the account, logout after save | #29 | 1.5 | |
-| 7 (#40) | Test #29 on phone and tablet, deploy, switch off saving without a PIN, Ready for review | #29 | 0.75 | |
+| 5 (#38) | DB: entries tied to an account, PIN checked on save | #29 | 1 | 0.2 |
+| 6 (#39) | Login step: name search, PIN, default department, warning outside the account, logout after save | #29 | 1.5 | 0.3 |
+| 7 (#40) | Test #29 on phone and tablet, deploy, switch off saving without a PIN, Ready for review | #29 | 0.75 | 0.5 |
 | | **Dev total** | | **~7.75** | |
 
 **Checkpoint:** if #28 is not in Ready for review by Sunday, October 25, #29 is at risk. The PO then decides whether to split the "department outside my account" warning into its own story.
@@ -49,9 +49,11 @@ Action A1: in the last 2 minutes of every working session, add a line: done / ne
 
 Oct 23: I finished the Sprint 2 planning with PO, SM and dev. Did some tasks (34, 35, 36) / Next is 37, testing on a tablet. Testing URL was created by vercel. / no block / worked 2 hours, 1.5 on planning, 0.5 with dev / goal on track, only 37 is missing to end 28 which is planned for sunday, 29 not started yet.
 
-Oct 24 a): Finished #28 staff accounts, with tests both in a test build and live build, everything passes. / next is starting #29, staff requires login / worked for 40 minutes until now, but I'm not finished for today. / goal is on track, will start #29 now.
+Oct 24 a): Finished #28 staff accounts, with tests both in a test build and live build, everything passes. / next is starting #29, staff requires login / no blocks / worked for 40 minutes until now, but I'm not finished for today. / goal is on track, will start #29 now.
 
-Oct 24 b): I finished #29 requests require login / next I'll ask PO the next task, the sprint goal is already finished / one hour / goal achieved.
+Oct 24 b): I finished #29 requests require login / next I'll ask PO the next task, the sprint goal is already finished / no blocks / one hour / goal achieved.
+
+Oct 24 c): Planned new work for this sprint and fixed many details about the stories for the next sprints / Next is #41, operator login / no blocks / This took me 1h30! / goal on track, should finish all remaining extra work on time.
 
 ## Review
 
