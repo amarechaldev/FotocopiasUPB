@@ -41,8 +41,20 @@ export type Sort = { key: SortKey; descending: boolean }
 // earlier ones break its ties (like sorting a spreadsheet several times).
 export type SortOrder = Sort[]
 
-// Newest saved first.
-export const defaultSort: SortOrder = [{ key: 'createdAt', descending: true }]
+// Newest service date first; on the same date, newest saved first.
+export const defaultSort: SortOrder = [
+  { key: 'entryDate', descending: true },
+  { key: 'createdAt', descending: true },
+]
+
+export function isDefaultSort(order: SortOrder): boolean {
+  return (
+    order.length === defaultSort.length &&
+    order.every(
+      (sort, i) => sort.key === defaultSort[i].key && sort.descending === defaultSort[i].descending,
+    )
+  )
+}
 
 // Clicking a column: the column already in charge flips its direction; another column
 // takes charge, newest first for dates and A to Z for text, and the previous ones
