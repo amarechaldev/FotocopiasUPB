@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { currentAdmin, signIn, signOut, type Admin } from './lib/admin'
+import { EntryList } from './EntryList'
 import { adminErrorMessage } from './lib/adminErrors'
 
 // The operator's area, at /admin on her own computer.
@@ -32,7 +33,8 @@ export function AdminApp() {
         <h1>Fotocopias UPB</h1>
         <p>Admin</p>
       </header>
-      <main>
+      {/* The list needs a computer-wide screen; the login form stays narrow. */}
+      <main className={state.kind === 'home' ? 'wide' : undefined}>
         {state.kind === 'checking' && <p className="notice">Cargando…</p>}
         {state.kind === 'login' && (
           <AdminLogin onSignedIn={(admin) => setState({ kind: 'home', admin })} />
@@ -47,9 +49,9 @@ export function AdminApp() {
                 Cerrar sesión
               </button>
             </div>
-            <p className="notice">Aquí verá los pedidos (próximamente).</p>
           </section>
         )}
+        {state.kind === 'home' && <EntryList />}
       </main>
     </>
   )

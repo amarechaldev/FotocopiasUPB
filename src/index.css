@@ -392,6 +392,129 @@ input.pin {
   gap: 0.75rem;
 }
 
+/* Admin screens are used on a computer: more width, smaller text than the tablet */
+main.wide {
+  max-width: 80rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-size: 1rem;
+}
+
+main.wide button,
+main.wide input,
+main.wide select {
+  --control-height: 2.75rem;
+}
+
+/* Entry list (EntryList) -------------------------------------------------- */
+
+.entry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+/* ‹ Anterior | 23/09/2026 – 22/10/2026 | Siguiente › */
+.period {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.period-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 1.25rem;
+}
+
+.period-label small {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+}
+
+.period button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Área, Nombre, Descripción, Quitar filtros in one row (wraps on narrow screens) */
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+}
+
+.filters button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.count {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+/* The table scrolls sideways instead of breaking the page on a small screen */
+.table-scroll {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-border);
+}
+
+th {
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+/* Sortable column titles look like titles, not like big buttons */
+th button {
+  min-height: 0;
+  padding: 0;
+  font-weight: 700;
+  color: inherit;
+  background: none;
+  border: none;
+}
+
+/* Hint that a column can be sorted, before it is the active one */
+th button .sortable {
+  color: var(--color-muted);
+  opacity: 0.6;
+}
+
+tbody tr:nth-child(even) {
+  background: var(--color-panel);
+}
+
+td:first-child,
+td:nth-child(2) {
+  white-space: nowrap;
+}
+
+th.number,
+td.number {
+  text-align: right;
+}
+
 /* Loading / cannot-load text shown instead of the form */
 .notice {
   text-align: center;

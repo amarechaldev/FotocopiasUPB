@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { todayInBolivia } from './dates'
+import { formatDate, formatDateTime, todayInBolivia } from './dates'
 
 describe('todayInBolivia', () => {
   test('uses the Bolivian date, not the UTC date, late in the evening', () => {
@@ -13,5 +13,22 @@ describe('todayInBolivia', () => {
 
   test('pads month and day with zeros', () => {
     expect(todayInBolivia(new Date('2026-03-05T15:00:00Z'))).toBe('2026-03-05')
+  })
+})
+
+describe('formatDate', () => {
+  test('day/month/year', () => {
+    expect(formatDate('2026-10-17')).toBe('17/10/2026')
+  })
+})
+
+describe('formatDateTime', () => {
+  test('converts UTC to Bolivian time, including the date', () => {
+    // 01:05 UTC on the 18th is 21:05 on the 17th in La Paz.
+    expect(formatDateTime(new Date('2026-10-18T01:05:00Z'))).toBe('17/10/2026 21:05')
+  })
+
+  test('midnight shows as 00, not 24', () => {
+    expect(formatDateTime(new Date('2026-10-18T04:00:00Z'))).toBe('18/10/2026 00:00')
   })
 })
