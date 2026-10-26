@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AccountPicker } from './AccountPicker'
 import { AnilladosField, type AnilladoRow } from './AnilladosField'
+import { AreaSelect } from './AreaSelect'
 import { todayInBolivia } from './domain/dates'
+import { checkEntryContents } from './domain/entryRules'
 import { pinDigits } from './domain/pin'
 import { describeContents } from './domain/summary'
 import { fetchAccounts, type Account } from './lib/accounts'
@@ -26,14 +28,6 @@ type Fields = {
 
 function emptyFields(): Fields {
   return { entryDate: todayInBolivia(), description: '', areaId: '', copias: '' }
-}
-
-function areaOption(area: Area) {
-  return (
-    <option key={area.id} value={area.id}>
-      {area.name}
-    </option>
-  )
 }
 
 type Lists = {
@@ -108,7 +102,6 @@ export function EntryForm() {
       setStatus({ kind: 'rejected', message: 'Elija su nombre de la lista.' })
       return
     }
-    setStatus({ kind: 'saving' })
     const entry = {
       accountId: account.id,
       pin,
@@ -121,6 +114,15 @@ export function EntryForm() {
         quantity: Number(row.quantity),
       })),
     }
+    const contentsProblem = checkEntryContents(
+      entry.copias,
+      entry.anillados.map((a) => a.quantity),
+    )
+    if (contentsProblem) {
+      setStatus({ kind: 'rejected', message: contentsProblem })
+      return
+    }
+    setStatus({ kind: 'saving' })
     try {
       const id = await registerAccountEntry(entry)
       setStatus({
@@ -156,12 +158,6 @@ export function EntryForm() {
   if (lists === null) {
     return <p className="notice">Cargando…</p>
   }
-
-  const ownAreas = account ? lists.areas.filter((area) => account.areaIds.includes(area.id)) : []
-  const otherAreas = account
-    ? lists.areas.filter((area) => !account.areaIds.includes(area.id))
-    : lists.areas
-  const outsideArea = account ? otherAreas.find((area) => String(area.id) === fields.areaId) : undefined
 
   return (
     <form onSubmit={handleSubmit}>
@@ -205,38 +201,14 @@ export function EntryForm() {
           />
         </label>
 
-        <label>
-          Área
-          <select required value={fields.areaId} onChange={(e) => selectArea(e.target.value)}>
-            <option value="" disabled>
-              Elija su área
-            </option>
-            {/* With a name chosen, that person's departments come first. */}
-            {ownAreas.length > 0 ? (
-              <>
-                <optgroup label="Sus áreas">{ownAreas.map(areaOption)}</optgroup>
-                <optgroup label="Otras áreas">{otherAreas.map(areaOption)}</optgroup>
-              </>
-            ) : (
-              otherAreas.map(areaOption)
-            )}
-          </select>
-        </label>
-
-        {outsideArea && (
-          <div className="warning" role="alert">
-            <p>⚠ {outsideArea.name} no es una de sus áreas.</p>
-            <label className="choice">
-              <input
-                type="checkbox"
-                required
-                checked={outsideConfirmed}
-                onChange={(e) => setOutsideConfirmed(e.target.checked)}
-              />
-              Sí, este pedido es para {outsideArea.name}
-            </label>
-          </div>
-        )}
+        <AreaSelect
+          areas={lists.areas}
+          account={account}
+          value={fields.areaId}
+          onChange={selectArea}
+          confirmed={outsideConfirmed}
+          onConfirm={setOutsideConfirmed}
+        />
 
         <label>
           Descripción

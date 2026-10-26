@@ -1,9 +1,12 @@
+import { EMPTY_ENTRY_MESSAGE } from '../domain/entryRules'
 import { errorDetail } from './errorDetail'
 
-// The error codes raised by register_account_entry (supabase/migrations/0003_entry_accounts.sql).
+// The error codes raised by register_account_entry (supabase/migrations/0003_entry_accounts.sql,
+// entry_empty since 0008).
 export const ENTRY_MESSAGES: Record<string, string> = {
   pin_wrong: 'PIN incorrecto. Vuelva a intentarlo.',
   account_invalid: 'Su cuenta no se encontró. Recargue la página y elija su nombre de nuevo.',
+  entry_empty: EMPTY_ENTRY_MESSAGE,
 }
 
 function errorCode(error: unknown): string {
