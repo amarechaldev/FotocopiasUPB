@@ -3,6 +3,7 @@ import {
   defaultSort,
   describeAnillados,
   filterEntries,
+  isDefaultSort,
   nextSort,
   noFilters,
   sortEntries,
@@ -60,8 +61,9 @@ describe('sorting', () => {
     entry(3, { entryDate: '2026-10-21', areaName: 'Empresariales', name: 'Álvaro' }),
   ]
 
-  test('default: newest saved first', () => {
-    expect(ids(sortEntries(entries, defaultSort))).toEqual([3, 2, 1])
+  test('default: newest service date first, then newest saved first', () => {
+    // 21/10: 3 saved after 1; then 19/10.
+    expect(ids(sortEntries(entries, defaultSort))).toEqual([3, 1, 2])
   })
 
   test('by service date, same date keeps newest saved first', () => {
@@ -85,9 +87,13 @@ describe('sorting', () => {
   })
 
   test('the column in charge flips; a new column takes charge in its natural order', () => {
-    expect(nextSort(defaultSort, 'createdAt')).toEqual([{ key: 'createdAt', descending: false }])
+    expect(nextSort(defaultSort, 'entryDate')).toEqual([
+      { key: 'entryDate', descending: false },
+      { key: 'createdAt', descending: true },
+    ])
     expect(nextSort(defaultSort, 'name')).toEqual([
       { key: 'name', descending: false },
+      { key: 'entryDate', descending: true },
       { key: 'createdAt', descending: true },
     ])
   })
@@ -99,6 +105,12 @@ describe('sorting', () => {
       'entryDate',
       'createdAt',
     ])
+  })
+
+  test('default order is recognised, and lost after any click', () => {
+    expect(isDefaultSort(defaultSort)).toBe(true)
+    expect(isDefaultSort(nextSort(defaultSort, 'entryDate'))).toBe(false)
+    expect(isDefaultSort(nextSort(defaultSort, 'name'))).toBe(false)
   })
 })
 

@@ -4,6 +4,7 @@ import {
   defaultSort,
   describeAnillados,
   filterEntries,
+  isDefaultSort,
   nextSort,
   noFilters,
   sortEntries,
@@ -162,11 +163,21 @@ export function EntryList() {
       )}
       {loaded.kind === 'loaded' && (
         <>
-          <p className="count">
-            {filtered
-              ? `${shown.length} de ${loaded.entries.length} pedidos`
-              : `${loaded.entries.length} pedidos`}
-          </p>
+          <div className="count">
+            <p>
+              {filtered
+                ? `${shown.length} de ${loaded.entries.length} pedidos`
+                : `${loaded.entries.length} pedidos`}
+            </p>
+            <button
+              type="button"
+              className="secondary"
+              disabled={isDefaultSort(sortOrder)}
+              onClick={() => setSortOrder(defaultSort)}
+            >
+              Orden predeterminado
+            </button>
+          </div>
           {shown.length === 0 ? (
             <p className="notice">
               {filtered ? 'Ningún pedido coincide con los filtros.' : 'No hay pedidos en este periodo.'}

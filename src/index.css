@@ -457,9 +457,23 @@ main.wide select {
   cursor: default;
 }
 
+/* "12 pedidos" with "Orden predeterminado" beside it */
 .count {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.count p {
   margin: 0;
   color: var(--color-muted);
+}
+
+.count button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
 
 /* The table scrolls sideways instead of breaking the page on a small screen */
