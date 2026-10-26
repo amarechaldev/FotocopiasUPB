@@ -373,6 +373,25 @@ input.pin {
   color: var(--color-muted);
 }
 
+/* Admin ------------------------------------------------------------------- */
+
+/* A white card like the forms, for screens that are not a form */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+}
+
+/* "Sesión iniciada como ..." with "Cerrar sesión" beside it */
+.session {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
 /* Loading / cannot-load text shown instead of the form */
 .notice {
   text-align: center;
