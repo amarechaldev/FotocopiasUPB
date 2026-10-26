@@ -13,6 +13,8 @@
 
 **Added on October 24, after the sprint goal was met** (#28 and #29 accepted), in order: [#41 Operator login](https://github.com/amarechaldev/FotocopiasUPB/issues/41) (E5), [#4 Operator sees and filters entries](https://github.com/amarechaldev/FotocopiasUPB/issues/4) (E2), [#5 Operator edits and deletes entries](https://github.com/amarechaldev/FotocopiasUPB/issues/5) (E2). The operator screens need the operator login first. The sprint goal does not change: these stories are extra, and any not finished by October 28 return to the backlog.
 
+**Added on October 25:** [#46 Operator registers entries for other people](https://github.com/amarechaldev/FotocopiasUPB/issues/46) (E2). Depends on one answer from the operator meeting on October 26: what happens with a paper entry from someone who has no account yet. The reports (#7, #8) are left for Sprint 3.
+
 **Notes:**
 
 - Staff accounts are the University's non-negotiable requirement and on the critical path to the pilot. The entry list, which the operator asked for at the Sprint 1 demo, comes right after: tell her so, with the reason.
@@ -55,6 +57,13 @@ Oct 24 b): I finished #29 requests require login / next I'll ask PO the next tas
 
 Oct 24 c): Planned new work for this sprint and fixed many details about the stories for the next sprints / Next is #41, operator login / no blocks / This took me 1h30! / goal on track, should finish all remaining extra work on time.
 
+Oct 25 a): analysed the need for backups, will talk about it with the operator / next is #41, operator login / backups are blocked until PO talks with the operator / 60 min / goal on track
+
+Oct 25 b) #41 finished / next is #4, operator sees entries / no blocks on this side / 35 min / goal on track
+
+Oct 25 c) #4 finished, with discussions and fixing about sorting / next is #5, operator edits and deletes entries / no blocks here / 90 min / goal on track
+
+Oct 25 d)#5 is finished / next is #46, operator registers entries for other people / no blocks / 30 min / goal on track
 ## Review
 
 *To be completed on October 28.*

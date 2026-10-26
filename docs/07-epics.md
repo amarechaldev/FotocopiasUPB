@@ -59,7 +59,7 @@ Each staff member has a personal account protected by a PIN, and registers reque
 
 - **Value:** every entry is tied to a personal account, which the University accepts in place of a handwritten signature.
 - **Goals served:** 4 (University acceptance), 1 (reliable recording).
-- **Done when:** staff can create an account on the shared device and register requests with their name and PIN; the operator can edit any profile and reset a forgotten PIN.
+- **Done when:** staff can create an account on the shared device and register requests with their name and PIN; the operator logs in with a password. Profile editing and PIN resets (#30, #31) come with the full rollout.
 
 **Notes for stories:**
 
@@ -67,8 +67,8 @@ Each staff member has a personal account protected by a PIN, and registers reque
 - Accounts are created by each person, in a separate screen on the same shared device.
 - At registration, the default department is selected; switching to another department of the account needs no warning; a department outside the account shows a warning.
 - After each entry is saved, the person is logged out automatically.
-- PIN reset: the operator launches it while the person is present, and the person immediately chooses a new PIN. Nobody can see a PIN.
-- Staff editing their own profile comes with the full rollout; until then, the operator edits profiles.
+- PIN reset: during the pilot, the developer replaces a forgotten PIN directly in the database (and removes it from the SQL history). From the full rollout (#31), the operator launches the reset while the person is present, and the person immediately chooses a new PIN; nobody can see a PIN.
+- Profile editing: during the pilot, the developer edits accounts directly in the database. From the full rollout, the operator edits any profile (#31) and staff edit their own (#30).
 - Personal teacher codes are no longer used: everyone has an account and a PIN.
 - Operator login: she logs in on her computer (not the shared device) with a password. Her screens (entries, corrections, reports, profiles) can only be opened after logging in; staff accounts cannot open them. All operator stories depend on it.
 

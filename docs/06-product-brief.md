@@ -12,7 +12,7 @@ Every month, the operator must deliver a report of her billable services to the 
 
 | Who | Role | Why they matter |
 | --- | --- | --- |
-| **Operator** | Primary user and customer. Reviews and corrects entries, registers entries on behalf of others, edits any staff profile and resets forgotten PINs, produces the monthly report. Manages prices, departments and description lists after the MVP. | Owns the problem and decides whether the app is adopted. |
+| **Operator** | Primary user and customer. Reviews and corrects entries, registers entries on behalf of others, produces the monthly report. Edits staff profiles, resets forgotten PINs and manages prices, departments and description lists from the full rollout. | Owns the problem and decides whether the app is adopted. |
 | **Staff** (internal staff and visiting teachers) | Each one has a personal account (name, one or more departments, PIN) and registers each service they use on the shared phone or tablet at the service. | If registering is harder than writing on paper, they will keep using paper. |
 | **University Administrator** (and her assistant) | Receives the monthly report, checks it and collects the managers' signatures. Requires each entry to be made from a personal account protected by a PIN (non-negotiable). | Can reject the record; actively shapes the product. |
 | **Department managers** | Sign the monthly summary for their department, which is charged to their budget. | Need correct totals per department. |
@@ -36,7 +36,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 - The operator must be able to edit individual entries.
 - Each staff member creates a personal account (name, one or more departments with one marked as default, PIN) in a separate screen on the shared device, and registers requests with their name and PIN. They are logged out automatically after each entry. Required by the University.
 - The operator logs in on her computer with a password; her screens cannot be opened without it.
-- The operator can edit any staff profile and reset a forgotten PIN: she launches the reset, and the person immediately chooses a new PIN, entered twice. Nobody, including the operator, can see a PIN.
+- During the pilot, account changes (names, departments, forgotten PINs) are made by the developer directly in the database; a forgotten PIN is replaced by a new one that the developer sets, so the developer knows it until the person can change it. The full rollout brings the operator's profile and PIN-reset screen (#31) and staff editing their own profile (#30), after which nobody, including the operator, can see a PIN.
 - Common descriptions are suggested while still allowing free text; descriptions that are too vague (e.g. "copias") are blocked with a clear message.
 - The operator can register entries on behalf of other people (e.g. paper entries after a connection drop). On her screen, entries show a "modified" or "manually entered" status, not printed in the reports.
 
@@ -44,7 +44,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 
 - Some fields like anillados prices and the list of departments won't be editable for now, they change once a year.
 - Editing the lists of common and too-vague descriptions: until then, the developer maintains them.
-- Staff edit their own profile (full rollout); until then, the operator edits profiles.
+- The operator edits staff profiles and resets forgotten PINs (#31), and staff edit their own profile (#30): full rollout.
 - The university may want to access the app directly to check the records.
 
 ## Constraints
@@ -80,7 +80,7 @@ Targets are proposals, to be confirmed with the operator.
 | **The University rejects the record** | Blocks adoption entirely | Meet its requirement: PIN-protected personal accounts in the MVP. Start with a pilot in a few small departments without visiting teachers (Internacionalización, Orientación, DAAE Cultura, DAAE Deportes), and show its first report to the University before rolling out to all departments. |
 | **Staff resist the change**, especially if registering takes longer than on paper | Paper keeps coming back, and with it the manual work | Learn from the pilot departments before full rollout. Keep paper as a fallback. The operator encourages staff at the counter. |
 | **Records are lost** if the connection drops or the device fails | Lost income, and the "no lost records" promise is broken | Staff see clearly whether each entry was saved; if not, they use the paper notebook and the operator enters it later. Regular backup or export. During the pilot, the pilot departments keep a paper record to compare with. |
-| **Staff forget their PIN** | Registration stops at the counter; staff go back to paper, and resets add work for the operator | Staff choose their own PIN. The operator can launch a reset, and the person immediately chooses a new PIN. During the pilot, count how often PINs are forgotten. |
+| **Staff forget their PIN** | Registration stops at the counter; staff go back to paper, and resets add work for the operator | Staff choose their own PIN. During the pilot (2–3 staff), the developer replaces a forgotten PIN in the database and removes it from the SQL history; from the full rollout, the operator launches a reset and the person chooses a new PIN. During the pilot, count how often PINs are forgotten. |
 
 **Pilot limitations:**
 
