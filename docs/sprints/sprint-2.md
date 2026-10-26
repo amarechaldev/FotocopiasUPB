@@ -63,7 +63,8 @@ Oct 25 b) #41 finished / next is #4, operator sees entries / no blocks on this s
 
 Oct 25 c) #4 finished, with discussions and fixing about sorting / next is #5, operator edits and deletes entries / no blocks here / 90 min / goal on track
 
-Oct 25 d)#5 is finished / next is #46, operator registers entries for other people / no blocks / 30 min / goal on track
+Oct 25 d) #5 is finished / next is #46, operator registers entries for other people / no blocks / 30 min / goal on track
+
 ## Review
 
 *To be completed on October 28.*
