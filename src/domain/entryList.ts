@@ -5,8 +5,10 @@ export type ListedEntry = {
   id: number
   entryDate: string // YYYY-MM-DD, the service date
   createdAt: Date // when it was saved
+  modifiedAt: Date | null // when the operator last edited it; null = never
   areaId: number
   areaName: string
+  accountId: number | null // null = saved before accounts existed (Sprint 1)
   name: string
   description: string
   copias: number

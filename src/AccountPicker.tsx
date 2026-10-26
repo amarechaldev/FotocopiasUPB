@@ -9,10 +9,11 @@ type Props = {
   accounts: Account[]
   selected: Account | null
   onSelect: (account: Account | null) => void
+  operator?: boolean // the operator choosing someone else's name: no "su nombre"
 }
 
 // Type part of your name, then tap it in the list. Only real accounts can be chosen.
-export function AccountPicker({ accounts, selected, onSelect }: Props) {
+export function AccountPicker({ accounts, selected, onSelect, operator = false }: Props) {
   const [query, setQuery] = useState('')
 
   if (selected) {
@@ -41,11 +42,11 @@ export function AccountPicker({ accounts, selected, onSelect }: Props) {
   return (
     <div className="picker">
       <label>
-        Su nombre
+        {operator ? 'Nombre' : 'Su nombre'}
         <input
           type="text"
           autoComplete="off"
-          placeholder="Escriba parte de su nombre"
+          placeholder={operator ? 'Escriba parte del nombre' : 'Escriba parte de su nombre'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -71,7 +72,8 @@ export function AccountPicker({ accounts, selected, onSelect }: Props) {
       )}
       {query.trim() !== '' && matches.length === 0 && (
         <p className="hint">
-          No hay ninguna cuenta con ese nombre. Si es nuevo, créela en «Crear cuenta».
+          No hay ninguna cuenta con ese nombre.
+          {!operator && ' Si es nuevo, créela en «Crear cuenta».'}
         </p>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { formatDate, formatDateTime, todayInBolivia } from './domain/dates'
 import {
   defaultSort,
@@ -14,7 +14,8 @@ import {
   type SortKey,
 } from './domain/entryList'
 import { periodOf, shiftPeriod, type Period } from './domain/periods'
-import { fetchEntries } from './lib/adminEntries'
+import { EntryEditor } from './EntryEditor'
+import { deleteEntry, fetchEntries, restoreEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAreas, type Area } from './lib/entries'
 
@@ -22,6 +23,10 @@ type Loaded =
   | { kind: 'loading' }
   | { kind: 'loaded'; entries: ListedEntry[] }
   | { kind: 'failed'; message: string }
+
+// The last change, which can still be undone: the entry as it was before it.
+// Kept only here, in memory, until the next change or a period change (no history).
+type Undo = { kind: 'edited' | 'deleted'; before: ListedEntry }
 
 // The operator's list of entries: one billing period at a time, filtered and
 // sorted in the browser (a period is a few hundred entries at most).
@@ -33,6 +38,18 @@ export function EntryList() {
   const [areasError, setAreasError] = useState(false)
   const [filters, setFilters] = useState<EntryFilters>(noFilters)
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSort)
+  const [editing, setEditing] = useState<ListedEntry | null>(null)
+  const [undo, setUndo] = useState<Undo | null>(null)
+  const [busy, setBusy] = useState(false) // a delete or undo is on its way
+  const [actionError, setActionError] = useState<string | null>(null)
+  const [reloads, setReloads] = useState(0) // +1 = fetch the period again
+
+  // The undo bar and errors appear above the table, maybe far from the row she clicked:
+  // bring every new one into view.
+  const noticeRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (undo || actionError) noticeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [undo, actionError])
 
   useEffect(() => {
     fetchAreas()
@@ -52,7 +69,7 @@ export function EntryList() {
     return () => {
       current = false
     }
-  }, [period])
+  }, [period, reloads])
 
   const shown = useMemo(
     () => (loaded.kind === 'loaded' ? sortEntries(filterEntries(loaded.entries, filters), sortOrder) : []),
@@ -62,6 +79,38 @@ export function EntryList() {
   function changePeriod(count: number) {
     setPeriod(shiftPeriod(period, count))
     setLoaded({ kind: 'loading' })
+    setUndo(null)
+    setActionError(null)
+  }
+
+  // Runs a delete or undo, then fetches the period again (the table stays meanwhile).
+  async function act(action: () => Promise<void>, nextUndo: Undo | null) {
+    setBusy(true)
+    setActionError(null)
+    try {
+      await action()
+      setUndo(nextUndo)
+      setReloads((n) => n + 1)
+    } catch (error) {
+      setActionError(adminErrorMessage(error))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  function handleSaved() {
+    if (editing) setUndo({ kind: 'edited', before: editing })
+    setEditing(null)
+    setActionError(null)
+    setReloads((n) => n + 1)
+  }
+
+  if (editing) {
+    return (
+      <section className="entry-list">
+        <EntryEditor entry={editing} onSaved={handleSaved} onCancel={() => setEditing(null)} />
+      </section>
+    )
   }
 
   const isCurrent = period.start === currentPeriod.start
@@ -154,6 +203,31 @@ export function EntryList() {
         </button>
       </div>
 
+      <div ref={noticeRef} className="result">
+        {undo && (
+          <div className="undo-bar" role="status">
+            <span>
+              Pedido de {undo.before.name} del {formatDate(undo.before.entryDate)}{' '}
+              {undo.kind === 'edited' ? 'modificado' : 'eliminado'}.
+            </span>
+            <button
+              type="button"
+              className="secondary"
+              disabled={busy}
+              onClick={() => act(() => restoreEntry(undo.before), null)}
+            >
+              Deshacer
+            </button>
+          </div>
+        )}
+        {actionError && (
+          <div className="message error" role="alert">
+            <strong>✗ No se pudo completar</strong>
+            <p>{actionError}</p>
+          </div>
+        )}
+      </div>
+
       {loaded.kind === 'loading' && <p className="notice">Cargando…</p>}
       {loaded.kind === 'failed' && (
         <div className="message error" role="alert">
@@ -194,18 +268,49 @@ export function EntryList() {
                     <th>Descripción</th>
                     <th className="number">Copias</th>
                     <th>Anillados</th>
+                    <th>
+                      <span className="visually-hidden">Acciones</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {shown.map((entry) => (
                     <tr key={entry.id}>
-                      <td>{formatDateTime(entry.createdAt)}</td>
+                      <td>
+                        {formatDateTime(entry.createdAt)}
+                        {entry.modifiedAt && (
+                          <span
+                            className="tag"
+                            title={`Modificado el ${formatDateTime(entry.modifiedAt)}`}
+                          >
+                            Modificado
+                          </span>
+                        )}
+                      </td>
                       <td>{formatDate(entry.entryDate)}</td>
                       <td>{entry.areaName}</td>
                       <td>{entry.name}</td>
                       <td>{entry.description}</td>
                       <td className="number">{entry.copias}</td>
                       <td>{describeAnillados(entry.anillados)}</td>
+                      <td className="row-actions">
+                        <button
+                          type="button"
+                          className="secondary"
+                          disabled={busy}
+                          onClick={() => setEditing(entry)}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="danger"
+                          disabled={busy}
+                          onClick={() => act(() => deleteEntry(entry.id), { kind: 'deleted', before: entry })}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
