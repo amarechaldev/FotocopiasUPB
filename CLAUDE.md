@@ -68,9 +68,15 @@ The user has a CS PhD but has never built or deployed a web app.
 - Secrets: only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` (see `.env.example`), in
   `.env.local` (git-ignored) and in Vercel env vars. The Supabase secret / `service_role` key never goes
   in the repo or in frontend code.
+- Two Supabase projects: `fotocopias-upb-dev` (test data) for local development and Vercel previews, and
+  the production project for the live app only. `.env.local` and Vercel's Preview/Development variables
+  point at the test project; only Vercel's Production variables point at production.
 - Writes go through Postgres functions called with `supabase.rpc(...)` (e.g. `register_account_entry`), not
   direct inserts: one transaction per entry, and the browser gets no direct access to `entries`.
-- Migrations are applied by pasting them into the Supabase SQL Editor, in order, once each.
+- New tables: `revoke all` from `anon, authenticated`, then grant only what the app uses (see 0010).
+- Migrations are applied by pasting them into the Supabase SQL Editor, in order, once each per project:
+  first in the test project (then check the branch preview), and in production only after the PR is
+  merged, unless the migration says it is safe earlier.
 
 ## Constraints that drive the design
 
