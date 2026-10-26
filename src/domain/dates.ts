@@ -6,3 +6,20 @@ export function todayInBolivia(now: Date = new Date()): string {
   // The en-CA locale formats dates as YYYY-MM-DD.
   return new Intl.DateTimeFormat('en-CA', { timeZone: BOLIVIA_TIME_ZONE }).format(now)
 }
+
+// An ISO date (YYYY-MM-DD) as shown to users: 17/10/2026.
+export function formatDate(isoDate: string): string {
+  const [year, month, day] = isoDate.split('-')
+  return `${day}/${month}/${year}`
+}
+
+// A saved moment (e.g. created_at) as shown to users, in Bolivian time: 17/10/2026 14:05.
+export function formatDateTime(moment: Date): string {
+  const time = new Intl.DateTimeFormat('en-GB', {
+    timeZone: BOLIVIA_TIME_ZONE,
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(moment)
+  return `${formatDate(todayInBolivia(moment))} ${time}`
+}
