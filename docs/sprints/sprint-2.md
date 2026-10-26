@@ -13,7 +13,9 @@
 
 **Added on October 24, after the sprint goal was met** (#28 and #29 accepted), in order: [#41 Operator login](https://github.com/amarechaldev/FotocopiasUPB/issues/41) (E5), [#4 Operator sees and filters entries](https://github.com/amarechaldev/FotocopiasUPB/issues/4) (E2), [#5 Operator edits and deletes entries](https://github.com/amarechaldev/FotocopiasUPB/issues/5) (E2). The operator screens need the operator login first. The sprint goal does not change: these stories are extra, and any not finished by October 28 return to the backlog.
 
-**Added on October 25:** [#46 Operator registers entries for other people](https://github.com/amarechaldev/FotocopiasUPB/issues/46) (E2). Depends on one answer from the operator meeting on October 26: what happens with a paper entry from someone who has no account yet. The reports (#7, #8) are left for Sprint 3.
+**Added on October 25:** [#46 Operator registers entries for other people](https://github.com/amarechaldev/FotocopiasUPB/issues/46) (E2). Answered at the operator meeting on October 26: only people with an account can use the paper notebook; without an account, the operator does not accept the request. The reports (#7, #8) are left for Sprint 3.
+
+**Added on October 26:** [#50 Page does not scroll to the top after a success](https://github.com/amarechaldev/FotocopiasUPB/issues/50) (bug found by the operator) and [#44 Second database for testing](https://github.com/amarechaldev/FotocopiasUPB/issues/44).
 
 **Notes:**
 

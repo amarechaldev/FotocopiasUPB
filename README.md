@@ -6,7 +6,7 @@ Every month, the service operator must deliver a report of her billable services
 
 ## Status
 
-In development: building the MVP, to be piloted in four departments before rolling out to the whole University.
+In development: building the MVP, to be piloted in three departments before rolling out to the whole University.
 
 ## Product Documents
 

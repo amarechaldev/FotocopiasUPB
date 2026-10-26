@@ -30,7 +30,7 @@ The operator reviews and edits individual entries to fix mistakes, and registers
 
 **Notes for stories:**
 
-- The operator registers entries for others from her own account, choosing the person's name.
+- The operator registers entries for others from her own account, choosing the person's name. Only people with an account can use the paper notebook: without an account, the operator does not accept the request (handled outside the app).
 - On her screen, entries show a "modified" or "manually entered" status. This status is not printed in the reports.
 
 ## E3: Detailed Report
@@ -70,7 +70,7 @@ Each staff member has a personal account protected by a PIN, and registers reque
 - PIN reset: during the pilot, the developer replaces a forgotten PIN directly in the database (and removes it from the SQL history). From the full rollout (#31), the operator launches the reset while the person is present, and the person immediately chooses a new PIN; nobody can see a PIN.
 - Profile editing: during the pilot, the developer edits accounts directly in the database. From the full rollout, the operator edits any profile (#31) and staff edit their own (#30).
 - Personal teacher codes are no longer used: everyone has an account and a PIN.
-- Operator login: she logs in on her computer (not the shared device) with a password. Her screens (entries, corrections, reports, profiles) can only be opened after logging in; staff accounts cannot open them. All operator stories depend on it.
+- Operator login: she logs in on her computer (not the shared device) with a password. Her screens (entries, corrections, reports, profiles) can only be opened after logging in; staff accounts cannot open them. She stays logged in (no automatic logout), as only she uses that computer. All operator stories depend on it.
 
 ## E6: Settings (after the MVP)
 
