@@ -9,6 +9,7 @@ import { describeContents } from './domain/summary'
 import { fetchAccounts, type Account } from './lib/accounts'
 import { fetchAnilladoSizes, fetchAreas, registerAccountEntry, type Area } from './lib/entries'
 import { entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { scrollToTop } from './scrollToTop'
 
 type Status =
   | { kind: 'idle' }
@@ -59,11 +60,10 @@ export function EntryForm() {
   }, [])
 
   // The Guardar button is at the bottom of a long form, so the result message
-  // would appear off screen: bring it into view on every new message.
-  const messageRef = useRef<HTMLDivElement>(null)
+  // would appear off screen: scroll up on every new message.
   useEffect(() => {
     if (status.kind === 'saved' || status.kind === 'rejected' || status.kind === 'failed') {
-      messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      scrollToTop()
     }
   }, [status])
 
@@ -161,7 +161,7 @@ export function EntryForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div ref={messageRef} className="result">
+      <div className="result">
         {status.kind === 'saved' && (
           <div className="message success" role="status">
             <strong>✓ Registro guardado (n.º {status.id})</strong>

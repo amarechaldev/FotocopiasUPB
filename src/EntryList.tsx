@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { formatDate, formatDateTime, todayInBolivia } from './domain/dates'
 import {
   defaultSort,
@@ -18,6 +18,7 @@ import { EntryEditor } from './EntryEditor'
 import { deleteEntry, fetchEntries, restoreEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAreas, type Area } from './lib/entries'
+import { scrollToTop } from './scrollToTop'
 
 type Loaded =
   | { kind: 'loading' }
@@ -45,10 +46,9 @@ export function EntryList() {
   const [reloads, setReloads] = useState(0) // +1 = fetch the period again
 
   // The undo bar and errors appear above the table, maybe far from the row she clicked:
-  // bring every new one into view.
-  const noticeRef = useRef<HTMLDivElement>(null)
+  // scroll up on every new one.
   useEffect(() => {
-    if (undo || actionError) noticeRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (undo || actionError) scrollToTop()
   }, [undo, actionError])
 
   useEffect(() => {
@@ -203,7 +203,7 @@ export function EntryList() {
         </button>
       </div>
 
-      <div ref={noticeRef} className="result">
+      <div className="result">
         {undo && (
           <div className="undo-bar" role="status">
             <span>

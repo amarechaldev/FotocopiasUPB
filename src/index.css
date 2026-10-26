@@ -329,11 +329,7 @@ input.pin {
 
 /* Messages ---------------------------------------------------------------- */
 
-/* Holds the saved / failed message at the top of the form */
-.result {
-  scroll-margin-top: 1rem; /* small gap above it after scrolling */
-}
-
+/* Holds the saved / failed message at the top of the form (hidden when empty) */
 .result:empty {
   display: none;
 }
