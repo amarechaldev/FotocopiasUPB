@@ -14,7 +14,7 @@ import {
   type SortKey,
 } from './domain/entryList'
 import { periodOf, shiftPeriod, type Period } from './domain/periods'
-import { EntryEditor } from './EntryEditor'
+import { EntryEditor, type CreatedEntry } from './EntryEditor'
 import { deleteEntry, fetchEntries, restoreEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAreas, type Area } from './lib/entries'
@@ -27,7 +27,10 @@ type Loaded =
 
 // The last change, which can still be undone: the entry as it was before it.
 // Kept only here, in memory, until the next change or a period change (no history).
-type Undo = { kind: 'edited' | 'deleted'; before: ListedEntry }
+// A manual entry just registered is undone by deleting it.
+type Undo =
+  | { kind: 'edited' | 'deleted'; before: ListedEntry }
+  | { kind: 'created'; created: CreatedEntry }
 
 // The operator's list of entries: one billing period at a time, filtered and
 // sorted in the browser (a period is a few hundred entries at most).
@@ -39,7 +42,8 @@ export function EntryList() {
   const [areasError, setAreasError] = useState(false)
   const [filters, setFilters] = useState<EntryFilters>(noFilters)
   const [sortOrder, setSortOrder] = useState<SortOrder>(defaultSort)
-  const [editing, setEditing] = useState<ListedEntry | null>(null)
+  // The entry open in the form, 'new' for a manual entry, null = the list is shown.
+  const [editing, setEditing] = useState<ListedEntry | 'new' | null>(null)
   const [undo, setUndo] = useState<Undo | null>(null)
   const [busy, setBusy] = useState(false) // a delete or undo is on its way
   const [actionError, setActionError] = useState<string | null>(null)
@@ -98,8 +102,9 @@ export function EntryList() {
     }
   }
 
-  function handleSaved() {
-    if (editing) setUndo({ kind: 'edited', before: editing })
+  function handleSaved(created?: CreatedEntry) {
+    if (created) setUndo({ kind: 'created', created })
+    else if (editing && editing !== 'new') setUndo({ kind: 'edited', before: editing })
     setEditing(null)
     setActionError(null)
     setReloads((n) => n + 1)
@@ -108,7 +113,11 @@ export function EntryList() {
   if (editing) {
     return (
       <section className="entry-list">
-        <EntryEditor entry={editing} onSaved={handleSaved} onCancel={() => setEditing(null)} />
+        <EntryEditor
+          entry={editing === 'new' ? null : editing}
+          onSaved={handleSaved}
+          onCancel={() => setEditing(null)}
+        />
       </section>
     )
   }
@@ -140,6 +149,12 @@ export function EntryList() {
 
   return (
     <section className="entry-list">
+      <div className="list-actions">
+        <button type="button" className="primary" disabled={busy} onClick={() => setEditing('new')}>
+          + Registrar pedido del cuaderno
+        </button>
+      </div>
+
       <div className="period">
         <button type="button" className="secondary" onClick={() => changePeriod(-1)}>
           ‹ Anterior
@@ -207,14 +222,24 @@ export function EntryList() {
         {undo && (
           <div className="undo-bar" role="status">
             <span>
-              Pedido de {undo.before.name} del {formatDate(undo.before.entryDate)}{' '}
-              {undo.kind === 'edited' ? 'modificado' : 'eliminado'}.
+              {undo.kind === 'created'
+                ? `Pedido de ${undo.created.name} del ${formatDate(undo.created.entryDate)} registrado.`
+                : `Pedido de ${undo.before.name} del ${formatDate(undo.before.entryDate)} ${
+                    undo.kind === 'edited' ? 'modificado' : 'eliminado'
+                  }.`}
             </span>
             <button
               type="button"
               className="secondary"
               disabled={busy}
-              onClick={() => act(() => restoreEntry(undo.before), null)}
+              onClick={() =>
+                act(
+                  undo.kind === 'created'
+                    ? () => deleteEntry(undo.created.id)
+                    : () => restoreEntry(undo.before),
+                  null,
+                )
+              }
             >
               Deshacer
             </button>
@@ -278,6 +303,11 @@ export function EntryList() {
                     <tr key={entry.id}>
                       <td>
                         {formatDateTime(entry.createdAt)}
+                        {entry.manual && (
+                          <span className="tag manual" title="Registrado por la operadora">
+                            Ingreso manual
+                          </span>
+                        )}
                         {entry.modifiedAt && (
                           <span
                             className="tag"
