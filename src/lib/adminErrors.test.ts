@@ -14,6 +14,19 @@ describe('adminErrorMessage', () => {
     )
   })
 
+  test('every code from update_entry and delete_entry has a Spanish message', () => {
+    for (const code of [
+      'entry_missing',
+      'account_invalid',
+      'date_required',
+      'description_required',
+      'area_invalid',
+      'entry_empty',
+    ]) {
+      expect(adminErrorMessage({ message: code, code: 'P0001' })).not.toBe(code)
+    }
+  })
+
   test('connection problems use the usual messages', () => {
     expect(adminErrorMessage({ message: 'TypeError: Failed to fetch' })).toBe(
       'Sin conexión a internet',

@@ -9,7 +9,7 @@ describe('entryErrorMessage', () => {
   })
 
   test('every code from register_account_entry has a Spanish message', () => {
-    for (const code of ['pin_wrong', 'account_invalid']) {
+    for (const code of ['pin_wrong', 'account_invalid', 'entry_empty']) {
       expect(entryErrorMessage({ message: code })).not.toBe(code)
     }
   })

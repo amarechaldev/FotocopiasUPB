@@ -529,6 +529,85 @@ td.number {
   text-align: right;
 }
 
+/* Editar / Eliminar in each row */
+.row-actions {
+  display: flex;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.row-actions button {
+  --control-height: 2.25rem;
+  padding: 0 0.75rem;
+  font-size: 0.9rem;
+}
+
+.row-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* "Modificado" under the saved time of an edited entry (her list only, never the reports) */
+.tag {
+  display: block;
+  width: fit-content;
+  margin-top: 0.25rem;
+  padding: 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-warning-text);
+  background: var(--color-warning-bg);
+  border: 1px solid var(--color-warning);
+  border-radius: 0.3rem;
+}
+
+/* "Pedido de … eliminado. Deshacer" */
+.undo-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  background: var(--color-primary);
+  border-radius: var(--radius);
+}
+
+.undo-bar button {
+  color: var(--color-primary);
+  background: #fff;
+  border-color: #fff;
+}
+
+/* The edit form sits inside the list's card: no second card around it */
+.entry-list form {
+  padding: 0;
+  box-shadow: none;
+}
+
+.entry-editor h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--color-primary);
+}
+
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* Read by screen readers, not shown (e.g. the title of the buttons column) */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 /* Loading / cannot-load text shown instead of the form */
 .notice {
   text-align: center;
