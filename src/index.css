@@ -557,6 +557,23 @@ td.number {
   border-radius: 0.3rem;
 }
 
+/* "Ingreso manual": registered by the operator (her list only, never the reports) */
+.tag.manual {
+  color: var(--color-primary);
+  background: var(--color-panel);
+  border-color: var(--color-primary);
+}
+
+/* "+ Registrar pedido del cuaderno" at the top right of the list */
+.list-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.list-actions button.primary {
+  font-size: 1.1rem;
+}
+
 /* "Pedido de … eliminado. Deshacer" */
 .undo-bar {
   display: flex;

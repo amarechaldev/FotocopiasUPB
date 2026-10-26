@@ -16,6 +16,7 @@ function entry(id: number, fields: Partial<ListedEntry>): ListedEntry {
     entryDate: '2026-10-20',
     createdAt: new Date(`2026-10-20T12:00:0${id}Z`),
     modifiedAt: null,
+    manual: false,
     areaId: 1,
     areaName: 'VRA',
     accountId: 1,

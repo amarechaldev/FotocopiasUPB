@@ -2,11 +2,11 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AccountPicker } from './AccountPicker'
 import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { AreaSelect } from './AreaSelect'
-import { formatDate } from './domain/dates'
+import { formatDate, todayInBolivia } from './domain/dates'
 import type { ListedEntry } from './domain/entryList'
 import { checkEntryContents } from './domain/entryRules'
 import { fetchAccounts, type Account } from './lib/accounts'
-import { updateEntry } from './lib/adminEntries'
+import { registerManualEntry, updateEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAnilladoSizes, fetchAreas, type Area } from './lib/entries'
 import { scrollToTop } from './scrollToTop'
@@ -17,32 +17,36 @@ type Lists = {
   accounts: Account[]
 }
 
+// A manual entry just registered, for the undo bar.
+export type CreatedEntry = { id: number; name: string; entryDate: string }
+
 type Props = {
-  entry: ListedEntry
-  onSaved: () => void
+  entry: ListedEntry | null // null = a new entry on someone's behalf (e.g. from the notebook)
+  onSaved: (created?: CreatedEntry) => void
   onCancel: () => void
 }
 
-// The operator's form to change one entry. Checked like a new entry (the database checks
-// again); saving marks the entry as modified.
+// The operator's form to change one entry, or to register one for someone else. Checked
+// like a staff entry (the database checks again); an edit is marked as modified, a new
+// entry as manual.
 export function EntryEditor({ entry, onSaved, onCancel }: Props) {
   const [lists, setLists] = useState<Lists | null>(null)
   const [listsError, setListsError] = useState(false)
-  const [accountId, setAccountId] = useState<number | null>(entry.accountId)
-  const [entryDate, setEntryDate] = useState(entry.entryDate)
-  const [areaId, setAreaId] = useState(String(entry.areaId))
+  const [accountId, setAccountId] = useState<number | null>(entry?.accountId ?? null)
+  const [entryDate, setEntryDate] = useState(entry?.entryDate ?? todayInBolivia())
+  const [areaId, setAreaId] = useState(entry ? String(entry.areaId) : '')
   const [outsideConfirmed, setOutsideConfirmed] = useState(false)
-  const [description, setDescription] = useState(entry.description)
-  const [copias, setCopias] = useState(String(entry.copias))
+  const [description, setDescription] = useState(entry?.description ?? '')
+  const [copias, setCopias] = useState(entry ? String(entry.copias) : '')
   // The entry's anillados get keys 1, 2, …; rows added later continue from there.
   const [anillados, setAnillados] = useState<AnilladoRow[]>(() =>
-    entry.anillados.map((a, i) => ({
+    (entry?.anillados ?? []).map((a, i) => ({
       key: i + 1,
       sizeMm: String(a.sizeMm),
       quantity: String(a.quantity),
     })),
   )
-  const lastKey = useRef(entry.anillados.length)
+  const lastKey = useRef(entry?.anillados.length ?? 0)
   const newKey = () => ++lastKey.current
   const [saving, setSaving] = useState(false)
   // An object, not a string: the same message twice in a row is still a new problem,
@@ -90,8 +94,13 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
     setSaving(true)
     setProblem(null)
     try {
-      await updateEntry(entry.id, changes)
-      onSaved()
+      if (entry) {
+        await updateEntry(entry.id, changes)
+        onSaved()
+      } else {
+        const id = await registerManualEntry(changes)
+        onSaved({ id, name: account.name, entryDate: changes.entryDate })
+      }
     } catch (error) {
       setProblem({ message: adminErrorMessage(error) })
       setSaving(false)
@@ -107,9 +116,19 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="entry-editor">
-      <h2>
-        Modificar el pedido de {entry.name} del {formatDate(entry.entryDate)}
-      </h2>
+      {entry ? (
+        <h2>
+          Modificar el pedido de {entry.name} del {formatDate(entry.entryDate)}
+        </h2>
+      ) : (
+        <>
+          <h2>Registrar un pedido del cuaderno</h2>
+          <p className="hint">
+            Para pedidos anotados en el cuaderno, p. ej. cuando no hubo conexión. Se verá como
+            «Ingreso manual» en esta lista, no en los reportes.
+          </p>
+        </>
+      )}
 
       <div className="result">
         {problem && (
@@ -129,10 +148,13 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
           operator
           onSelect={(chosen) => {
             setAccountId(chosen?.id ?? null)
+            // A new entry starts in the person's main department, as on the staff form;
+            // an edit keeps its department.
+            if (!entry && chosen) setAreaId(String(chosen.defaultAreaId))
             setOutsideConfirmed(false)
           }}
         />
-        {entry.accountId === null && account === null && (
+        {entry?.accountId === null && account === null && (
           <p className="hint">
             Este pedido se registró antes de las cuentas: elija la cuenta de {entry.name}.
           </p>
@@ -151,7 +173,7 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
         <AreaSelect
           areas={lists.areas}
           account={account}
-          forName={account?.name ?? entry.name}
+          forName={account?.name ?? entry?.name ?? 'esta persona'}
           value={areaId}
           onChange={(value) => {
             setAreaId(value)
@@ -198,7 +220,7 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
           Cancelar
         </button>
         <button type="submit" className="primary" disabled={saving}>
-          {saving ? 'Guardando…' : 'Guardar cambios'}
+          {saving ? 'Guardando…' : entry ? 'Guardar cambios' : 'Registrar pedido'}
         </button>
       </div>
     </form>
