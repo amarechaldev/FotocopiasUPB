@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { chooseDefault, noAreas, toggleArea, type AreaSelection } from './domain/areaSelection'
 import { checkPin, pinDigits } from './domain/pin'
 import { ACCOUNT_MESSAGES, accountErrorMessage } from './lib/accountErrors'
 import { createAccount } from './lib/accounts'
 import { fetchAreas, type Area } from './lib/entries'
+import { scrollToTop } from './scrollToTop'
 
 type Status =
   | { kind: 'idle' }
@@ -28,11 +29,8 @@ export function AccountForm() {
 
   // The message is at the top, the button at the bottom: scroll up on every new
   // message, including a second error in a row (same kind, new message).
-  const messageRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
-    if (status.kind === 'created' || status.kind === 'failed') {
-      messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    if (status.kind === 'created' || status.kind === 'failed') scrollToTop()
   }, [status])
 
   // The confirmation belongs to the previous person.
@@ -86,7 +84,7 @@ export function AccountForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div ref={messageRef} className="result">
+      <div className="result">
         {status.kind === 'created' && (
           <div className="message success" role="status">
             <strong>✓ Cuenta creada</strong>

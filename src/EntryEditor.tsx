@@ -9,6 +9,7 @@ import { fetchAccounts, type Account } from './lib/accounts'
 import { updateEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAnilladoSizes, fetchAreas, type Area } from './lib/entries'
+import { scrollToTop } from './scrollToTop'
 
 type Lists = {
   areas: Area[]
@@ -54,10 +55,9 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
       .catch(() => setListsError(true))
   }, [])
 
-  // The message is at the top, the buttons at the bottom: bring every new message into view.
-  const messageRef = useRef<HTMLDivElement>(null)
+  // The message is at the top, the buttons at the bottom: scroll up on every new message.
   useEffect(() => {
-    if (problem) messageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (problem) scrollToTop()
   }, [problem])
 
   const account = lists?.accounts.find((a) => a.id === accountId) ?? null
@@ -111,7 +111,7 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
         Modificar el pedido de {entry.name} del {formatDate(entry.entryDate)}
       </h2>
 
-      <div ref={messageRef} className="result">
+      <div className="result">
         {problem && (
           <div className="message error" role="alert">
             <strong>✗ No se guardó</strong>
