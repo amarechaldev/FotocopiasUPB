@@ -67,6 +67,10 @@ Oct 25 c) #4 finished, with discussions and fixing about sorting / next is #5, o
 
 Oct 25 d) #5 is finished / next is #46, operator registers entries for other people / no blocks / 30 min / goal on track
 
+Oct 26 a) Finished #50 and #46, and ackups are not blocked anymore / next is #44, second database for testing / no blocks / 90 min / goal on track
+
+Oct 26 b) did #44, second database / next is planning and executing the pilot / no blocks / 120 min / sprint goal finished
+
 ## Review
 
 *To be completed on October 28.*
