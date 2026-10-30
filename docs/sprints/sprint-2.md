@@ -73,8 +73,69 @@ Oct 26 b) did #44, second database / next is planning and executing the pilot / 
 
 ## Review
 
-*To be completed on October 28.*
+*Held on October 29, a day after the sprint ended.*
+
+**Sprint goal: met** on October 24, the third day of the sprint.
+
+**Accepted by the PO:**
+
+- Goal: [#28 Create my staff account](https://github.com/amarechaldev/FotocopiasUPB/issues/28), [#29 Requests require login](https://github.com/amarechaldev/FotocopiasUPB/issues/29).
+- Added after the goal was met: [#41 Operator login](https://github.com/amarechaldev/FotocopiasUPB/issues/41), [#4 Operator sees and filters entries](https://github.com/amarechaldev/FotocopiasUPB/issues/4), [#5 Operator edits and deletes entries](https://github.com/amarechaldev/FotocopiasUPB/issues/5), [#46 Operator registers entries for other people](https://github.com/amarechaldev/FotocopiasUPB/issues/46), [#50 Page does not scroll to the top after a success](https://github.com/amarechaldev/FotocopiasUPB/issues/50), [#44 Second database for testing](https://github.com/amarechaldev/FotocopiasUPB/issues/44).
+- Nothing was left unfinished.
+
+**Meeting with the operator (October 26):**
+
+- She tried the entry list and loves the sorting and filters.
+- Her admin account was created with her.
+- Decisions: daily backups started by her with one button, kept on her computer; no automatic logout on her computer; people without an account cannot use the paper notebook (see the [decision log](../decision-log.md)).
+- She found the scroll problem after creating an account (#50, fixed in this sprint).
+- New information: she can close a billing period a day late (e.g. on the 23rd instead of the 22nd). The app must remember where each period ends, so that no day is billed twice or skipped.
+- The pilot departments are DAAE Cultura, DAAE Deportes and VRA, chosen by her.
+- The app did not load on one of her computers, while another computer on the same network worked. She uses the working one and is happy with it for now; the failing computer will be investigated later, probably after the MVP.
+
+**Pilot launched** at the end of the sprint: four staff members confirmed, a fifth to be contacted by the operator. The PO followed them while they created their accounts and made their first entries, and saw two improvements:
+
+- A warning when the typed name has no account, with a way to go straight to account creation.
+- After creating an account, the entry screen opens with the name already selected; the PIN is still typed, as usual.
+
+**Backlog changes:**
+
+- New stories: close a billing period (needed before the first pilot report); the two pilot improvements above.
+- [#51 Local backups](https://github.com/amarechaldev/FotocopiasUPB/issues/51) can wait until after the pilot, since the pilot departments keep the paper notebook in parallel.
+- [#31 Operator edits staff profiles](https://github.com/amarechaldev/FotocopiasUPB/issues/31) stays for the full rollout: during the pilot, the developer handles account changes and forgotten PINs.
+- Sprint 3 candidates: [#7 Detailed report](https://github.com/amarechaldev/FotocopiasUPB/issues/7), [#8 Global report](https://github.com/amarechaldev/FotocopiasUPB/issues/8) and closing a billing period, all needed before the first pilot period closes on November 22.
 
 ## Retrospective
 
-*To be completed on October 28. Check actions A1 and A2 from Sprint 1.*
+*Held on October 29, a day after the sprint ended (travel on October 28).*
+
+**Sprint 1 actions:**
+
+- **A1 (end-of-session note): done.** Eleven notes, each with done / next / blocked / hours / goal on track, one per story on busy days. Much easier than writing from memory. It is now a habit, no longer an action.
+- **A2 (plan by real capacity): half done.** Capacity was predicted well (about 10.75 hours planned of ~12 available; about 12.3 hours worked, from the notes). The Actual columns were left empty and had to be rebuilt from the notes. Task estimates were about 5 times too high: the goal's work (#28, #29) took about 1.5–2 hours against 7.75 planned.
+
+**What went well:**
+
+- The sprint goal was met on October 24, the third day. Six more stories were added after it and all were finished: #41, #4, #5, #46, #50, #44.
+- Each addition was recorded with its date and reason, and the goal never changed. Work stopped being added on Tuesday so the sprint could finish cleanly.
+- My own estimates were better than the Developer assistant's, and I felt in control all the time.
+- The operator used the product (entry list, filters, her admin account) and found a bug, which was fixed in the sprint.
+- Security evidence was produced for the security stories.
+- No risky change was deployed just before the pilot (#52 waited). The pilot launched and went well.
+
+**What didn't go well:**
+
+- The planned vs. actual tables were not filled in.
+- The Review and Retrospective happened a day after the sprint ended. This is acceptable given the trip, but the cadence must not drift: Sprint 3 keeps its normal dates.
+
+**Insights:**
+
+- The person who does the work gives the final estimate; the Developer assistant's estimate is only a starting point.
+- Ending a sprint a day late is fine once; the risk is that each sprint starts a little later than the last.
+
+**Actions for Sprint 3:**
+
+| # | Action | Owner | How it is checked at the next Retrospective |
+| --- | --- | --- | --- |
+| B1 | **Calibrated, personal estimates.** At planning, take the Dev assistant's estimate, divide it by 3, then adjust it with my own judgement. My number goes into the plan. | Dev | For each task, planned and actual hours are within about ±50%. |
+| B2 | **Close the numbers before the Review.** In the last session of the sprint, fill in the Actual columns of the task and capacity tables from the end-of-session notes. | Dev (SM checks) | Both tables are complete when the Retrospective starts. |
