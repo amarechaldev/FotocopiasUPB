@@ -32,14 +32,31 @@ With all seven done, every story in the MVP milestone is finished.
 | Work | Planned hours | Actual hours |
 | --- | --- | --- |
 | PO | | |
-| Dev | | |
+| Dev | ~5.15 | |
 | **Total** | **~7–10** | |
 
 **Tasks** (action B1: my own estimates, starting from the Dev assistant's divided by 3):
 
-| # | Task | Story | Planned hours | Actual hours |
-| --- | --- | --- | --- | --- |
-| | | | | |
+| # | Task | Story | Dev assistant (h) | Planned hours (÷3) | Actual hours |
+| --- | --- | --- | --- | --- | --- |
+| 1 (#59) | DB: billing periods with movable end dates, `list_periods`, `set_period_end`; first period from 23/10/2026 | #52 | 1.5 | 0.5 | |
+| 2 (#60) | Operator screen: periods from the database, end date visible from the first day, "Cambiar cierre" with the reprint warning | #52 | 1.5 | 0.5 | |
+| 3 (#61) | Test #52 on the test database and preview, PR, migration to production after merge | #52 | 0.5 | 0.15 | |
+| 4 (#62) | Departments in the order of the Excel report everywhere | #7 | 0.5 | 0.15 | |
+| 5 (#63) | Report logic with tests: grouping, date order, sizes used, subtotals, totals, open period up to today | #7 | 1 | 0.3 | |
+| 6 (#64) | pdfmake and the detailed report PDF on letter paper, report buttons | #7 | 1.5 | 0.5 | |
+| 7 (#65) | Test #7: PDF against the entry list on test data, print one page, PR | #7 | 0.5 | 0.15 | |
+| 8 (#66) | Copy price in the database, per-department totals in centavos with tests | #8 | 1 | 0.3 | |
+| 9 (#67) | Global report PDF: one row per department, totals, period dates, space for signatures | #8 | 0.75 | 0.25 | |
+| 10 (#68) | Test #8 on test data, print one page, PR | #8 | 0.5 | 0.15 | |
+| 11 (#69) | Name without an account: red box with "Crear cuenta", form locked until a name is chosen; test; PR | #56 | 1 | 0.3 | |
+| 12 (#70) | After creating an account: entry screen with the message and the name selected; test; PR | #57 | 1 | 0.3 | |
+| 13 (#71) | DB: too-vague descriptions table, checked when saving | #3 | 1 | 0.3 | |
+| 14 (#72) | Browser: too-vague message, `current_period()` for staff, period warnings; tests | #3 | 1.5 | 0.5 | |
+| 15 (#73) | Test #3, PR; production: app first, then migration | #3 | 0.5 | 0.15 | |
+| 16 (#74) | DB: common descriptions per department | #32 | 0.5 | 0.15 | |
+| 17 (#75) | Suggestions under the description field; test on tablet; PR | #32 | 1.5 | 0.5 | |
+| | **Dev total** | | **~16.25** | **~5.15** | |
 
 ## Daily Log
 
