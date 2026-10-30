@@ -1,5 +1,15 @@
 import { describe, expect, test } from 'vitest'
-import { formatDate, formatDateTime, todayInBolivia } from './dates'
+import { addDays, formatDate, formatDateTime, todayInBolivia } from './dates'
+
+describe('addDays', () => {
+  test('the next day, across the end of a year', () => {
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01')
+  })
+
+  test('the previous day, across the end of a month', () => {
+    expect(addDays('2026-11-01', -1)).toBe('2026-10-31')
+  })
+})
 
 describe('todayInBolivia', () => {
   test('uses the Bolivian date, not the UTC date, late in the evening', () => {

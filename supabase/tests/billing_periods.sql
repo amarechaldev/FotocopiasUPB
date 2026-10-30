@@ -1,4 +1,4 @@
--- Tests for 0011 (billing periods). Paste into the SQL Editor of the TEST project only, after 0011.
+-- Tests for billing periods (0011, 0012). Paste into the SQL Editor of the TEST project only, after 0012.
 -- Everything runs in one transaction that is rolled back: no data is left behind, and the real
 -- moved ends (if any) are untouched. The first failed check stops the script with its message;
 -- success = the script ends without an error.
@@ -70,6 +70,12 @@ begin
          = array[date '2027-03-01', date '2027-04-01'], 'only March and April changeable';
   assert (select count(*) from periods_as_of('2026-10-01')) = 0, 'nothing before the first period';
   perform pg_temp.assert_contiguous('2027-04-10');
+
+  -- End limits by default: from the 23rd of the month before to the 21st of the month after.
+  assert (select earliest_end || '..' || latest_end from period_end_limits('2026-11-01'))
+         = '2026-10-23..2026-12-21', 'November limits';
+  assert (select earliest_end || '..' || latest_end from period_end_limits('2026-12-01'))
+         = '2026-11-23..2027-01-21', 'December limits';
 end $$;
 
 -- PO example: the period Mar 23–Apr 22 can end from Mar 23 up to May 21 ------------------
@@ -123,20 +129,50 @@ begin
   delete from period_ends;
 end $$;
 
+-- Limits come from the month, not from the actual start (0012) ------------------------------
+
+do $$
+begin
+  -- 30/10/2026: November closed as early as possible, on 23/10. December runs 24/10–22/12
+  -- and is now current, but its end still cannot be before 23/11.
+  perform apply_period_end('2026-11-01', '2026-10-23', '2026-10-30');
+  assert pg_temp.current_of('2026-10-30') = '2026-10-24..2026-12-22', 'December from 24/10';
+  assert (select earliest_end from period_end_limits('2026-12-01')) = '2026-11-23', 'December earliest';
+  perform pg_temp.expect_error('2026-12-01', '2026-11-22', '2026-10-30', 'period_end_too_early');
+  perform apply_period_end('2026-12-01', '2026-11-23', '2026-10-30');
+  assert pg_temp.current_of('2026-10-30') = '2026-10-24..2026-11-23', 'December to 23/11';
+  perform pg_temp.assert_contiguous('2026-10-30');
+  delete from period_ends;
+
+  -- The chain found while testing #60: November on 26/10, then December on 27/10.
+  perform apply_period_end('2026-11-01', '2026-10-26', '2026-10-30');
+  perform pg_temp.expect_error('2026-12-01', '2026-10-27', '2026-10-30', 'period_end_too_early');
+  delete from period_ends;
+
+  -- 10/11/2026: November extended to 21/12, so December lasts one day and can only end then
+  -- or later.
+  perform apply_period_end('2026-11-01', '2026-12-21', '2026-11-10');
+  assert (select start_date || '..' || end_date from periods_as_of('2026-11-10')
+          where month = '2026-12-01') = '2026-12-22..2026-12-22', 'December one day';
+  assert (select earliest_end || '..' || latest_end from period_end_limits('2026-12-01'))
+         = '2026-12-22..2027-01-21', 'December limits after the extension';
+  perform pg_temp.assert_contiguous('2026-11-10');
+  delete from period_ends;
+end $$;
+
 -- The previous end must stay before the current period's actual end if it was moved earlier --
 
 do $$
 begin
-  -- 10/04/2027: close April early on Apr 5; today is then in May (Apr 6–May 22).
-  perform apply_period_end('2027-04-01', '2027-04-05', '2027-04-10');
-  -- Close May early too, on Apr 12 (May is current, April previous).
-  perform apply_period_end('2027-05-01', '2027-04-12', '2027-04-10');
-  -- Moving April's end to Apr 12 would leave May empty; Apr 11 leaves it one day.
-  perform pg_temp.expect_error('2027-04-01', '2027-04-12', '2027-04-10', 'period_end_too_late');
-  perform apply_period_end('2027-04-01', '2027-04-11', '2027-04-10');
-  assert (select start_date || '..' || end_date from periods_as_of('2027-04-10')
-          where month = '2027-05-01') = '2027-04-12..2027-04-12', 'May one day';
-  perform pg_temp.assert_contiguous('2027-04-10');
+  -- 24/04/2027: current May (Apr 23–May 22), previous April. Close May on Apr 25.
+  perform apply_period_end('2027-05-01', '2027-04-25', '2027-04-24');
+  -- April can now end on Apr 24 at the latest (May keeps one day), not on the 21st of May.
+  assert (select latest_end from period_end_limits('2027-04-01')) = '2027-04-24', 'April latest';
+  perform pg_temp.expect_error('2027-04-01', '2027-04-25', '2027-04-24', 'period_end_too_late');
+  perform apply_period_end('2027-04-01', '2027-04-24', '2027-04-24');
+  assert (select start_date || '..' || end_date from periods_as_of('2027-04-24')
+          where month = '2027-05-01') = '2027-04-25..2027-04-25', 'May one day';
+  perform pg_temp.assert_contiguous('2027-04-24');
   delete from period_ends;
 end $$;
 
@@ -164,6 +200,11 @@ begin
   begin
     perform periods_as_of('2026-10-30');
     raise exception 'periods_as_of should not be callable';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform period_end_limits('2026-11-01');
+    raise exception 'period_end_limits should not be callable';
   exception when insufficient_privilege then null;
   end;
   begin

@@ -440,6 +440,36 @@ main.wide select {
   cursor: default;
 }
 
+.period-label button {
+  margin-top: 0.5rem;
+}
+
+/* Changing the end of the period shown (PeriodBar) */
+.period-end {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 1rem;
+  background: var(--color-panel);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.period-end .hint {
+  margin: 0;
+}
+
+.period-end-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.period-end-actions button.primary {
+  font-size: 1.1rem;
+}
+
 /* Área, Nombre, Descripción, Quitar filtros in one row (wraps on narrow screens) */
 .filters {
   display: grid;

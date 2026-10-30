@@ -1,39 +1,66 @@
 import { describe, expect, test } from 'vitest'
-import { periodOf, shiftPeriod } from './periods'
+import {
+  browsablePeriods,
+  hasEnded,
+  nextAfterNewEnd,
+  periodContaining,
+  type BillingPeriod,
+} from './periods'
 
-describe('periodOf', () => {
-  test('the 23rd starts a new period', () => {
-    expect(periodOf('2026-10-23')).toEqual({ start: '2026-10-23', end: '2026-11-22' })
+function period(month: string, start: string, end: string, isCurrent = false): BillingPeriod {
+  return { month, start, end, isCurrent, changeable: false, earliestEnd: start, latestEnd: end }
+}
+
+// The first period's end was moved to 25/11, so December starts on the 26th.
+const november = period('2026-11-01', '2026-10-23', '2026-11-25')
+const december = period('2026-12-01', '2026-11-26', '2026-12-22', true)
+const january = period('2027-01-01', '2026-12-23', '2027-01-22')
+const periods = [november, december, january]
+
+describe('browsablePeriods', () => {
+  test('up to the current period, without the next one', () => {
+    expect(browsablePeriods(periods)).toEqual([november, december])
   })
 
-  test('the 22nd ends the period', () => {
-    expect(periodOf('2026-10-22')).toEqual({ start: '2026-09-23', end: '2026-10-22' })
-  })
-
-  test('early in January belongs to the period that started in December', () => {
-    expect(periodOf('2027-01-05')).toEqual({ start: '2026-12-23', end: '2027-01-22' })
-  })
-
-  test('late in December runs into next year', () => {
-    expect(periodOf('2026-12-30')).toEqual({ start: '2026-12-23', end: '2027-01-22' })
+  test('nothing if no period is current', () => {
+    expect(browsablePeriods([november])).toEqual([])
   })
 })
 
-describe('shiftPeriod', () => {
-  const october = { start: '2026-09-23', end: '2026-10-22' }
-
-  test('previous period', () => {
-    expect(shiftPeriod(october, -1)).toEqual({ start: '2026-08-23', end: '2026-09-22' })
+describe('hasEnded', () => {
+  test('not on its last day', () => {
+    expect(hasEnded(november, '2026-11-25')).toBe(false)
   })
 
-  test('next period', () => {
-    expect(shiftPeriod(october, 1)).toEqual({ start: '2026-10-23', end: '2026-11-22' })
+  test('the day after its last day', () => {
+    expect(hasEnded(november, '2026-11-26')).toBe(true)
+  })
+})
+
+describe('nextAfterNewEnd', () => {
+  test('closing early makes the next period start earlier', () => {
+    expect(nextAfterNewEnd(december, '2026-10-26')).toEqual({ start: '2026-10-27', end: '2026-12-22' })
   })
 
-  test('across the new year', () => {
-    expect(shiftPeriod({ start: '2027-01-23', end: '2027-02-22' }, -2)).toEqual({
-      start: '2026-11-23',
-      end: '2026-12-22',
-    })
+  test('the next period can be left with one day', () => {
+    expect(nextAfterNewEnd(december, '2026-12-21')).toEqual({ start: '2026-12-22', end: '2026-12-22' })
+  })
+
+  test('none if the next period would be left with no day', () => {
+    expect(nextAfterNewEnd(december, '2026-12-22')).toBeNull()
+  })
+})
+
+describe('periodContaining', () => {
+  test('a moved end date belongs to its period', () => {
+    expect(periodContaining(periods, '2026-11-25')).toBe(november)
+  })
+
+  test('the day after a moved end starts the next period', () => {
+    expect(periodContaining(periods, '2026-11-26')).toBe(december)
+  })
+
+  test('before the first period: none', () => {
+    expect(periodContaining(periods, '2026-10-22')).toBeNull()
   })
 })
