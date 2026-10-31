@@ -20,6 +20,7 @@ import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAreas, type Area } from './lib/entries'
 import { fetchPeriods } from './lib/periods'
 import { PeriodBar } from './PeriodBar'
+import { ReportButtons } from './ReportButtons'
 import { scrollToTop } from './scrollToTop'
 
 type LoadedPeriods =
@@ -210,6 +211,8 @@ export function EntryList() {
         onSelect={changePeriod}
         onEndChanged={handleEndChanged}
       />
+
+      <ReportButtons period={period} areas={areas} />
 
       <div className="filters">
         <label>
