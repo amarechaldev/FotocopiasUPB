@@ -7,6 +7,13 @@ export function todayInBolivia(now: Date = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: BOLIVIA_TIME_ZONE }).format(now)
 }
 
+// The ISO date `days` days after (or before, if negative) the given one.
+export function addDays(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number)
+  // Date.UTC carries day 32 or 0 into the next or previous month (and year).
+  return new Date(Date.UTC(year, month - 1, day + days)).toISOString().slice(0, 10)
+}
+
 // An ISO date (YYYY-MM-DD) as shown to users: 17/10/2026.
 export function formatDate(isoDate: string): string {
   const [year, month, day] = isoDate.split('-')

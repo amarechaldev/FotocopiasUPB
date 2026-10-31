@@ -14,6 +14,12 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   description_required: 'Escriba la descripción.',
   area_invalid: 'Elija un área de la lista.',
   entry_empty: EMPTY_ENTRY_MESSAGE,
+  // set_period_end (migrations 0011 and 0012). The date field only offers valid dates, so the
+  // last two appear only if the periods changed meanwhile.
+  period_locked:
+    'Solo se puede cambiar el cierre del periodo actual o del anterior. Recargue la página.',
+  period_end_too_early: 'Esa fecha de cierre es demasiado temprana. Recargue la página.',
+  period_end_too_late: 'Esa fecha de cierre es demasiado tardía. Recargue la página.',
 }
 
 function field(error: unknown, name: 'code' | 'message'): string {

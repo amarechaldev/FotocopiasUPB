@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { formatDate, formatDateTime, todayInBolivia } from './domain/dates'
+import { formatDate, formatDateTime } from './domain/dates'
 import {
   defaultSort,
   describeAnillados,
@@ -13,12 +13,19 @@ import {
   type SortOrder,
   type SortKey,
 } from './domain/entryList'
-import { periodOf, shiftPeriod, type Period } from './domain/periods'
+import { browsablePeriods, type BillingPeriod } from './domain/periods'
 import { EntryEditor, type CreatedEntry } from './EntryEditor'
 import { deleteEntry, fetchEntries, restoreEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAreas, type Area } from './lib/entries'
+import { fetchPeriods } from './lib/periods'
+import { PeriodBar } from './PeriodBar'
 import { scrollToTop } from './scrollToTop'
+
+type LoadedPeriods =
+  | { kind: 'loading' }
+  | { kind: 'loaded'; periods: BillingPeriod[] } // up to the one after the current, oldest first
+  | { kind: 'failed'; message: string }
 
 type Loaded =
   | { kind: 'loading' }
@@ -35,8 +42,10 @@ type Undo =
 // The operator's list of entries: one billing period at a time, filtered and
 // sorted in the browser (a period is a few hundred entries at most).
 export function EntryList() {
-  const currentPeriod = periodOf(todayInBolivia())
-  const [period, setPeriod] = useState<Period>(currentPeriod)
+  const [periods, setPeriods] = useState<LoadedPeriods>({ kind: 'loading' })
+  // The period shown, by its month; null = the current one (until the periods arrive).
+  const [month, setMonth] = useState<string | null>(null)
+  const [periodReloads, setPeriodReloads] = useState(0) // +1 = fetch the periods again
   const [loaded, setLoaded] = useState<Loaded>({ kind: 'loading' })
   const [areas, setAreas] = useState<Area[]>([])
   const [areasError, setAreasError] = useState(false)
@@ -62,8 +71,25 @@ export function EntryList() {
   }, [])
 
   useEffect(() => {
+    fetchPeriods()
+      .then((all) => setPeriods({ kind: 'loaded', periods: all }))
+      .catch((error) => setPeriods({ kind: 'failed', message: adminErrorMessage(error) }))
+  }, [periodReloads])
+
+  // The month she chose, or the current period (also if a change of end dates removed hers).
+  const allPeriods = periods.kind === 'loaded' ? periods.periods : []
+  const browsable = browsablePeriods(allPeriods)
+  const period: BillingPeriod | undefined =
+    browsable.find((p) => p.month === month) ?? browsable.find((p) => p.isCurrent)
+  // The period after the one shown: moving the end changes its start.
+  const nextPeriod = period && allPeriods[allPeriods.indexOf(period) + 1]
+  const start = period?.start
+  const end = period?.end
+
+  useEffect(() => {
+    if (start === undefined || end === undefined) return
     let current = true // ignore the answer if she has already moved to another period
-    fetchEntries(period)
+    fetchEntries({ start, end })
       .then((entries) => {
         if (current) setLoaded({ kind: 'loaded', entries })
       })
@@ -73,18 +99,26 @@ export function EntryList() {
     return () => {
       current = false
     }
-  }, [period, reloads])
+  }, [start, end, reloads])
 
   const shown = useMemo(
     () => (loaded.kind === 'loaded' ? sortEntries(filterEntries(loaded.entries, filters), sortOrder) : []),
     [loaded, filters, sortOrder],
   )
 
-  function changePeriod(count: number) {
-    setPeriod(shiftPeriod(period, count))
+  function changePeriod(chosen: BillingPeriod) {
+    setMonth(chosen.month)
     setLoaded({ kind: 'loading' })
     setUndo(null)
     setActionError(null)
+  }
+
+  // A moved end date changes this period and its neighbour: fetch the periods again. The
+  // entries follow, since the dates of the period shown change. Stay on the period she
+  // changed, even if today now belongs to another one.
+  function handleEndChanged(changedMonth: string) {
+    setMonth(changedMonth)
+    setPeriodReloads((n) => n + 1)
   }
 
   // Runs a delete or undo, then fetches the period again (the table stays meanwhile).
@@ -122,7 +156,21 @@ export function EntryList() {
     )
   }
 
-  const isCurrent = period.start === currentPeriod.start
+  if (periods.kind !== 'loaded' || period === undefined) {
+    return (
+      <section className="entry-list">
+        {periods.kind === 'loading' && <p className="notice">Cargando…</p>}
+        {periods.kind === 'failed' && (
+          <div className="message error" role="alert">
+            <strong>✗ No se pudieron cargar los periodos</strong>
+            <p>{periods.message}</p>
+          </div>
+        )}
+        {periods.kind === 'loaded' && <p className="notice">Todavía no empezó ningún periodo.</p>}
+      </section>
+    )
+  }
+
   const filtered =
     filters.areaId !== null || filters.name.trim() !== '' || filters.description.trim() !== ''
 
@@ -155,25 +203,13 @@ export function EntryList() {
         </button>
       </div>
 
-      <div className="period">
-        <button type="button" className="secondary" onClick={() => changePeriod(-1)}>
-          ‹ Anterior
-        </button>
-        <div className="period-label">
-          <strong>
-            {formatDate(period.start)} – {formatDate(period.end)}
-          </strong>
-          {isCurrent && <small>Periodo actual</small>}
-        </div>
-        <button
-          type="button"
-          className="secondary"
-          disabled={isCurrent}
-          onClick={() => changePeriod(1)}
-        >
-          Siguiente ›
-        </button>
-      </div>
+      <PeriodBar
+        periods={browsable}
+        selected={period}
+        next={nextPeriod}
+        onSelect={changePeriod}
+        onEndChanged={handleEndChanged}
+      />
 
       <div className="filters">
         <label>
