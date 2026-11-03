@@ -67,7 +67,9 @@ export function AccountPicker({
           placeholder={operator ? 'Escriba parte del nombre' : 'Escriba parte de su nombre'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={(e) => {
+          // On every tap, not on focus: closing the keyboard leaves the field focused, so a
+          // second tap would not count as focusing it again.
+          onClick={(e) => {
             // The staff device's keyboard; the operator types on a computer.
             const picker = e.currentTarget.closest<HTMLElement>('.picker')
             if (!operator && picker) scrollToTopOfScreen(picker)
