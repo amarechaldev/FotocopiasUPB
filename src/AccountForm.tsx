@@ -6,13 +6,20 @@ import { createAccount } from './lib/accounts'
 import { fetchAreas, type Area } from './lib/entries'
 import { scrollToTop } from './scrollToTop'
 
-type Status =
-  | { kind: 'idle' }
-  | { kind: 'saving' }
-  | { kind: 'created'; name: string; defaultAreaName: string }
-  | { kind: 'failed'; message: string }
+type Status = { kind: 'idle' } | { kind: 'saving' } | { kind: 'failed'; message: string }
 
-export function AccountForm() {
+// What the entry screen needs to choose the new name and welcome its owner.
+export type CreatedAccount = {
+  id: number
+  name: string
+  defaultAreaName: string
+}
+
+type Props = {
+  onCreated: (account: CreatedAccount) => void // opens the entry screen (#57)
+}
+
+export function AccountForm({ onCreated }: Props) {
   const [areas, setAreas] = useState<Area[] | null>(null)
   const [areasError, setAreasError] = useState(false)
   const [name, setName] = useState('')
@@ -30,18 +37,8 @@ export function AccountForm() {
   // The message is at the top, the button at the bottom: scroll up on every new
   // message, including a second error in a row (same kind, new message).
   useEffect(() => {
-    if (status.kind === 'created' || status.kind === 'failed') scrollToTop()
+    if (status.kind === 'failed') scrollToTop()
   }, [status])
-
-  // The confirmation belongs to the previous person.
-  function clearConfirmation() {
-    setStatus((current) => (current.kind === 'created' ? { kind: 'idle' } : current))
-  }
-
-  function pinValue(text: string) {
-    clearConfirmation()
-    return pinDigits(text)
-  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -58,16 +55,18 @@ export function AccountForm() {
     setStatus({ kind: 'saving' })
     const defaultAreaId = selection.defaultAreaId
     try {
-      await createAccount({ name: name.trim(), pin, areaIds: selection.areaIds, defaultAreaId })
-      setStatus({
-        kind: 'created',
+      const id = await createAccount({
+        name: name.trim(),
+        pin,
+        areaIds: selection.areaIds,
+        defaultAreaId,
+      })
+      // On to the entry screen, where the green message is shown (#57).
+      onCreated({
+        id,
         name: name.trim().replace(/\s+/g, ' '),
         defaultAreaName: areas?.find((area) => area.id === defaultAreaId)?.name ?? '',
       })
-      setName('')
-      setSelection(noAreas)
-      setPin('')
-      setPinAgain('')
     } catch (error) {
       setStatus({ kind: 'failed', message: accountErrorMessage(error) })
     }
@@ -85,15 +84,6 @@ export function AccountForm() {
   return (
     <form onSubmit={handleSubmit}>
       <div className="result">
-        {status.kind === 'created' && (
-          <div className="message success" role="status">
-            <strong>✓ Cuenta creada</strong>
-            <p>
-              {status.name} · Área principal: {status.defaultAreaName}
-            </p>
-            <p>Ya puede registrar sus pedidos con su nombre y su PIN.</p>
-          </div>
-        )}
         {status.kind === 'failed' && (
           <div className="message error" role="alert">
             <strong>✗ No se pudo crear la cuenta</strong>
@@ -115,10 +105,7 @@ export function AccountForm() {
             autoCapitalize="words"
             title="Escriba su nombre y apellido"
             value={name}
-            onChange={(e) => {
-              setName(e.target.value)
-              clearConfirmation()
-            }}
+            onChange={(e) => setName(e.target.value)}
           />
         </label>
       </fieldset>
@@ -132,10 +119,7 @@ export function AccountForm() {
               <input
                 type="checkbox"
                 checked={selection.areaIds.includes(area.id)}
-                onChange={() => {
-                  setSelection((current) => toggleArea(current, area.id))
-                  clearConfirmation()
-                }}
+                onChange={() => setSelection((current) => toggleArea(current, area.id))}
               />
               {area.name}
             </label>
@@ -181,7 +165,7 @@ export function AccountForm() {
             autoComplete="off"
             required
             value={pin}
-            onChange={(e) => setPin(pinValue(e.target.value))}
+            onChange={(e) => setPin(pinDigits(e.target.value))}
           />
         </label>
 
@@ -194,7 +178,7 @@ export function AccountForm() {
             autoComplete="off"
             required
             value={pinAgain}
-            onChange={(e) => setPinAgain(pinValue(e.target.value))}
+            onChange={(e) => setPinAgain(pinDigits(e.target.value))}
           />
         </label>
       </fieldset>

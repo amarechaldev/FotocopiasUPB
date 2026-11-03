@@ -6,6 +6,7 @@ import { todayInBolivia } from './domain/dates'
 import { checkEntryContents } from './domain/entryRules'
 import { pinDigits } from './domain/pin'
 import { describeContents } from './domain/summary'
+import type { CreatedAccount } from './AccountForm'
 import { fetchAccounts, type Account } from './lib/accounts'
 import { fetchAnilladoSizes, fetchAreas, registerAccountEntry, type Area } from './lib/entries'
 import { entryErrorMessage, isRefusal } from './lib/entryErrors'
@@ -38,10 +39,11 @@ type Lists = {
 }
 
 type Props = {
+  createdAccount?: CreatedAccount | null // just created: chosen and welcomed (#57)
   onCreateAccount: () => void // a name without an account: go to "Crear cuenta"
 }
 
-export function EntryForm({ onCreateAccount }: Props) {
+export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   const [lists, setLists] = useState<Lists | null>(null)
   const [listsError, setListsError] = useState(false)
   const [account, setAccount] = useState<Account | null>(null)
@@ -50,17 +52,37 @@ export function EntryForm({ onCreateAccount }: Props) {
   const [outsideConfirmed, setOutsideConfirmed] = useState(false)
   const [pin, setPin] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  // Kept apart from status: typing clears a confirmation, but this one stays while the new
+  // account's owner fills their first entry.
+  const [welcome, setWelcome] = useState<CreatedAccount | null>(createdAccount)
 
   // A counter that survives redraws without causing one (unlike state).
   const lastKey = useRef(0)
   const newKey = () => ++lastKey.current
 
+  // The account the form was opened with, read only when it first appears: a later change
+  // of the prop must not choose a name again.
+  const arrivedWith = useRef(createdAccount)
+
   // Load the lists once, when the form first appears. Switching to "Crear cuenta"
   // and back draws the form again, so a new account shows up in the names.
   useEffect(() => {
     Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAccounts()])
-      .then(([areas, sizes, accounts]) => setLists({ areas, sizes, accounts }))
+      .then(([areas, sizes, accounts]) => {
+        setLists({ areas, sizes, accounts })
+        // Straight from "Crear cuenta": the new name is already chosen (#57).
+        const created = accounts.find((a) => a.id === arrivedWith.current?.id)
+        if (created) {
+          setAccount(created)
+          setFields((current) => ({ ...current, areaId: String(created.defaultAreaId) }))
+        }
+      })
       .catch(() => setListsError(true))
+  }, [])
+
+  // Arriving from "Crear cuenta", whose button was at the bottom of a long form.
+  useEffect(() => {
+    if (arrivedWith.current) scrollToTop()
   }, [])
 
   // The Guardar button is at the bottom of a long form, so the result message
@@ -85,6 +107,7 @@ export function EntryForm({ onCreateAccount }: Props) {
   // Choosing a name selects that person's default department.
   function selectAccount(chosen: Account | null) {
     setAccount(chosen)
+    setWelcome(null) // "Cambiar": maybe someone else now
     if (chosen) update('areaId', String(chosen.defaultAreaId))
     setOutsideConfirmed(false)
     clearConfirmation()
@@ -141,6 +164,7 @@ export function EntryForm({ onCreateAccount }: Props) {
       })
       // Logged out: the next person must choose their name and type their PIN.
       setAccount(null)
+      setWelcome(null)
       setPin('')
       setOutsideConfirmed(false)
       setFields(emptyFields())
@@ -170,6 +194,16 @@ export function EntryForm({ onCreateAccount }: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="result">
+        {/* Hidden behind a failure message, so only the red one shows. */}
+        {welcome && (status.kind === 'idle' || status.kind === 'saving') && (
+          <div className="message success" role="status">
+            <strong>✓ Cuenta creada</strong>
+            <p>
+              {welcome.name} · Área principal: {welcome.defaultAreaName}
+            </p>
+            <p>Ahora registre su pedido.</p>
+          </div>
+        )}
         {status.kind === 'saved' && (
           <div className="message success" role="status">
             <strong>✓ Registro guardado (n.º {status.id})</strong>
