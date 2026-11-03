@@ -274,6 +274,7 @@ input.pin {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  scroll-margin-top: 0.75rem; /* scrolled to the top of the screen: a little room above "Su nombre" */
 }
 
 /* Matching names: each one is a large tap target */

@@ -5,6 +5,16 @@ import type { Account } from './lib/accounts'
 // Enough to find a name on a phone screen without scrolling past the form.
 const MAX_RESULTS = 6
 
+// The on-screen keyboard opens a moment after the tap (and the browser then scrolls the field
+// only just into view): wait for it before moving the name to the top.
+const KEYBOARD_DELAY_MS = 300
+
+// The name at the top of the screen, so the matching names and the "no account" box below it
+// stay above the keyboard (#56).
+function scrollToTopOfScreen(element: HTMLElement) {
+  setTimeout(() => element.scrollIntoView({ block: 'start', behavior: 'smooth' }), KEYBOARD_DELAY_MS)
+}
+
 type Props = {
   accounts: Account[]
   selected: Account | null
@@ -57,6 +67,11 @@ export function AccountPicker({
           placeholder={operator ? 'Escriba parte del nombre' : 'Escriba parte de su nombre'}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onFocus={(e) => {
+            // The staff device's keyboard; the operator types on a computer.
+            const picker = e.currentTarget.closest<HTMLElement>('.picker')
+            if (!operator && picker) scrollToTopOfScreen(picker)
+          }}
         />
       </label>
       {matches.length > 0 && (
