@@ -25,7 +25,7 @@ const LABELS: Record<Report, string> = {
   global: 'Reporte global (PDF)',
 }
 
-// Fetched again (not the list's copy): the report stops at today, and must be up to date.
+// Fetched again (not the list's copy), so the report is up to date.
 async function downloadReport(report: Report, period: Period, areas: Area[]): Promise<void> {
   const generatedAt = new Date()
   const range = reportRange(period, todayInBolivia())
@@ -52,7 +52,7 @@ async function downloadReport(report: Report, period: Period, areas: Area[]): Pr
   }
 }
 
-// The PDF reports of the period shown. A current period is reported up to today.
+// The PDF reports of the period shown, whole, even while it is still open.
 export function ReportButtons({ period, areas }: Props) {
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 

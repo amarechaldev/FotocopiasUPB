@@ -103,7 +103,7 @@ describe('buildGlobalReport', () => {
   })
 
   test('keeps the range of the detailed report, partial included', () => {
-    const open: ReportRange = { start: '2026-10-23', end: '2026-10-31', partial: true }
+    const open: ReportRange = { ...range, partial: true }
     expect(report([], open).range).toEqual(open)
   })
 })

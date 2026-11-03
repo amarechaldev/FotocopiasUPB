@@ -2,6 +2,7 @@ import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interface
 import { formatDate } from '../domain/dates'
 import type { DetailedReport, ReportTotals } from '../domain/detailedReport'
 import { describeAnillados } from '../domain/entryList'
+import { formatQuantity } from '../domain/money'
 import type { Period } from '../domain/periods'
 import { MARGIN, pageFooter, pageHeader, reportFileName } from './common'
 
@@ -11,6 +12,11 @@ import { MARGIN, pageFooter, pageHeader, reportFileName } from './common'
 
 function anilladosText(totals: ReportTotals): string {
   return totals.anillados.length > 0 ? describeAnillados(totals.anillados) : '—'
+}
+
+// 41 184: right-aligned, and never wrapped at the thin space between thousands.
+function copiasCell(copias: number): { text: string; alignment: 'right'; noWrap: true } {
+  return { text: formatQuantity(copias), alignment: 'right', noWrap: true }
 }
 
 // A new row for each table: pdfmake writes its layout into the cells it draws, so a row shared
@@ -33,7 +39,7 @@ export function detailedReportDocument(
       entry.areaName,
       entry.name,
       entry.description,
-      { text: String(entry.copias), alignment: 'right' },
+      copiasCell(entry.copias),
       describeAnillados(entry.anillados),
     ])
     if (!hasEntries) {
@@ -44,7 +50,7 @@ export function detailedReportDocument(
       '',
       '',
       '',
-      { text: String(section.totals.copias), alignment: 'right', bold: true },
+      { ...copiasCell(section.totals.copias), bold: true },
       { text: anilladosText(section.totals), bold: true },
     ]
     return {
@@ -73,8 +79,8 @@ export function detailedReportDocument(
         table: {
           widths: [120, '*'],
           body: [
-            ['Pedidos', String(entryCount)],
-            ['Copias', String(report.totals.copias)],
+            ['Pedidos', formatQuantity(entryCount)],
+            ['Copias', formatQuantity(report.totals.copias)],
             ['Anillados', anilladosText(report.totals)],
           ],
         },

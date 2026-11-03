@@ -27,7 +27,7 @@ const entry: ListedEntry = {
 }
 
 const closed: ReportRange = { ...period, partial: false }
-const open: ReportRange = { start: '2026-10-23', end: '2026-10-31', partial: true }
+const open: ReportRange = { ...period, partial: true }
 
 function documentFor(range: ReportRange) {
   const report = buildGlobalReport(buildDetailedReport([entry], areas, range), prices)
@@ -76,7 +76,7 @@ describe('globalReportDocument', () => {
   test('the header shows the period, and "Parcial" only while it is open', () => {
     expect(JSON.stringify(documentFor(closed).header)).toContain('Periodo 23/10/2026 – 22/11/2026')
     expect(JSON.stringify(documentFor(closed).header)).not.toContain('Parcial')
-    expect(JSON.stringify(documentFor(open).header)).toContain('Parcial: pedidos hasta el 31/10/2026')
+    expect(JSON.stringify(documentFor(open).header)).toContain('Parcial: el periodo sigue abierto')
   })
 })
 

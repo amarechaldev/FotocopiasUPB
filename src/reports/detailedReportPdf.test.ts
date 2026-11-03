@@ -34,7 +34,7 @@ function documentFor(range: ReportRange) {
 }
 
 const closed = { ...period, partial: false }
-const open = { start: '2026-10-23', end: '2026-10-31', partial: true }
+const open = { ...period, partial: true }
 
 describe('detailedReportDocument', () => {
   test('letter paper, one page per department, then the totals page', () => {
@@ -77,6 +77,17 @@ describe('detailedReportDocument', () => {
     expect(cultura.body[0]).not.toBe(vra.body[0])
   })
 
+  test('copias with a thin space between thousands, in rows, department total and period totals', () => {
+    const doc = detailedReportDocument(
+      buildDetailedReport([{ ...entry, copias: 41_184 }], areas, closed),
+      period,
+      new Date(),
+    )
+    const vra = JSON.stringify((doc.content as unknown[])[0])
+    expect(vra.match(/41 184/g)).toHaveLength(2) // the entry and "Total VRA"
+    expect(JSON.stringify((doc.content as unknown[]).at(-1))).toContain('41 184')
+  })
+
   test('a department without entries says so', () => {
     const administracion = JSON.stringify((documentFor(closed).content as unknown[])[1])
     expect(administracion).toContain('Sin pedidos en este periodo.')
@@ -85,7 +96,7 @@ describe('detailedReportDocument', () => {
   test('the header shows the period, and "Parcial" only while it is open', () => {
     expect(JSON.stringify(documentFor(closed).header)).toContain('Periodo 23/10/2026 – 22/11/2026')
     expect(JSON.stringify(documentFor(closed).header)).not.toContain('Parcial')
-    expect(JSON.stringify(documentFor(open).header)).toContain('Parcial: pedidos hasta el 31/10/2026')
+    expect(JSON.stringify(documentFor(open).header)).toContain('Parcial: el periodo sigue abierto')
   })
 
   test('the footer numbers the pages and says when it was generated (Bolivian time)', () => {

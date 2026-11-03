@@ -7,10 +7,11 @@ import type { Period } from '../domain/periods'
 
 export const MARGIN = 40 // points: 72 = 1 inch
 
-// "Periodo 23/10/2026 – 22/11/2026", and for an open period: "Parcial: pedidos hasta el 31/10/2026".
+// "Periodo 23/10/2026 – 22/11/2026", and for an open period: "Parcial: el periodo sigue abierto".
+// The footer says when it was generated.
 export function periodLines(range: ReportRange, period: Period): string[] {
   const lines = [`Periodo ${formatDate(period.start)} – ${formatDate(period.end)}`]
-  if (range.partial) lines.push(`Parcial: pedidos hasta el ${formatDate(range.end)}`)
+  if (range.partial) lines.push('Parcial: el periodo sigue abierto')
   return lines
 }
 
