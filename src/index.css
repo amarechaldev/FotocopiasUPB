@@ -291,6 +291,21 @@ input.pin {
   border: 1px solid var(--color-border);
 }
 
+/* A name without an account: "Crear cuenta" under the message */
+.picker .message button {
+  margin-top: 0.75rem;
+}
+
+/* The fields locked until a name is chosen (EntryForm) */
+fieldset:disabled {
+  opacity: 0.45;
+}
+
+/* A fieldset inside a disabled one (Anillados) is disabled too: fade it only once */
+fieldset:disabled fieldset {
+  opacity: 1;
+}
+
 /* The chosen name, with "Cambiar" beside it */
 .picked {
   display: flex;

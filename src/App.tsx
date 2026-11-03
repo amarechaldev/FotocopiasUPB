@@ -39,7 +39,13 @@ function StaffApp() {
           Crear cuenta
         </button>
       </nav>
-      <main>{view === 'entry' ? <EntryForm /> : <AccountForm />}</main>
+      <main>
+        {view === 'entry' ? (
+          <EntryForm onCreateAccount={() => setView('account')} />
+        ) : (
+          <AccountForm />
+        )}
+      </main>
     </>
   )
 }

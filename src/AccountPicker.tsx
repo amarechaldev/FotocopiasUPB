@@ -10,10 +10,17 @@ type Props = {
   selected: Account | null
   onSelect: (account: Account | null) => void
   operator?: boolean // the operator choosing someone else's name: no "su nombre"
+  onCreateAccount?: () => void // staff: opens the "Crear cuenta" screen
 }
 
 // Type part of your name, then tap it in the list. Only real accounts can be chosen.
-export function AccountPicker({ accounts, selected, onSelect, operator = false }: Props) {
+export function AccountPicker({
+  accounts,
+  selected,
+  onSelect,
+  operator = false,
+  onCreateAccount,
+}: Props) {
   const [query, setQuery] = useState('')
 
   if (selected) {
@@ -38,6 +45,7 @@ export function AccountPicker({ accounts, selected, onSelect, operator = false }
   }
 
   const matches = searchByName(accounts, query)
+  const noAccount = query.trim() !== '' && matches.length === 0
 
   return (
     <div className="picker">
@@ -70,12 +78,25 @@ export function AccountPicker({ accounts, selected, onSelect, operator = false }
       {matches.length > MAX_RESULTS && (
         <p className="hint">Hay más nombres: escriba un poco más.</p>
       )}
-      {query.trim() !== '' && matches.length === 0 && (
-        <p className="hint">
-          No hay ninguna cuenta con ese nombre.
-          {!operator && ' Si es nuevo, créela en «Crear cuenta».'}
-        </p>
+      {/* Staff: the rest of the form stays locked until a name is chosen (EntryForm). */}
+      {!operator && !noAccount && (
+        <p className="hint">Elija su nombre de la lista para continuar.</p>
       )}
+      {noAccount &&
+        (operator ? (
+          <p className="hint">No hay ninguna cuenta con ese nombre.</p>
+        ) : (
+          // Staff tend to go on filling the form without noticing (#56): a red box, at once.
+          <div className="message error" role="alert">
+            <strong>✗ No hay ninguna cuenta con ese nombre</strong>
+            <p>Revise cómo lo escribió. Si todavía no tiene cuenta, créela primero.</p>
+            {onCreateAccount && (
+              <button type="button" className="secondary" onClick={onCreateAccount}>
+                Crear cuenta
+              </button>
+            )}
+          </div>
+        ))}
     </div>
   )
 }
