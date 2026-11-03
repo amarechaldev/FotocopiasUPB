@@ -37,12 +37,8 @@ describe('reportRange', () => {
     expect(reportRange(period, '2026-11-25')).toEqual({ ...period, partial: false })
   })
 
-  test('the current period: up to today, partial', () => {
-    expect(reportRange(period, '2026-10-31')).toEqual({
-      start: '2026-10-23',
-      end: '2026-10-31',
-      partial: true,
-    })
+  test('the current period: whole too, so entries dated after today are in, but partial', () => {
+    expect(reportRange(period, '2026-10-31')).toEqual({ ...period, partial: true })
   })
 
   test('on its last day: the whole period, still partial (it is not over)', () => {

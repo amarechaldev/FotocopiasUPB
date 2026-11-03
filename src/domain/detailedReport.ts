@@ -4,7 +4,7 @@
 import type { ListedEntry } from './entryList'
 import type { Period } from './periods'
 
-// The dates the report covers. partial = the period is still open, so it stops at today.
+// The dates the report covers. partial = the period is still open, so its totals may change.
 export type ReportRange = Period & { partial: boolean }
 
 export type AnilladoCount = { sizeMm: number; quantity: number }
@@ -27,10 +27,12 @@ export type DetailedReport = {
   totals: ReportTotals
 }
 
-// A closed period is reported whole; the current one up to today, to review it before closing.
+// Always the whole period, so every entry the operator sees in her list is in the reports, even
+// one dated after today (PO, 02/11/2026). The current period is marked partial: she reviews it
+// before closing.
 export function reportRange(period: Period, today: string): ReportRange {
   const open = period.start <= today && today <= period.end
-  return open ? { start: period.start, end: today, partial: true } : { ...period, partial: false }
+  return { ...period, partial: open }
 }
 
 // Quantities added up by size, smallest first (e.g. 2 × 12 mm and 1 × 12 mm give 3 × 12 mm).

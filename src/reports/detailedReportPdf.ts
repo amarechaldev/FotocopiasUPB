@@ -1,24 +1,22 @@
 import type { Content, TableCell, TDocumentDefinitions } from 'pdfmake/interfaces'
-import { formatDate, formatDateTime } from '../domain/dates'
+import { formatDate } from '../domain/dates'
 import type { DetailedReport, ReportTotals } from '../domain/detailedReport'
 import { describeAnillados } from '../domain/entryList'
+import { formatQuantity } from '../domain/money'
 import type { Period } from '../domain/periods'
+import { MARGIN, pageFooter, pageHeader, reportFileName } from './common'
 
 // The detailed report as a pdfmake document: a plain description of the pages, built here
 // without pdfmake itself, so it can be tested. Letter paper, one department per page
 // (user, 31/10/2026), then the totals of the period.
 
-const MARGIN = 40 // points: 72 = 1 inch
-
 function anilladosText(totals: ReportTotals): string {
   return totals.anillados.length > 0 ? describeAnillados(totals.anillados) : '—'
 }
 
-// "23/10/2026 – 22/11/2026", and for an open period: "Parcial: pedidos hasta el 31/10/2026".
-function periodLines(report: DetailedReport, period: Period): string[] {
-  const lines = [`Periodo ${formatDate(period.start)} – ${formatDate(period.end)}`]
-  if (report.range.partial) lines.push(`Parcial: pedidos hasta el ${formatDate(report.range.end)}`)
-  return lines
+// 41 184: right-aligned, and never wrapped at the thin space between thousands.
+function copiasCell(copias: number): { text: string; alignment: 'right'; noWrap: true } {
+  return { text: formatQuantity(copias), alignment: 'right', noWrap: true }
 }
 
 // A new row for each table: pdfmake writes its layout into the cells it draws, so a row shared
@@ -41,7 +39,7 @@ export function detailedReportDocument(
       entry.areaName,
       entry.name,
       entry.description,
-      { text: String(entry.copias), alignment: 'right' },
+      copiasCell(entry.copias),
       describeAnillados(entry.anillados),
     ])
     if (!hasEntries) {
@@ -52,7 +50,7 @@ export function detailedReportDocument(
       '',
       '',
       '',
-      { text: String(section.totals.copias), alignment: 'right', bold: true },
+      { ...copiasCell(section.totals.copias), bold: true },
       { text: anilladosText(section.totals), bold: true },
     ]
     return {
@@ -81,8 +79,8 @@ export function detailedReportDocument(
         table: {
           widths: [120, '*'],
           body: [
-            ['Pedidos', String(entryCount)],
-            ['Copias', String(report.totals.copias)],
+            ['Pedidos', formatQuantity(entryCount)],
+            ['Copias', formatQuantity(report.totals.copias)],
             ['Anillados', anilladosText(report.totals)],
           ],
         },
@@ -96,21 +94,8 @@ export function detailedReportDocument(
     pageSize: 'LETTER',
     pageOrientation: 'portrait',
     pageMargins: [MARGIN, 70, MARGIN, 50],
-    header: {
-      margin: [MARGIN, 24, MARGIN, 0],
-      columns: [
-        { text: 'Fotocopias UPB · Reporte detallado', bold: true },
-        { text: periodLines(report, period).join('\n'), alignment: 'right' },
-      ],
-    },
-    footer: (currentPage, pageCount) => ({
-      margin: [MARGIN, 16, MARGIN, 0],
-      fontSize: 8,
-      columns: [
-        `Generado el ${formatDateTime(generatedAt)}`,
-        { text: `Página ${currentPage} de ${pageCount}`, alignment: 'right' },
-      ],
-    }),
+    header: pageHeader('Reporte detallado', report.range, period),
+    footer: pageFooter(generatedAt),
     content: [...departmentPages, totalsPage],
     defaultStyle: { font: 'Roboto', fontSize: 9 },
     styles: {
@@ -122,7 +107,5 @@ export function detailedReportDocument(
 
 // e.g. reporte-detallado_23-10-2026_22-11-2026_parcial.pdf
 export function detailedReportFileName(report: DetailedReport, period: Period): string {
-  const day = (date: string) => formatDate(date).replaceAll('/', '-')
-  const partial = report.range.partial ? '_parcial' : ''
-  return `reporte-detallado_${day(period.start)}_${day(period.end)}${partial}.pdf`
+  return reportFileName('reporte-detallado', report.range, period)
 }
