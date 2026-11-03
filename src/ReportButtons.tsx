@@ -1,54 +1,85 @@
 import { useState } from 'react'
 import { todayInBolivia } from './domain/dates'
 import { buildDetailedReport, reportRange } from './domain/detailedReport'
+import { buildGlobalReport } from './domain/globalReport'
 import type { Period } from './domain/periods'
 import { fetchEntries } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import type { Area } from './lib/entries'
+import { fetchPrices } from './lib/prices'
 
 type Props = {
   period: Period // the period shown in the list
   areas: Area[] // every active department, in the order of the monthly report
 }
 
-type Status = { kind: 'idle' } | { kind: 'generating' } | { kind: 'failed'; message: string }
+type Report = 'detailed' | 'global'
+
+type Status =
+  | { kind: 'idle' }
+  | { kind: 'generating'; report: Report }
+  | { kind: 'failed'; message: string }
+
+const LABELS: Record<Report, string> = {
+  detailed: 'Reporte detallado (PDF)',
+  global: 'Reporte global (PDF)',
+}
+
+// Fetched again (not the list's copy): the report stops at today, and must be up to date.
+async function downloadReport(report: Report, period: Period, areas: Area[]): Promise<void> {
+  const generatedAt = new Date()
+  const range = reportRange(period, todayInBolivia())
+  const [entries, prices] = await Promise.all([
+    fetchEntries(range),
+    report === 'global' ? fetchPrices() : null,
+  ])
+  const detailed = buildDetailedReport(entries, areas, range)
+  // Only now: the PDF code and its library are loaded the first time a report is made.
+  const { downloadPdf } = await import('./reports/pdf')
+  if (prices) {
+    const global = buildGlobalReport(detailed, prices)
+    const { globalReportDocument, globalReportFileName } = await import('./reports/globalReportPdf')
+    await downloadPdf(
+      globalReportDocument(global, period, generatedAt),
+      globalReportFileName(global, period),
+    )
+  } else {
+    const { detailedReportDocument, detailedReportFileName } = await import('./reports/detailedReportPdf')
+    await downloadPdf(
+      detailedReportDocument(detailed, period, generatedAt),
+      detailedReportFileName(detailed, period),
+    )
+  }
+}
 
 // The PDF reports of the period shown. A current period is reported up to today.
 export function ReportButtons({ period, areas }: Props) {
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
 
-  async function generateDetailed() {
-    setStatus({ kind: 'generating' })
+  async function generate(report: Report) {
+    setStatus({ kind: 'generating', report })
     try {
-      // Fetched again (not the list's copy): the report stops at today, and must be up to date.
-      const range = reportRange(period, todayInBolivia())
-      const entries = await fetchEntries(range)
-      const report = buildDetailedReport(entries, areas, range)
-      // Only now: the PDF code and its library are loaded the first time a report is made.
-      const [{ detailedReportDocument, detailedReportFileName }, { downloadPdf }] = await Promise.all([
-        import('./reports/detailedReportPdf'),
-        import('./reports/pdf'),
-      ])
-      await downloadPdf(
-        detailedReportDocument(report, period, new Date()),
-        detailedReportFileName(report, period),
-      )
+      await downloadReport(report, period, areas)
       setStatus({ kind: 'idle' })
     } catch (error) {
       setStatus({ kind: 'failed', message: adminErrorMessage(error) })
     }
   }
 
+  const reports: Report[] = ['detailed', 'global']
   return (
     <div className="reports">
-      <button
-        type="button"
-        className="secondary"
-        disabled={status.kind === 'generating' || areas.length === 0}
-        onClick={generateDetailed}
-      >
-        {status.kind === 'generating' ? 'Generando…' : 'Reporte detallado (PDF)'}
-      </button>
+      {reports.map((report) => (
+        <button
+          key={report}
+          type="button"
+          className="secondary"
+          disabled={status.kind === 'generating' || areas.length === 0}
+          onClick={() => generate(report)}
+        >
+          {status.kind === 'generating' && status.report === report ? 'Generando…' : LABELS[report]}
+        </button>
+      ))}
       {status.kind === 'failed' && (
         <div className="message error" role="alert">
           <strong>✗ No se pudo generar el reporte</strong>
