@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AccountForm } from './AccountForm'
+import { AccountForm, type CreatedAccount } from './AccountForm'
 import { AdminApp } from './AdminApp'
 import { EntryForm } from './EntryForm'
 
@@ -16,6 +16,14 @@ type View = 'entry' | 'account'
 
 function StaffApp() {
   const [view, setView] = useState<View>('entry')
+  // Just created on the account screen: the entry screen opens with that name chosen (#57).
+  const [created, setCreated] = useState<CreatedAccount | null>(null)
+
+  // Switching screens by hand: the welcome message belongs to that one moment.
+  function show(next: View) {
+    setCreated(null)
+    setView(next)
+  }
 
   return (
     <>
@@ -27,23 +35,28 @@ function StaffApp() {
         <button
           type="button"
           aria-current={view === 'entry' ? 'page' : undefined}
-          onClick={() => setView('entry')}
+          onClick={() => show('entry')}
         >
           Registrar pedido
         </button>
         <button
           type="button"
           aria-current={view === 'account' ? 'page' : undefined}
-          onClick={() => setView('account')}
+          onClick={() => show('account')}
         >
           Crear cuenta
         </button>
       </nav>
       <main>
         {view === 'entry' ? (
-          <EntryForm onCreateAccount={() => setView('account')} />
+          <EntryForm createdAccount={created} onCreateAccount={() => show('account')} />
         ) : (
-          <AccountForm />
+          <AccountForm
+            onCreated={(account) => {
+              setCreated(account)
+              setView('entry')
+            }}
+          />
         )}
       </main>
     </>
