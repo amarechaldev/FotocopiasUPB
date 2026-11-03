@@ -444,6 +444,18 @@ main.wide select {
   margin-top: 0.5rem;
 }
 
+/* The PDF reports of the period shown (ReportButtons) */
+.reports {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.reports .message {
+  flex-basis: 100%;
+}
+
 /* Changing the end of the period shown (PeriodBar) */
 .period-end {
   display: flex;
