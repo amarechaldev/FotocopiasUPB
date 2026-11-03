@@ -37,7 +37,11 @@ type Lists = {
   accounts: Account[]
 }
 
-export function EntryForm() {
+type Props = {
+  onCreateAccount: () => void // a name without an account: go to "Crear cuenta"
+}
+
+export function EntryForm({ onCreateAccount }: Props) {
   const [lists, setLists] = useState<Lists | null>(null)
   const [listsError, setListsError] = useState(false)
   const [account, setAccount] = useState<Account | null>(null)
@@ -159,6 +163,10 @@ export function EntryForm() {
     return <p className="notice">Cargando…</p>
   }
 
+  // Nothing can be filled before a real name is chosen (#56); what was typed is kept.
+  // A disabled fieldset disables every field inside it.
+  const locked = account === null
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="result">
@@ -189,42 +197,49 @@ export function EntryForm() {
       <fieldset>
         <legend>Datos</legend>
 
-        <AccountPicker accounts={lists.accounts} selected={account} onSelect={selectAccount} />
-
-        <label>
-          Fecha
-          <input
-            type="date"
-            required
-            value={fields.entryDate}
-            onChange={(e) => update('entryDate', e.target.value)}
-          />
-        </label>
-
-        <AreaSelect
-          areas={lists.areas}
-          account={account}
-          value={fields.areaId}
-          onChange={selectArea}
-          confirmed={outsideConfirmed}
-          onConfirm={setOutsideConfirmed}
+        <AccountPicker
+          accounts={lists.accounts}
+          selected={account}
+          onSelect={selectAccount}
+          onCreateAccount={onCreateAccount}
         />
 
-        <label>
-          Descripción
-          <input
-            type="text"
-            required
-            pattern=".*\S.*"
-            autoComplete="off"
-            title="Escriba qué fotocopia, p. ej. Exámenes"
-            value={fields.description}
-            onChange={(e) => update('description', e.target.value)}
+        <fieldset disabled={locked}>
+          <label>
+            Fecha
+            <input
+              type="date"
+              required
+              value={fields.entryDate}
+              onChange={(e) => update('entryDate', e.target.value)}
+            />
+          </label>
+
+          <AreaSelect
+            areas={lists.areas}
+            account={account}
+            value={fields.areaId}
+            onChange={selectArea}
+            confirmed={outsideConfirmed}
+            onConfirm={setOutsideConfirmed}
           />
-        </label>
+
+          <label>
+            Descripción
+            <input
+              type="text"
+              required
+              pattern=".*\S.*"
+              autoComplete="off"
+              title="Escriba qué fotocopia, p. ej. Exámenes"
+              value={fields.description}
+              onChange={(e) => update('description', e.target.value)}
+            />
+          </label>
+        </fieldset>
       </fieldset>
 
-      <fieldset>
+      <fieldset disabled={locked}>
         <legend>Pedido</legend>
 
         <label>
@@ -247,7 +262,7 @@ export function EntryForm() {
         />
       </fieldset>
 
-      <fieldset>
+      <fieldset disabled={locked}>
         <legend>Confirmación</legend>
         <p className="hint">Su PIN confirma que este pedido es suyo.</p>
 
@@ -271,7 +286,7 @@ export function EntryForm() {
         </label>
       </fieldset>
 
-      <button type="submit" className="primary" disabled={status.kind === 'saving'}>
+      <button type="submit" className="primary" disabled={locked || status.kind === 'saving'}>
         {status.kind === 'saving' ? 'Guardando…' : 'Guardar'}
       </button>
     </form>
