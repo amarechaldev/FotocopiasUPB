@@ -2,6 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { AccountPicker } from './AccountPicker'
 import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { AreaSelect } from './AreaSelect'
+import { DescriptionField } from './DescriptionField'
+import type { CommonDescription } from './domain/descriptions'
 import { todayInBolivia } from './domain/dates'
 import {
   checkDescription,
@@ -16,6 +18,7 @@ import { fetchAccounts, type Account } from './lib/accounts'
 import {
   fetchAnilladoSizes,
   fetchAreas,
+  fetchCommonDescriptions,
   fetchCurrentPeriod,
   fetchVagueDescriptions,
   registerAccountEntry,
@@ -50,6 +53,7 @@ type Lists = {
   sizes: number[]
   accounts: Account[]
   vague: string[] // too-vague descriptions
+  common: CommonDescription[] // suggested, by department
   period: CurrentPeriod
 }
 
@@ -87,10 +91,11 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
       fetchAnilladoSizes(),
       fetchAccounts(),
       fetchVagueDescriptions(),
+      fetchCommonDescriptions(),
       fetchCurrentPeriod(),
     ])
-      .then(([areas, sizes, accounts, vague, period]) => {
-        setLists({ areas, sizes, accounts, vague, period })
+      .then(([areas, sizes, accounts, vague, common, period]) => {
+        setLists({ areas, sizes, accounts, vague, common, period })
         // Straight from "Crear cuenta": the new name is already chosen (#57).
         const created = accounts.find((a) => a.id === arrivedWith.current?.id)
         if (created) {
@@ -290,18 +295,12 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
             onConfirm={setOutsideConfirmed}
           />
 
-          <label>
-            Descripción
-            <input
-              type="text"
-              required
-              pattern=".*\S.*"
-              autoComplete="off"
-              title="Escriba qué fotocopia, p. ej. Exámenes"
-              value={fields.description}
-              onChange={(e) => update('description', e.target.value)}
-            />
-          </label>
+          <DescriptionField
+            common={lists.common}
+            areaId={fields.areaId === '' ? null : Number(fields.areaId)}
+            value={fields.description}
+            onChange={(value) => update('description', value)}
+          />
         </fieldset>
       </fieldset>
 

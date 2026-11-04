@@ -1,19 +1,10 @@
 import { useState } from 'react'
 import { exactMatch, searchByName } from './domain/names'
 import type { Account } from './lib/accounts'
+import { scrollToTopOfScreen } from './scrollToTop'
 
 // Enough to find a name on a phone screen without scrolling past the form.
 const MAX_RESULTS = 6
-
-// The on-screen keyboard opens a moment after the tap (and the browser then scrolls the field
-// only just into view): wait for it before moving the name to the top.
-const KEYBOARD_DELAY_MS = 300
-
-// The name at the top of the screen, so the matching names and the "no account" box below it
-// stay above the keyboard (#56).
-function scrollToTopOfScreen(element: HTMLElement) {
-  setTimeout(() => element.scrollIntoView({ block: 'start', behavior: 'smooth' }), KEYBOARD_DELAY_MS)
-}
 
 type Props = {
   accounts: Account[]
