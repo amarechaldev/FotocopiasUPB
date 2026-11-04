@@ -150,6 +150,7 @@ export function EntryList() {
       <section className="entry-list">
         <EntryEditor
           entry={editing === 'new' ? null : editing}
+          periods={allPeriods}
           onSaved={handleSaved}
           onCancel={() => setEditing(null)}
         />

@@ -1,12 +1,18 @@
-import { EMPTY_ENTRY_MESSAGE } from '../domain/entryRules'
+import {
+  EARLY_DATE_MESSAGE,
+  EMPTY_ENTRY_MESSAGE,
+  VAGUE_DESCRIPTION_MESSAGE,
+} from '../domain/entryRules'
 import { errorDetail } from './errorDetail'
 
 // The error codes raised by register_account_entry (supabase/migrations/0003_entry_accounts.sql,
-// entry_empty since 0008).
+// entry_empty since 0008, the last two since 0014).
 export const ENTRY_MESSAGES: Record<string, string> = {
   pin_wrong: 'PIN incorrecto. Vuelva a intentarlo.',
   account_invalid: 'Su cuenta no se encontró. Recargue la página y elija su nombre de nuevo.',
   entry_empty: EMPTY_ENTRY_MESSAGE,
+  description_vague: VAGUE_DESCRIPTION_MESSAGE,
+  date_before_first_period: EARLY_DATE_MESSAGE,
 }
 
 function errorCode(error: unknown): string {

@@ -22,6 +22,8 @@ describe('adminErrorMessage', () => {
       'description_required',
       'area_invalid',
       'entry_empty',
+      'description_vague',
+      'date_before_first_period',
     ]) {
       expect(adminErrorMessage({ message: code, code: 'P0001' })).not.toBe(code)
     }

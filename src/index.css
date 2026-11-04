@@ -343,6 +343,11 @@ fieldset:disabled fieldset {
   font-weight: 600;
 }
 
+/* A warning with only a sentence (e.g. a date outside the period), no checkbox below it */
+.warning p:last-child {
+  margin-bottom: 0;
+}
+
 /* Messages ---------------------------------------------------------------- */
 
 /* Holds the saved / failed message at the top of the form (hidden when empty) */

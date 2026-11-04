@@ -1,4 +1,5 @@
--- Tests for the input checks (0014). Paste into the SQL Editor of the TEST project only, after 0014.
+-- Tests for the input checks (0014, 0015). Paste into the SQL Editor of the TEST project only,
+-- after 0015.
 -- Everything runs in one transaction that is rolled back: the test account and entries are not
 -- kept. The first failed check stops the script with its message; success = no error at the end.
 -- Dates are relative to first_period_start(), so they pass whatever the first period is (the test
@@ -87,6 +88,12 @@ begin
   perform pg_temp.expect_operator_error(first_day - 1, 'Exámenes', 'date_before_first_period');
   assert (select check_entry(t.account_id, first_day, t.area_id::smallint, 'Copias del examen',
                              5, '[]') from t) = 'Prueba Controles 0014', 'operator: valid entry';
+
+  -- The current period for the staff form (0015): one row, containing today.
+  assert (select count(*) from current_period()) = 1, 'current_period: one row';
+  assert (select (now() at time zone 'America/La_Paz')::date between start_date and end_date
+          from current_period()), 'current_period: contains today';
+  assert (select first_start from current_period()) = first_day, 'current_period: first day';
 end;
 $$;
 

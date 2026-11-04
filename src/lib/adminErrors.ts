@@ -1,4 +1,8 @@
-import { EMPTY_ENTRY_MESSAGE } from '../domain/entryRules'
+import {
+  EARLY_DATE_MESSAGE,
+  EMPTY_ENTRY_MESSAGE,
+  VAGUE_DESCRIPTION_MESSAGE,
+} from '../domain/entryRules'
 import { errorDetail } from './errorDetail'
 
 // Supabase Auth error codes (`code`), plus our own codes (`message`): 'not_admin' from
@@ -14,6 +18,9 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   description_required: 'Escriba la descripción.',
   area_invalid: 'Elija un área de la lista.',
   entry_empty: EMPTY_ENTRY_MESSAGE,
+  // check_entry, since 0014.
+  description_vague: VAGUE_DESCRIPTION_MESSAGE,
+  date_before_first_period: EARLY_DATE_MESSAGE,
   // set_period_end (migrations 0011 and 0012). The date field only offers valid dates, so the
   // last two appear only if the periods changed meanwhile.
   period_locked:
