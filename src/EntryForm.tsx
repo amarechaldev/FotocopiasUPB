@@ -3,12 +3,25 @@ import { AccountPicker } from './AccountPicker'
 import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { AreaSelect } from './AreaSelect'
 import { todayInBolivia } from './domain/dates'
-import { checkEntryContents } from './domain/entryRules'
+import {
+  checkDescription,
+  checkEntryContents,
+  checkEntryDate,
+  newEntryPeriodWarning,
+} from './domain/entryRules'
 import { pinDigits } from './domain/pin'
 import { describeContents } from './domain/summary'
 import type { CreatedAccount } from './AccountForm'
 import { fetchAccounts, type Account } from './lib/accounts'
-import { fetchAnilladoSizes, fetchAreas, registerAccountEntry, type Area } from './lib/entries'
+import {
+  fetchAnilladoSizes,
+  fetchAreas,
+  fetchCurrentPeriod,
+  fetchVagueDescriptions,
+  registerAccountEntry,
+  type Area,
+  type CurrentPeriod,
+} from './lib/entries'
 import { entryErrorMessage, isRefusal } from './lib/entryErrors'
 import { scrollToTop } from './scrollToTop'
 
@@ -36,6 +49,8 @@ type Lists = {
   areas: Area[]
   sizes: number[]
   accounts: Account[]
+  vague: string[] // too-vague descriptions
+  period: CurrentPeriod
 }
 
 type Props = {
@@ -67,9 +82,15 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   // Load the lists once, when the form first appears. Switching to "Crear cuenta"
   // and back draws the form again, so a new account shows up in the names.
   useEffect(() => {
-    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAccounts()])
-      .then(([areas, sizes, accounts]) => {
-        setLists({ areas, sizes, accounts })
+    Promise.all([
+      fetchAreas(),
+      fetchAnilladoSizes(),
+      fetchAccounts(),
+      fetchVagueDescriptions(),
+      fetchCurrentPeriod(),
+    ])
+      .then(([areas, sizes, accounts, vague, period]) => {
+        setLists({ areas, sizes, accounts, vague, period })
         // Straight from "Crear cuenta": the new name is already chosen (#57).
         const created = accounts.find((a) => a.id === arrivedWith.current?.id)
         if (created) {
@@ -141,12 +162,16 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
         quantity: Number(row.quantity),
       })),
     }
-    const contentsProblem = checkEntryContents(
-      entry.copias,
-      entry.anillados.map((a) => a.quantity),
-    )
-    if (contentsProblem) {
-      setStatus({ kind: 'rejected', message: contentsProblem })
+    // A quick message; the database checks the same again (#3).
+    const problem =
+      checkEntryDate(entry.entryDate, lists?.period.firstStart ?? '') ??
+      checkDescription(entry.description, lists?.vague ?? []) ??
+      checkEntryContents(
+        entry.copias,
+        entry.anillados.map((a) => a.quantity),
+      )
+    if (problem) {
+      setStatus({ kind: 'rejected', message: problem })
       return
     }
     setStatus({ kind: 'saving' })
@@ -190,6 +215,7 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   // Nothing can be filled before a real name is chosen (#56); what was typed is kept.
   // A disabled fieldset disables every field inside it.
   const locked = account === null
+  const periodWarning = newEntryPeriodWarning(fields.entryDate, lists.period.current)
 
   return (
     <form onSubmit={handleSubmit}>
@@ -244,10 +270,16 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
             <input
               type="date"
               required
+              min={lists.period.firstStart}
               value={fields.entryDate}
               onChange={(e) => update('entryDate', e.target.value)}
             />
           </label>
+          {periodWarning && (
+            <div className="warning" role="status">
+              <p>⚠ {periodWarning}</p>
+            </div>
+          )}
 
           <AreaSelect
             areas={lists.areas}

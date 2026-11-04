@@ -4,17 +4,25 @@ import { AnilladosField, type AnilladoRow } from './AnilladosField'
 import { AreaSelect } from './AreaSelect'
 import { formatDate, todayInBolivia } from './domain/dates'
 import type { ListedEntry } from './domain/entryList'
-import { checkEntryContents } from './domain/entryRules'
+import {
+  checkDescription,
+  checkEntryContents,
+  checkEntryDate,
+  movedPeriodWarning,
+  newEntryPeriodWarning,
+} from './domain/entryRules'
+import type { BillingPeriod } from './domain/periods'
 import { fetchAccounts, type Account } from './lib/accounts'
 import { registerManualEntry, updateEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
-import { fetchAnilladoSizes, fetchAreas, type Area } from './lib/entries'
+import { fetchAnilladoSizes, fetchAreas, fetchVagueDescriptions, type Area } from './lib/entries'
 import { scrollToTop } from './scrollToTop'
 
 type Lists = {
   areas: Area[]
   sizes: number[]
   accounts: Account[]
+  vague: string[] // too-vague descriptions
 }
 
 // A manual entry just registered, for the undo bar.
@@ -22,6 +30,7 @@ export type CreatedEntry = { id: number; name: string; entryDate: string }
 
 type Props = {
   entry: ListedEntry | null // null = a new entry on someone's behalf (e.g. from the notebook)
+  periods: BillingPeriod[] // from the first one, oldest first (for the date checks and warnings)
   onSaved: (created?: CreatedEntry) => void
   onCancel: () => void
 }
@@ -29,7 +38,7 @@ type Props = {
 // The operator's form to change one entry, or to register one for someone else. Checked
 // like a staff entry (the database checks again); an edit is marked as modified, a new
 // entry as manual.
-export function EntryEditor({ entry, onSaved, onCancel }: Props) {
+export function EntryEditor({ entry, periods, onSaved, onCancel }: Props) {
   const [lists, setLists] = useState<Lists | null>(null)
   const [listsError, setListsError] = useState(false)
   const [accountId, setAccountId] = useState<number | null>(entry?.accountId ?? null)
@@ -54,8 +63,8 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
   const [problem, setProblem] = useState<{ message: string } | null>(null)
 
   useEffect(() => {
-    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAccounts()])
-      .then(([areas, sizes, accounts]) => setLists({ areas, sizes, accounts }))
+    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAccounts(), fetchVagueDescriptions()])
+      .then(([areas, sizes, accounts, vague]) => setLists({ areas, sizes, accounts, vague }))
       .catch(() => setListsError(true))
   }, [])
 
@@ -65,6 +74,11 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
   }, [problem])
 
   const account = lists?.accounts.find((a) => a.id === accountId) ?? null
+  const firstStart = periods[0]?.start ?? ''
+  // An edit: only if it moves the entry to another period. A new entry: outside the current one.
+  const periodWarning = entry
+    ? movedPeriodWarning(entry.entryDate, entryDate, periods)
+    : newEntryPeriodWarning(entryDate, periods.find((p) => p.isCurrent) ?? null)
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -83,12 +97,16 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
         quantity: Number(row.quantity),
       })),
     }
-    const contentsProblem = checkEntryContents(
-      changes.copias,
-      changes.anillados.map((a) => a.quantity),
-    )
-    if (contentsProblem) {
-      setProblem({ message: contentsProblem })
+    // A quick message; the database checks the same again (#3).
+    const refusal =
+      checkEntryDate(changes.entryDate, firstStart) ??
+      checkDescription(changes.description, lists?.vague ?? []) ??
+      checkEntryContents(
+        changes.copias,
+        changes.anillados.map((a) => a.quantity),
+      )
+    if (refusal) {
+      setProblem({ message: refusal })
       return
     }
     setSaving(true)
@@ -165,10 +183,16 @@ export function EntryEditor({ entry, onSaved, onCancel }: Props) {
           <input
             type="date"
             required
+            min={firstStart || undefined}
             value={entryDate}
             onChange={(e) => setEntryDate(e.target.value)}
           />
         </label>
+        {periodWarning && (
+          <div className="warning" role="status">
+            <p>⚠ {periodWarning}</p>
+          </div>
+        )}
 
         <AreaSelect
           areas={lists.areas}

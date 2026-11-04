@@ -9,7 +9,13 @@ describe('entryErrorMessage', () => {
   })
 
   test('every code from register_account_entry has a Spanish message', () => {
-    for (const code of ['pin_wrong', 'account_invalid', 'entry_empty']) {
+    for (const code of [
+      'pin_wrong',
+      'account_invalid',
+      'entry_empty',
+      'description_vague',
+      'date_before_first_period',
+    ]) {
       expect(entryErrorMessage({ message: code })).not.toBe(code)
     }
   })
@@ -22,6 +28,7 @@ describe('entryErrorMessage', () => {
 describe('isRefusal', () => {
   test('a wrong PIN is a refusal, a lost connection is not', () => {
     expect(isRefusal({ message: 'pin_wrong' })).toBe(true)
+    expect(isRefusal({ message: 'description_vague' })).toBe(true)
     expect(isRefusal(new TypeError('Failed to fetch'))).toBe(false)
   })
 })

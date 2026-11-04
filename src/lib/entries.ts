@@ -1,3 +1,4 @@
+import type { Period } from '../domain/periods'
 import { supabase } from './supabase'
 
 export type Area = {
@@ -40,6 +41,28 @@ export async function fetchAnilladoSizes(): Promise<number[]> {
     .order('size_mm')
   if (error) throw error
   return data.map((row) => row.size_mm)
+}
+
+// The too-vague descriptions (migration 0014), as the operator wrote them.
+export async function fetchVagueDescriptions(): Promise<string[]> {
+  const { data, error } = await supabase.from('vague_descriptions').select('description')
+  if (error) throw error
+  return data.map((row) => row.description)
+}
+
+// For the staff form, which cannot read the operator's list of periods (migration 0015).
+export type CurrentPeriod = {
+  current: Period | null // null before the first period starts
+  firstStart: string // the earliest date an entry can have
+}
+
+export async function fetchCurrentPeriod(): Promise<CurrentPeriod> {
+  const { data, error } = await supabase.rpc('current_period').single()
+  if (error) throw error
+  const row = data as { start_date: string | null; end_date: string | null; first_start: string }
+  const current =
+    row.start_date && row.end_date ? { start: row.start_date, end: row.end_date } : null
+  return { current, firstStart: row.first_start }
 }
 
 // On a weak connection a request can hang for minutes; give up after this,
