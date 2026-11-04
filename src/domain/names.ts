@@ -30,3 +30,12 @@ export function searchByName<T extends { name: string }>(items: T[], query: stri
     .sort((a, b) => a.rank - b.rank) // stable: keeps alphabetical order within a rank
     .map((match) => match.item)
 }
+
+// The account whose whole name was typed (ignoring case, accents and spaces), so it can be
+// chosen without tapping it (#56). None if another name also contains the text: 'Ana' must not
+// be chosen while Ana María is still typing.
+export function exactMatch<T extends { name: string }>(items: T[], query: string): T | null {
+  const matches = searchByName(items, query)
+  if (matches.length !== 1) return null
+  return normalizeName(matches[0].name) === normalizeName(query) ? matches[0] : null
+}
