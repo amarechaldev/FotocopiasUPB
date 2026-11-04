@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { searchByName } from './domain/names'
+import { exactMatch, searchByName } from './domain/names'
 import type { Account } from './lib/accounts'
 
 // Enough to find a name on a phone screen without scrolling past the form.
@@ -23,7 +23,8 @@ type Props = {
   onCreateAccount?: () => void // staff: opens the "Crear cuenta" screen
 }
 
-// Type part of your name, then tap it in the list. Only real accounts can be chosen.
+// Type part of your name, then tap it in the list (or type all of it). Only real accounts can be
+// chosen.
 export function AccountPicker({
   accounts,
   selected,
@@ -66,7 +67,16 @@ export function AccountPicker({
           autoComplete="off"
           placeholder={operator ? 'Escriba parte del nombre' : 'Escriba parte de su nombre'}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            // Staff who type their whole name go on without tapping it (#56).
+            const exact = operator ? null : exactMatch(accounts, e.target.value)
+            if (exact) {
+              setQuery('')
+              onSelect(exact)
+            } else {
+              setQuery(e.target.value)
+            }
+          }}
           // On every tap, not on focus: closing the keyboard leaves the field focused, so a
           // second tap would not count as focusing it again.
           onClick={(e) => {

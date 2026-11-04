@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { normalizeName, searchByName } from './names'
+import { exactMatch, normalizeName, searchByName } from './names'
 
 describe('normalizeName', () => {
   test('ignores case, accents and extra spaces', () => {
@@ -39,5 +39,28 @@ describe('searchByName', () => {
 
   test('no match gives an empty list', () => {
     expect(searchByName(accounts, 'zz')).toEqual([])
+  })
+})
+
+describe('exactMatch', () => {
+  const accounts = [{ name: 'María López' }, { name: 'Ana' }, { name: 'Ana María Pérez' }]
+
+  test('the whole name, ignoring case, accents and spaces', () => {
+    expect(exactMatch(accounts, 'maria lopez')).toEqual({ name: 'María López' })
+    expect(exactMatch(accounts, '  MARÍA   LÓPEZ ')).toEqual({ name: 'María López' })
+  })
+
+  test('part of a name is not enough', () => {
+    expect(exactMatch(accounts, 'maria lop')).toBeNull()
+    expect(exactMatch(accounts, 'lopez')).toBeNull()
+  })
+
+  test('none while the name is also part of another one', () => {
+    expect(exactMatch(accounts, 'ana')).toBeNull()
+  })
+
+  test('nothing typed or no account', () => {
+    expect(exactMatch(accounts, '')).toBeNull()
+    expect(exactMatch(accounts, 'maria lopez rojas')).toBeNull()
   })
 })
