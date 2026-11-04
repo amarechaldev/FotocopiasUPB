@@ -25,32 +25,48 @@ const entry: ListedEntry = {
   anillados: [{ sizeMm: 12, quantity: 2 }],
 }
 
-function documentFor(range: ReportRange) {
+// Entries in VRA and DAAE Cultura (given in the wrong order); none in Administración.
+const cultura: ListedEntry = { ...entry, id: 2, areaId: 10, areaName: 'DAAE Cultura', copias: 7 }
+
+function documentFor(range: ReportRange, entries: ListedEntry[] = [cultura, entry]) {
   return detailedReportDocument(
-    buildDetailedReport([entry], areas, range),
+    buildDetailedReport(entries, areas, range),
     period,
     new Date('2026-10-31T15:30:00Z'),
   )
 }
 
+const titles = (doc: ReturnType<typeof documentFor>) =>
+  (doc.content as { stack: { text: string }[] }[]).slice(0, -1).map((page) => page.stack[0].text)
+
 const closed = { ...period, partial: false }
 const open = { ...period, partial: true }
 
 describe('detailedReportDocument', () => {
-  test('letter paper, one page per department, then the totals page', () => {
+  test('letter paper, one page per department with entries, then the totals page', () => {
     const doc = documentFor(closed)
     expect(doc.pageSize).toBe('LETTER')
     const pages = doc.content as { pageBreak?: string }[]
-    expect(pages).toHaveLength(areas.length + 1)
-    expect(pages.map((page) => page.pageBreak)).toEqual([undefined, 'before', 'before', 'before'])
+    expect(pages).toHaveLength(3)
+    expect(pages.map((page) => page.pageBreak)).toEqual([undefined, 'before', 'before'])
     expect(JSON.stringify(pages.at(-1))).toContain('Totales del periodo')
   })
 
-  test('departments in the order of the monthly report', () => {
-    const titles = (documentFor(closed).content as { stack: { text: string }[] }[])
-      .slice(0, -1)
-      .map((page) => page.stack[0].text)
-    expect(titles).toEqual(['VRA', 'Administración', 'DAAE Cultura'])
+  test('departments in the order of the monthly report, without those with no entries', () => {
+    expect(titles(documentFor(closed))).toEqual(['VRA', 'DAAE Cultura'])
+  })
+
+  test('the period totals still count every entry', () => {
+    const totals = JSON.stringify((documentFor(closed).content as unknown[]).at(-1))
+    expect(totals).toContain('["Pedidos","2"]')
+    expect(totals).toContain('["Copias","57"]')
+  })
+
+  test('a period without entries: only the totals page, at zero', () => {
+    const pages = documentFor(closed, []).content as { pageBreak?: string }[]
+    expect(pages).toHaveLength(1)
+    expect(pages[0].pageBreak).toBeUndefined()
+    expect(JSON.stringify(pages[0])).toContain('["Copias","0"]')
   })
 
   test('an entry row in dd/mm/yyyy, anillados as in the list, and the department total', () => {
@@ -60,19 +76,13 @@ describe('detailedReportDocument', () => {
     expect(vra).toContain('Total VRA')
   })
 
-  test('column titles on every department with entries, each table with its own row', () => {
-    const doc = detailedReportDocument(
-      buildDetailedReport([entry, { ...entry, id: 2, areaId: 10, areaName: 'DAAE Cultura' }], areas, closed),
-      period,
-      new Date(),
-    )
+  test('column titles on every department, each table with its own row', () => {
     type Page = { stack: [unknown, { table: { headerRows: number; body: { text?: string }[][] } }] }
-    const tables = (doc.content as Page[]).slice(0, -1).map((page) => page.stack[1].table)
-    const [vra, administracion, cultura] = tables
-    expect([vra.headerRows, administracion.headerRows, cultura.headerRows]).toEqual([1, 0, 1])
+    const tables = (documentFor(closed).content as Page[]).slice(0, -1).map((page) => page.stack[1].table)
+    const [vra, cultura] = tables
+    expect([vra.headerRows, cultura.headerRows]).toEqual([1, 1])
     expect(vra.body[0][0].text).toBe('Fecha')
     expect(cultura.body[0][0].text).toBe('Fecha')
-    expect(administracion.body[0][0].text).toBe('Sin pedidos en este periodo.')
     // pdfmake writes into the cells it draws: a shared row would only show in the first table.
     expect(cultura.body[0]).not.toBe(vra.body[0])
   })
@@ -86,11 +96,6 @@ describe('detailedReportDocument', () => {
     const vra = JSON.stringify((doc.content as unknown[])[0])
     expect(vra.match(/41 184/g)).toHaveLength(2) // the entry and "Total VRA"
     expect(JSON.stringify((doc.content as unknown[]).at(-1))).toContain('41 184')
-  })
-
-  test('a department without entries says so', () => {
-    const administracion = JSON.stringify((documentFor(closed).content as unknown[])[1])
-    expect(administracion).toContain('Sin pedidos en este periodo.')
   })
 
   test('the header shows the period, and "Parcial" only while it is open', () => {

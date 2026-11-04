@@ -7,8 +7,8 @@ import type { Period } from '../domain/periods'
 import { MARGIN, pageFooter, pageHeader, reportFileName } from './common'
 
 // The detailed report as a pdfmake document: a plain description of the pages, built here
-// without pdfmake itself, so it can be tested. Letter paper, one department per page
-// (user, 31/10/2026), then the totals of the period.
+// without pdfmake itself, so it can be tested. Letter paper, one page per department with entries
+// (user, 31/10/2026; #82), then the totals of the period.
 
 function anilladosText(totals: ReportTotals): string {
   return totals.anillados.length > 0 ? describeAnillados(totals.anillados) : '—'
@@ -32,8 +32,9 @@ export function detailedReportDocument(
   period: Period,
   generatedAt: Date,
 ): TDocumentDefinitions {
-  const departmentPages: Content[] = report.departments.map((section, index) => {
-    const hasEntries = section.entries.length > 0
+  // Only departments with entries: no empty pages (#82). The global report still lists them all.
+  const withEntries = report.departments.filter((section) => section.entries.length > 0)
+  const departmentPages: Content[] = withEntries.map((section, index) => {
     const rows: TableCell[][] = section.entries.map((entry) => [
       formatDate(entry.entryDate),
       entry.areaName,
@@ -42,9 +43,6 @@ export function detailedReportDocument(
       copiasCell(entry.copias),
       describeAnillados(entry.anillados),
     ])
-    if (!hasEntries) {
-      rows.push([{ text: 'Sin pedidos en este periodo.', colSpan: 6, italics: true }, '', '', '', '', ''])
-    }
     const total: TableCell[] = [
       { text: `Total ${section.areaName}`, colSpan: 4, bold: true },
       '',
@@ -58,11 +56,10 @@ export function detailedReportDocument(
         { text: section.areaName, style: 'department' },
         {
           table: {
-            // Column titles on every page with entries: repeated if a department needs more
-            // than one page; none for a department without entries.
-            headerRows: hasEntries ? 1 : 0,
+            // Column titles repeated if a department needs more than one page.
+            headerRows: 1,
             widths: [52, 72, '*', '*', 40, 80],
-            body: hasEntries ? [headerRow(), ...rows, total] : [...rows, total],
+            body: [headerRow(), ...rows, total],
           },
           layout: 'lightHorizontalLines',
         },
@@ -87,7 +84,8 @@ export function detailedReportDocument(
         layout: 'lightHorizontalLines',
       },
     ],
-    pageBreak: 'before',
+    // A period without entries: the totals page alone, not after an empty one.
+    pageBreak: departmentPages.length > 0 ? 'before' : undefined,
   }
 
   return {
