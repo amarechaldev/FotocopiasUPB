@@ -25,7 +25,8 @@ import {
   type Area,
   type CurrentPeriod,
 } from './lib/entries'
-import { entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { ENTRY_MESSAGES, entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { NewPinStep } from './NewPinStep'
 import { scrollToTop } from './scrollToTop'
 
 type Status =
@@ -74,6 +75,10 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   // Kept apart from status: typing clears a confirmation, but this one stays while the new
   // account's owner fills their first entry.
   const [welcome, setWelcome] = useState<CreatedAccount | null>(createdAccount)
+  // PIN reset (#31): why the new-PIN step appeared late (the list was older than the reset), and
+  // the green message once the new PIN is saved.
+  const [pinNotice, setPinNotice] = useState<string | null>(null)
+  const [pinSaved, setPinSaved] = useState(false)
 
   // A counter that survives redraws without causing one (unlike state).
   const lastKey = useRef(0)
@@ -134,9 +139,27 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   function selectAccount(chosen: Account | null) {
     setAccount(chosen)
     setWelcome(null) // "Cambiar": maybe someone else now
+    setPinNotice(null)
+    setPinSaved(false)
     if (chosen) update('areaId', String(chosen.defaultAreaId))
     setOutsideConfirmed(false)
     clearConfirmation()
+  }
+
+  // The operator started or cancelled a reset after the list was loaded: the chosen account and
+  // the list follow the database.
+  function markPinReset(accountId: number, pending: boolean) {
+    const change = (a: Account) => (a.id === accountId ? { ...a, pinResetPending: pending } : a)
+    setAccount((current) => (current ? change(current) : current))
+    setLists((current) => current && { ...current, accounts: current.accounts.map(change) })
+  }
+
+  // The new PIN is saved: the form opens, with the PIN field already filled (typed twice just now).
+  function handleNewPin(newPin: string) {
+    if (account) markPinReset(account.id, false)
+    setPin(newPin)
+    setPinNotice(null)
+    setPinSaved(true)
   }
 
   function selectArea(areaId: string) {
@@ -195,12 +218,20 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
       // Logged out: the next person must choose their name and type their PIN.
       setAccount(null)
       setWelcome(null)
+      setPinSaved(false)
       setPin('')
       setOutsideConfirmed(false)
       setFields(emptyFields())
       setAnillados([])
     } catch (error) {
-      if (isRefusal(error)) {
+      if (entryErrorMessage(error) === ENTRY_MESSAGES.pin_reset_pending) {
+        // Reset after the list was loaded: the new-PIN step appears (and scrolls itself into
+        // view, with this notice); the entry is kept.
+        markPinReset(account.id, true)
+        setPin('')
+        setPinNotice(entryErrorMessage(error))
+        setStatus({ kind: 'idle' })
+      } else if (isRefusal(error)) {
         setPin('') // wrong PIN: type it again; everything else is kept
         setStatus({ kind: 'rejected', message: entryErrorMessage(error) })
       } else {
@@ -217,9 +248,9 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
     return <p className="notice">Cargando…</p>
   }
 
-  // Nothing can be filled before a real name is chosen (#56); what was typed is kept.
-  // A disabled fieldset disables every field inside it.
-  const locked = account === null
+  // Nothing can be filled before a real name is chosen (#56), nor before a new PIN is chosen
+  // after a reset (#31); what was typed is kept. A disabled fieldset disables every field inside it.
+  const locked = account === null || account.pinResetPending
   const periodWarning = newEntryPeriodWarning(fields.entryDate, lists.period.current)
 
   return (
@@ -232,6 +263,12 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
             <p>
               {welcome.name} · Área principal: {welcome.defaultAreaName}
             </p>
+            <p>Ahora registre su pedido.</p>
+          </div>
+        )}
+        {pinSaved && (status.kind === 'idle' || status.kind === 'saving') && (
+          <div className="message success" role="status">
+            <strong>✓ PIN nuevo guardado</strong>
             <p>Ahora registre su pedido.</p>
           </div>
         )}
@@ -268,6 +305,21 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
           onSelect={selectAccount}
           onCreateAccount={onCreateAccount}
         />
+
+        {account?.pinResetPending && (
+          <NewPinStep
+            key={account.id} // another person: empty fields
+            account={account}
+            notice={pinNotice}
+            onSaved={handleNewPin}
+            onCancelled={(message) => {
+              // The operator cancelled the reset meanwhile: the usual PIN field is back.
+              markPinReset(account.id, false)
+              setPinNotice(null)
+              setStatus({ kind: 'rejected', message })
+            }}
+          />
+        )}
 
         <fieldset disabled={locked}>
           <label>

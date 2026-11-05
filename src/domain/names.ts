@@ -31,6 +31,11 @@ export function searchByName<T extends { name: string }>(items: T[], query: stri
     .map((match) => match.item)
 }
 
+// The operator's list (#31): every item while nothing is typed, otherwise as searchByName.
+export function filterByName<T extends { name: string }>(items: T[], query: string): T[] {
+  return normalizeName(query) === '' ? items : searchByName(items, query)
+}
+
 // The account whose whole name was typed (ignoring case, accents and spaces), so it can be
 // chosen without tapping it (#56). None if another name also contains the text: 'Ana' must not
 // be chosen while Ana María is still typing.

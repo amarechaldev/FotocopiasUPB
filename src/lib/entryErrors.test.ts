@@ -20,6 +20,13 @@ describe('entryErrorMessage', () => {
     }
   })
 
+  test('every PIN reset code (0018) has a Spanish message, and can be fixed on the spot', () => {
+    for (const code of ['pin_reset_pending', 'pin_reset_not_pending', 'pin_invalid']) {
+      expect(entryErrorMessage({ message: code })).not.toBe(code)
+      expect(isRefusal({ message: code })).toBe(true)
+    }
+  })
+
   test('other errors fall back to the connection detail', () => {
     expect(entryErrorMessage(new TypeError('Failed to fetch'))).toBe('Sin conexión a internet')
   })

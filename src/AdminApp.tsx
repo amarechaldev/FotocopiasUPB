@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { currentAdmin, signIn, signOut, type Admin } from './lib/admin'
+import { AccountList } from './AccountList'
 import { EntryList } from './EntryList'
 import { adminErrorMessage } from './lib/adminErrors'
 
@@ -9,8 +10,13 @@ type State =
   | { kind: 'login' }
   | { kind: 'home'; admin: Admin }
 
+// Her two screens: switching just draws the other one, which fetches its data again (so a
+// renamed account shows in the entries).
+type View = 'entries' | 'accounts'
+
 export function AdminApp() {
   const [state, setState] = useState<State>({ kind: 'checking' })
+  const [view, setView] = useState<View>('entries')
 
   // Still logged in from an earlier visit?
   useEffect(() => {
@@ -33,6 +39,24 @@ export function AdminApp() {
         <h1>Fotocopias UPB</h1>
         <p>Admin</p>
       </header>
+      {state.kind === 'home' && (
+        <nav className="app-nav">
+          <button
+            type="button"
+            aria-current={view === 'entries' ? 'page' : undefined}
+            onClick={() => setView('entries')}
+          >
+            Pedidos
+          </button>
+          <button
+            type="button"
+            aria-current={view === 'accounts' ? 'page' : undefined}
+            onClick={() => setView('accounts')}
+          >
+            Cuentas
+          </button>
+        </nav>
+      )}
       {/* The list needs a computer-wide screen; the login form stays narrow. */}
       <main className={state.kind === 'home' ? 'wide' : undefined}>
         {state.kind === 'checking' && <p className="notice">Cargando…</p>}
@@ -51,7 +75,7 @@ export function AdminApp() {
             </div>
           </section>
         )}
-        {state.kind === 'home' && <EntryList />}
+        {state.kind === 'home' && (view === 'entries' ? <EntryList /> : <AccountList />)}
       </main>
     </>
   )

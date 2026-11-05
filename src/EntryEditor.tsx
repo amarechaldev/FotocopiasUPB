@@ -12,7 +12,8 @@ import {
   newEntryPeriodWarning,
 } from './domain/entryRules'
 import type { BillingPeriod } from './domain/periods'
-import { fetchAccounts, type Account } from './lib/accounts'
+import type { Account } from './lib/accounts'
+import { fetchAdminAccounts } from './lib/adminAccounts'
 import { registerManualEntry, updateEntry } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import { fetchAnilladoSizes, fetchAreas, fetchVagueDescriptions, type Area } from './lib/entries'
@@ -63,10 +64,14 @@ export function EntryEditor({ entry, periods, onSaved, onCancel }: Props) {
   const [problem, setProblem] = useState<{ message: string } | null>(null)
 
   useEffect(() => {
-    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAccounts(), fetchVagueDescriptions()])
-      .then(([areas, sizes, accounts, vague]) => setLists({ areas, sizes, accounts, vague }))
+    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAdminAccounts(), fetchVagueDescriptions()])
+      .then(([areas, sizes, all, vague]) => {
+        // Archived accounts can't be chosen for a new entry, but an entry of one keeps its name.
+        const accounts = all.filter((a) => !a.archived || a.id === entry?.accountId)
+        setLists({ areas, sizes, accounts, vague })
+      })
       .catch(() => setListsError(true))
-  }, [])
+  }, [entry?.accountId])
 
   // The message is at the top, the buttons at the bottom: scroll up on every new message.
   useEffect(() => {
