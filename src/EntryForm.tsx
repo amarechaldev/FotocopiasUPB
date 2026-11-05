@@ -60,10 +60,11 @@ type Lists = {
 
 type Props = {
   createdAccount?: CreatedAccount | null // just created: chosen and welcomed (#57)
+  profileSaved?: string | null // the name just saved in "Mi cuenta" (#30): logged out, says why
   onCreateAccount: () => void // a name without an account: go to "Crear cuenta"
 }
 
-export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
+export function EntryForm({ createdAccount = null, profileSaved = null, onCreateAccount }: Props) {
   const [lists, setLists] = useState<Lists | null>(null)
   const [listsError, setListsError] = useState(false)
   const [account, setAccount] = useState<Account | null>(null)
@@ -75,6 +76,7 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   // Kept apart from status: typing clears a confirmation, but this one stays while the new
   // account's owner fills their first entry.
   const [welcome, setWelcome] = useState<CreatedAccount | null>(createdAccount)
+  const [savedProfile, setSavedProfile] = useState<string | null>(profileSaved)
   // PIN reset (#31): why the new-PIN step appeared late (the list was older than the reset), and
   // the green message once the new PIN is saved.
   const [pinNotice, setPinNotice] = useState<string | null>(null)
@@ -111,9 +113,10 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
       .catch(() => setListsError(true))
   }, [])
 
-  // Arriving from "Crear cuenta", whose button was at the bottom of a long form.
+  // Arriving from "Crear cuenta" or "Mi cuenta", whose buttons were at the bottom of a long form.
+  const arrivedSaved = useRef(profileSaved)
   useEffect(() => {
-    if (arrivedWith.current) scrollToTop()
+    if (arrivedWith.current || arrivedSaved.current) scrollToTop()
   }, [])
 
   // The Guardar button is at the bottom of a long form, so the result message
@@ -139,6 +142,7 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
   function selectAccount(chosen: Account | null) {
     setAccount(chosen)
     setWelcome(null) // "Cambiar": maybe someone else now
+    setSavedProfile(null) // the next person has started
     setPinNotice(null)
     setPinSaved(false)
     if (chosen) update('areaId', String(chosen.defaultAreaId))
@@ -218,6 +222,7 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
       // Logged out: the next person must choose their name and type their PIN.
       setAccount(null)
       setWelcome(null)
+      setSavedProfile(null)
       setPinSaved(false)
       setPin('')
       setOutsideConfirmed(false)
@@ -264,6 +269,15 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
               {welcome.name} · Área principal: {welcome.defaultAreaName}
             </p>
             <p>Ahora registre su pedido.</p>
+          </div>
+        )}
+        {savedProfile && (status.kind === 'idle' || status.kind === 'saving') && (
+          <div className="message success" role="status">
+            <strong>✓ Cambios guardados</strong>
+            <p>{savedProfile}</p>
+            <p>
+              Por seguridad, su sesión se cerró. Para registrar un pedido, elija su nombre de nuevo.
+            </p>
           </div>
         )}
         {pinSaved && (status.kind === 'idle' || status.kind === 'saving') && (

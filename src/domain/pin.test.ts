@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { checkPin, pinDigits } from './pin'
+import { checkOptionalNewPin, checkPin, pinDigits } from './pin'
 
 describe('checkPin', () => {
   test('4 digits, typed twice', () => {
@@ -33,5 +33,18 @@ describe('pinDigits', () => {
   test('keeps digits only, at most 4', () => {
     expect(pinDigits('12.3,45')).toBe('1234')
     expect(pinDigits('0a1')).toBe('01')
+  })
+})
+
+describe('checkOptionalNewPin', () => {
+  test('both empty: keep the current PIN', () => {
+    expect(checkOptionalNewPin('', '')).toBeNull()
+  })
+
+  test('otherwise, the same checks as a new PIN', () => {
+    expect(checkOptionalNewPin('1234', '1234')).toBeNull()
+    expect(checkOptionalNewPin('1234', '')).toBe('Los dos PIN no coinciden. Escríbalos de nuevo.')
+    expect(checkOptionalNewPin('', '1234')).toBe('El PIN debe tener 4 números.')
+    expect(checkOptionalNewPin('12', '12')).toBe('El PIN debe tener 4 números.')
   })
 })

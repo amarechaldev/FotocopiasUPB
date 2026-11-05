@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { exactMatch, filterByName, normalizeName, searchByName } from './names'
+import { cleanName, exactMatch, filterByName, nameChanged, normalizeName, searchByName } from './names'
 
 describe('normalizeName', () => {
   test('ignores case, accents and extra spaces', () => {
@@ -76,5 +76,24 @@ describe('filterByName', () => {
   test('typed: the matches, ignoring case and accents', () => {
     expect(filterByName(accounts, 'PEREZ')).toEqual([{ name: 'Ana Pérez' }])
     expect(filterByName(accounts, 'zz')).toEqual([])
+  })
+})
+
+describe('cleanName', () => {
+  test('no spaces around, single spaces inside', () => {
+    expect(cleanName('  María   López ')).toBe('María López')
+  })
+})
+
+describe('nameChanged', () => {
+  test('the same name, or only extra spaces: no change', () => {
+    expect(nameChanged('María López', 'María López')).toBe(false)
+    expect(nameChanged('María López', ' María  López ')).toBe(false)
+  })
+
+  test('another name, or another case or accent: a change', () => {
+    expect(nameChanged('María López', 'María López Rojas')).toBe(true)
+    expect(nameChanged('María López', 'maría lópez')).toBe(true)
+    expect(nameChanged('María López', 'Maria Lopez')).toBe(true)
   })
 })

@@ -1,4 +1,5 @@
 import { errorDetail } from './errorDetail'
+import { ENTRY_MESSAGES } from './entryErrors'
 
 // The error codes raised by create_account (supabase/migrations/0002_accounts.sql).
 export const ACCOUNT_MESSAGES: Record<string, string> = {
@@ -11,11 +12,26 @@ export const ACCOUNT_MESSAGES: Record<string, string> = {
     'Ya existe una cuenta con ese nombre. Agregue algo para diferenciarlo: una inicial, un segundo nombre o un segundo apellido.',
 }
 
+// "Mi cuenta" (#30, 0019): the same checks, plus the login ones, worded as on the entry screen.
+export const OWN_ACCOUNT_MESSAGES: Record<string, string> = {
+  ...ACCOUNT_MESSAGES,
+  pin_wrong: ENTRY_MESSAGES.pin_wrong,
+  account_invalid: ENTRY_MESSAGES.account_invalid,
+  pin_reset_pending: ENTRY_MESSAGES.pin_reset_pending,
+}
+
+function errorCode(error: unknown): string {
+  return typeof error === 'object' && error !== null && 'message' in error
+    ? String(error.message)
+    : ''
+}
+
 // A Spanish message for the person creating an account, from whatever was thrown.
 export function accountErrorMessage(error: unknown): string {
-  const message =
-    typeof error === 'object' && error !== null && 'message' in error
-      ? String(error.message)
-      : ''
-  return ACCOUNT_MESSAGES[message] ?? errorDetail(error)
+  return ACCOUNT_MESSAGES[errorCode(error)] ?? errorDetail(error)
+}
+
+// A Spanish message for the person editing their own account, from whatever was thrown.
+export function ownAccountErrorMessage(error: unknown): string {
+  return OWN_ACCOUNT_MESSAGES[errorCode(error)] ?? errorDetail(error)
 }

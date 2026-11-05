@@ -60,3 +60,39 @@ export async function setNewPin(accountId: number, pin: string): Promise<void> {
     .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
   if (error) throw error
 }
+
+// "Mi cuenta" (#30, migration 0019): name + PIN is the login, checked again by every call.
+// Errors: account_invalid, pin_reset_pending, pin_wrong (see ownAccountErrorMessage).
+export async function checkOwnPin(accountId: number, pin: string): Promise<void> {
+  const { error } = await supabase
+    .rpc('check_own_pin', { p_account_id: accountId, p_pin: pin })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
+}
+
+export type OwnAccountChanges = {
+  name: string
+  areaIds: number[]
+  defaultAreaId: number
+  newPin: string | null // null: keep the current PIN; already typed twice
+}
+
+// Saves the person's own name and departments, and the PIN if a new one is given. The new name
+// also goes on all their entries. Same errors as checkOwnPin and createAccount.
+export async function updateOwnAccount(
+  accountId: number,
+  pin: string,
+  changes: OwnAccountChanges,
+): Promise<void> {
+  const { error } = await supabase
+    .rpc('update_own_account', {
+      p_account_id: accountId,
+      p_pin: pin,
+      p_name: changes.name,
+      p_area_ids: changes.areaIds,
+      p_default_area_id: changes.defaultAreaId,
+      p_new_pin: changes.newPin,
+    })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
+}

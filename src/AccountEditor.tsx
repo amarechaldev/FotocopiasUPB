@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AreaChoices } from './AreaChoices'
 import type { AreaSelection } from './domain/areaSelection'
+import { cleanName, nameChanged } from './domain/names'
 import {
   accountAdminErrorMessage,
   deleteAccount,
@@ -56,10 +57,10 @@ export function AccountEditor({ account, areas, onDone, onCancel }: Props) {
       setProblem({ message: 'Elija al menos un área.' })
       return
     }
-    const cleanName = name.trim().replace(/\s+/g, ' ')
+    const savedName = cleanName(name)
     void act(
-      () => updateAccount(account.id, { name: cleanName, areaIds: selection.areaIds, defaultAreaId }),
-      `✓ Cuenta de ${cleanName} guardada.`,
+      () => updateAccount(account.id, { name: savedName, areaIds: selection.areaIds, defaultAreaId }),
+      `✓ Cuenta de ${savedName} guardada.`,
     )
   }
 
@@ -96,7 +97,9 @@ export function AccountEditor({ account, areas, onDone, onCancel }: Props) {
               onChange={(e) => setName(e.target.value)}
             />
           </label>
-          <p className="hint">Si cambia el nombre, también cambia en todos sus pedidos anteriores.</p>
+          {nameChanged(account.name, name) && (
+            <p className="hint">Si cambia el nombre, también cambia en todos sus pedidos anteriores.</p>
+          )}
         </fieldset>
 
         <AreaChoices
