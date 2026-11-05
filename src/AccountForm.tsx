@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { chooseDefault, noAreas, toggleArea, type AreaSelection } from './domain/areaSelection'
+import { AreaChoices } from './AreaChoices'
+import { noAreas, type AreaSelection } from './domain/areaSelection'
 import { checkPin, pinDigits } from './domain/pin'
 import { ACCOUNT_MESSAGES, accountErrorMessage } from './lib/accountErrors'
 import { createAccount } from './lib/accounts'
@@ -79,8 +80,6 @@ export function AccountForm({ onCreated }: Props) {
     return <p className="notice">Cargando…</p>
   }
 
-  const chosenAreas = areas.filter((area) => selection.areaIds.includes(area.id))
-
   return (
     <form onSubmit={handleSubmit}>
       <div className="result">
@@ -110,45 +109,14 @@ export function AccountForm({ onCreated }: Props) {
         </label>
       </fieldset>
 
-      <fieldset>
-        <legend>Sus áreas</legend>
-        <p className="hint">Marque todas las áreas para las que hace pedidos.</p>
-        <div className="choices">
-          {areas.map((area) => (
-            <label key={area.id} className="choice">
-              <input
-                type="checkbox"
-                checked={selection.areaIds.includes(area.id)}
-                onChange={() => setSelection((current) => toggleArea(current, area.id))}
-              />
-              {area.name}
-            </label>
-          ))}
-        </div>
-      </fieldset>
-
-      {chosenAreas.length > 1 && (
-        <fieldset className="panel">
-          <legend>Área principal</legend>
-          <p className="hint">
-            Al registrar un pedido, esta área aparecerá ya elegida. Si un pedido es para otra de
-            sus áreas, podrá elegirla en ese pedido.
-          </p>
-          <div className="choices">
-            {chosenAreas.map((area) => (
-              <label key={area.id} className="choice">
-                <input
-                  type="radio"
-                  name="default-area"
-                  checked={selection.defaultAreaId === area.id}
-                  onChange={() => setSelection((current) => chooseDefault(current, area.id))}
-                />
-                {area.name}
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      )}
+      <AreaChoices
+        areas={areas}
+        selection={selection}
+        onChange={setSelection}
+        legend="Sus áreas"
+        hint="Marque todas las áreas para las que hace pedidos."
+        defaultHint="Al registrar un pedido, esta área aparecerá ya elegida. Si un pedido es para otra de sus áreas, podrá elegirla en ese pedido."
+      />
 
       <fieldset>
         <legend>PIN</legend>
