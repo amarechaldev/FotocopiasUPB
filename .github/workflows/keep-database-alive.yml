@@ -1,0 +1,52 @@
+# Keeps both Supabase projects awake (story #16): Free projects are paused after a week without
+# database activity, and between the pilot and the full rollout nobody may open the app for weeks.
+# Every 3 days, it calls current_period() in each project, the same request the staff form makes
+# when it opens. A failed call fails the job, and GitHub emails the repository owner.
+#
+# Secrets (GitHub > Settings > Secrets and variables > Actions): the URL and publishable key of each
+# project, the same values as .env.local (test) and Vercel's Production variables. Never a secret key.
+
+name: Keep the database alive
+
+on:
+  schedule:
+    # 12:17 UTC (08:17 in La Paz) on days 1, 4, 7, ... 31 of each month: never more than 3 days
+    # apart, so one delayed or dropped run still leaves a margin before the 7-day limit.
+    # Not on the hour, when GitHub is busiest. Scheduled runs only start once this file is on main.
+    - cron: '17 12 */3 * *'
+  # A "Run workflow" button in the Actions tab, to run it by hand.
+  workflow_dispatch:
+  # A run on every pull request that changes this file, to check it before merging.
+  pull_request:
+    paths:
+      - .github/workflows/keep-database-alive.yml
+
+jobs:
+  call-database:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      fail-fast: false # one project failing still calls the other
+      matrix:
+        project: [test, production]
+    steps:
+      - name: Call current_period() in the ${{ matrix.project }} project
+        env:
+          PROJECT: ${{ matrix.project }}
+          TEST_URL: ${{ secrets.SUPABASE_TEST_URL }}
+          TEST_KEY: ${{ secrets.SUPABASE_TEST_PUBLISHABLE_KEY }}
+          PRODUCTION_URL: ${{ secrets.SUPABASE_PRODUCTION_URL }}
+          PRODUCTION_KEY: ${{ secrets.SUPABASE_PRODUCTION_PUBLISHABLE_KEY }}
+        run: |
+          # Chosen here, not with a shortcut in the expressions above: a missing test secret must
+          # fail the job, never fall back to the production one.
+          if [ "$PROJECT" = test ]; then URL=$TEST_URL; KEY=$TEST_KEY; else URL=$PRODUCTION_URL; KEY=$PRODUCTION_KEY; fi
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error::Missing secrets for the ${{ matrix.project }} project"
+            exit 1
+          fi
+          # --fail-with-body: an error answer fails the step; --retry: a short network hiccup does not.
+          curl --fail-with-body --silent --show-error --retry 3 --retry-delay 30 \
+            -X POST "$URL/rest/v1/rpc/current_period" \
+            -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}'
+          echo
