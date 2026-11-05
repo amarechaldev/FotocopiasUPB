@@ -6,6 +6,7 @@ export type Account = {
   name: string
   areaIds: number[]
   defaultAreaId: number
+  pinResetPending: boolean // the operator launched a PIN reset: a new PIN must be chosen (#31)
 }
 
 export type NewAccount = {
@@ -20,6 +21,7 @@ type AccountRow = {
   name: string
   area_ids: number[]
   default_area_id: number
+  pin_reset_pending: boolean
 }
 
 // Creates the account and returns its id. The PIN is hashed by the database;
@@ -46,5 +48,15 @@ export async function fetchAccounts(): Promise<Account[]> {
     name: row.name,
     areaIds: row.area_ids,
     defaultAreaId: row.default_area_id,
+    pinResetPending: row.pin_reset_pending,
   }))
+}
+
+// After a PIN reset by the operator (migration 0018): the new PIN, already typed twice.
+// Errors: account_invalid, pin_reset_not_pending, pin_invalid (see entryErrorMessage).
+export async function setNewPin(accountId: number, pin: string): Promise<void> {
+  const { error } = await supabase
+    .rpc('set_new_pin', { p_account_id: accountId, p_pin: pin })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
 }

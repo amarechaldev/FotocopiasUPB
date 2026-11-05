@@ -9,7 +9,6 @@ import { supabase } from './supabase'
 
 export type AdminAccount = Account & {
   archived: boolean
-  pinResetPending: boolean
   entryCount: number // 0: the account can be deleted
 }
 
