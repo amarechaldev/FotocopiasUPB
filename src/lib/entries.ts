@@ -1,3 +1,4 @@
+import type { CommonDescription } from '../domain/descriptions'
 import type { Period } from '../domain/periods'
 import { supabase } from './supabase'
 
@@ -48,6 +49,13 @@ export async function fetchVagueDescriptions(): Promise<string[]> {
   const { data, error } = await supabase.from('vague_descriptions').select('description')
   if (error) throw error
   return data.map((row) => row.description)
+}
+
+// The common descriptions of every department (migration 0016), for the suggestions.
+export async function fetchCommonDescriptions(): Promise<CommonDescription[]> {
+  const { data, error } = await supabase.from('common_descriptions').select('area_id, description')
+  if (error) throw error
+  return data.map((row) => ({ areaId: row.area_id, description: row.description }))
 }
 
 // For the staff form, which cannot read the operator's list of periods (migration 0015).

@@ -278,6 +278,14 @@ input.pin {
 }
 
 /* Matching names: each one is a large tap target */
+/* The description with its suggestions under it (#32): laid out like the name field */
+.description-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  scroll-margin-top: 0.75rem;
+}
+
 .picker-results {
   display: flex;
   flex-direction: column;
