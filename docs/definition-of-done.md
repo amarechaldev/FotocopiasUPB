@@ -3,10 +3,10 @@
 A story is done when, in addition to its own acceptance criteria:
 
 - All acceptance criteria are met and ticked in the issue.
-- It is deployed, and I tested it from the deployed version.
-- I tested it myself, on the devices where it will be used:
+- I tested it fully against its acceptance criteria on the preview deployment (test database), on the devices where it will be used:
   - Staff screens: on a phone-sized screen and on my personal Android tablet (the shared device can be a phone or a tablet).
   - Operator screens: in a computer browser, as on the operator's computer.
+- It is deployed to production, and a short smoke check passed there: the app loads and the changed screen opens, without repeating the full test and without creating real entries.
 - It works in Spanish.
 - No known bugs are left open.
 - The code is pushed to GitHub.
