@@ -44,3 +44,15 @@ export function exactMatch<T extends { name: string }>(items: T[], query: string
   if (matches.length !== 1) return null
   return normalizeName(matches[0].name) === normalizeName(query) ? matches[0] : null
 }
+
+// A name as the database stores it (check_account_fields, 0018): no spaces around, single spaces
+// inside. Case and accents are kept.
+export function cleanName(name: string): string {
+  return name.trim().replace(/\s+/g, ' ')
+}
+
+// Whether saving this name would rename the account (and all its entries, #30/#31): extra spaces
+// do not count, a change of case or accent does, since the reports print the name as written.
+export function nameChanged(current: string, typed: string): boolean {
+  return cleanName(typed) !== cleanName(current)
+}

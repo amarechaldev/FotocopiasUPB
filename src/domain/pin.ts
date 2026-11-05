@@ -14,3 +14,9 @@ export function checkPin(pin: string, confirmation: string): string | null {
 export function pinDigits(text: string): string {
   return text.replace(/\D/g, '').slice(0, 4)
 }
+
+// The optional new PIN of "Mi cuenta" (#30): both fields empty = keep the current PIN.
+export function checkOptionalNewPin(pin: string, confirmation: string): string | null {
+  if (pin === '' && confirmation === '') return null
+  return checkPin(pin, confirmation)
+}
