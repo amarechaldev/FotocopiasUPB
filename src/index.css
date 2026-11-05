@@ -286,6 +286,11 @@ input.pin {
   scroll-margin-top: 0.75rem;
 }
 
+/* The new-PIN step (#31), scrolled to the top of the screen: room for its title on the border */
+.new-pin {
+  scroll-margin-top: 0.75rem;
+}
+
 .picker-results {
   display: flex;
   flex-direction: column;

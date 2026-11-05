@@ -225,12 +225,12 @@ export function EntryForm({ createdAccount = null, onCreateAccount }: Props) {
       setAnillados([])
     } catch (error) {
       if (entryErrorMessage(error) === ENTRY_MESSAGES.pin_reset_pending) {
-        // Reset after the list was loaded: the new-PIN step appears; the entry is kept.
+        // Reset after the list was loaded: the new-PIN step appears (and scrolls itself into
+        // view, with this notice); the entry is kept.
         markPinReset(account.id, true)
         setPin('')
         setPinNotice(entryErrorMessage(error))
         setStatus({ kind: 'idle' })
-        scrollToTop()
       } else if (isRefusal(error)) {
         setPin('') // wrong PIN: type it again; everything else is kept
         setStatus({ kind: 'rejected', message: entryErrorMessage(error) })

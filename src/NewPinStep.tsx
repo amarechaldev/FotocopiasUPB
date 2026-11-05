@@ -1,7 +1,8 @@
-import { useState, type KeyboardEvent } from 'react'
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { checkPin, pinDigits } from './domain/pin'
 import { setNewPin, type Account } from './lib/accounts'
 import { ENTRY_MESSAGES, entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { scrollToTopOfScreen } from './scrollToTop'
 
 type Status =
   | { kind: 'idle' }
@@ -22,6 +23,13 @@ export function NewPinStep({ account, notice, onSaved, onCancelled }: Props) {
   const [pin, setPin] = useState('')
   const [pinAgain, setPinAgain] = useState('')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useRef<HTMLFieldSetElement>(null)
+
+  // The name was just chosen with the keyboard open (or a save just failed): once the keyboard
+  // has closed, bring the whole step to the top of the screen, its title included.
+  useEffect(() => {
+    if (panel.current) scrollToTopOfScreen(panel.current)
+  }, [])
 
   async function save() {
     const problem = checkPin(pin, pinAgain)
@@ -53,7 +61,7 @@ export function NewPinStep({ account, notice, onSaved, onCancelled }: Props) {
   }
 
   return (
-    <fieldset className="panel new-pin">
+    <fieldset className="panel new-pin" ref={panel}>
       <legend>PIN nuevo</legend>
       {notice && (
         <div className="warning" role="status">
