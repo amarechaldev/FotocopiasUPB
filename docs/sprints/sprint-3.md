@@ -31,7 +31,7 @@ With all seven done, every story in the MVP milestone is finished.
 
 1. Detailed report (#7): is one page per department what she wants? It is built that way, with a final "Totales del periodo" page.
 A: One page per department is good, but do not show departments with a 0 total in the detailed report. The Global Report shows all departments.
-2. Reports (#7, #8): how should numbers be written? Thousands separator (12.519 or 12,519) and decimal separator (Bs 12.519,70 or Bs 12,519.70). Use the format the University already sees in her Excel report.
+2. Reports (#7, #8): how should numbers be written? Thousands separator (1.234 or 1,234) and decimal separator (Bs 1.234,50 or Bs 1,234.50). Use the format the University already sees in her Excel report.
 A: The current implementation (A space to separate thousands and comma for decimals is fine.
 3. Reports (#7, #8): should the date the report was generated stay at the bottom of each page, or be removed?
 A: The date was accepted.

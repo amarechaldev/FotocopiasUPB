@@ -6,7 +6,7 @@ For the operator of the printing service at UPB who must produce a monthly detai
 
 ## Problem
 
-Every month, the operator must deliver a report of her billable services to the University: copies and anillados per department, in Bs, which the University checks and department managers sign. Today she builds it by hand from a paper record of 300–500 handwritten entries, a task of about one hour that stretches to one or two days because of interruptions. The process is error-prone at both ends: staff write illegible entries or choose the wrong department, and hand-built sums skip entries (in September 2026, about 117 copies went unbilled).
+Every month, the operator must deliver a report of her billable services to the University: copies and anillados per department, in Bs, which the University checks and department managers sign. Today she builds it by hand from a paper record of 300–500 handwritten entries, a task of about one hour that stretches to one or two days because of interruptions. The process is error-prone at both ends: staff write illegible entries or choose the wrong department, and hand-built sums skip entries (in the September 2026 report, dozens of copies went unbilled).
 
 ## Users and Stakeholders
 
@@ -53,7 +53,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 | Milestone | When | What |
 | --- | --- | --- |
 | **Pilot** | From late October 2026 | DAAE Cultura, DAAE Deportes and VRA use the app, keeping the paper notebook in parallel. |
-| **University preview** | November 2026, before the handover | The operator shows both reports to the University representative; the handover waits for their approval. |
+| **University preview** | November 2026, before the handover | Done on November 6, 2026: the University and all stakeholders accepted the app. |
 | **Handover** | November 2026 | The finished app (GitHub milestone "Handover") goes to the operator. From then on, the developer only fixes problems; no new features are planned. |
 | **End of the pilot** | November 22, 2026 | The first real billing period is closed in the app, and its reports go to the University. |
 | **Full rollout** | January 2027 | All departments use the app, on the operator's old phone as the shared device. Until then, the database must stay active through weeks without entries (#16). |
@@ -62,6 +62,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 
 - **Internet only through the operator's connection.** Both Wi-Fi and mobile data are extremely unreliable at the service location, but the operator has a private connection that works. The shared device uses that connection; staff never need one of their own. If the connection drops, staff fall back to the paper notebook, and the operator enters those entries in the app later.
 - **Shared phone or tablet at the service.** Staff register on a shared device at the service location, provided by the operator: an old phone or a tablet, her choice. The app must work well on a phone-sized screen. Using staff's own phones was discarded (October 2026). The operator also has a computer, which she uses to prepare the report today.
+- **Up-to-date browsers only.** The app works on devices with an up-to-date browser. Of the operator's four computers, three work; the fourth does not (probably an old antivirus) and is not used for the app.
 - **PIN-protected personal accounts.** The University requires every entry to be made from a personal account protected by a PIN (non-negotiable). Staff use the service only occasionally, so PINs will be forgotten.
 - **Registration as quick as paper.** Staff register while their copies are printing; it must take no longer than writing on paper.
 - **Conversions stay with the operator.** The app records equivalent copies as the operator states them (e.g. a color copy = 5 copies); it does not convert services itself.
@@ -79,16 +80,16 @@ Targets are proposals, to be confirmed with the operator.
 | Time to register an entry | Time 5–10 paper entries | No longer than on paper | Time a few staff members during the first week |
 | Help needed from the operator | — | Less than 1 in 20 entries after week 2 | The operator keeps a simple tally |
 | Time to produce both reports | 1–2 days | 15 minutes or less | The operator times it at the end of the month |
-| Calculation errors | About 117 copies missed (September 2026) | 0 | Compare app totals with a manual check for the pilot departments |
+| Calculation errors | Dozens of copies missed (September 2026) | 0 | Compare app totals with a manual check for the pilot departments |
 | Adoption | 0% | At least 90% of entries in the app by month 2 | Count paper entries vs. app entries |
 | Lost records | — | 0 | Compare with a paper record kept by the pilot departments |
-| University acceptance | — | First report accepted without paper signatures | Yes or no |
+| University acceptance | — | First report accepted without paper signatures | Yes or no. **Met on November 6, 2026:** the University and all stakeholders accepted the app. |
 
 ## Top Risks
 
 | Risk | Why it matters | How to handle it |
 | --- | --- | --- |
-| **The University rejects the record** | Blocks adoption entirely | Meet its requirement: PIN-protected personal accounts in the MVP. Start with a pilot in three departments chosen by the operator (DAAE Cultura, DAAE Deportes, VRA), and show its first report to the University before rolling out to all departments. |
+| **The University rejects the record** *(retired on November 6, 2026: the University accepted the app)* | Blocks adoption entirely | Meet its requirement: PIN-protected personal accounts in the MVP. Start with a pilot in three departments chosen by the operator (DAAE Cultura, DAAE Deportes, VRA), and show its first report to the University before rolling out to all departments. |
 | **Staff resist the change**, especially if registering takes longer than on paper | Paper keeps coming back, and with it the manual work | Learn from the pilot departments before full rollout. Keep paper as a fallback. The operator encourages staff at the counter. |
 | **Records are lost** if the connection drops or the device fails | Lost income, and the "no lost records" promise is broken | Staff see clearly whether each entry was saved; if not, they use the paper notebook and the operator enters it later. Daily backup started by the operator, with a reminder in the app; at most one day of entries can be lost. The monthly report PDFs are an extra record. During the pilot, the pilot departments keep a paper record to compare with. |
 | **Staff forget their PIN** | Registration stops at the counter; staff go back to paper, and resets add work for the operator | Staff choose their own PIN. During the pilot (2–3 staff), the developer replaces a forgotten PIN in the database and removes it from the SQL history; from the handover, the operator launches a reset and the person chooses a new PIN. During the pilot, count how often PINs are forgotten. |
@@ -96,4 +97,4 @@ Targets are proposals, to be confirmed with the operator.
 **Pilot limitations:**
 
 - **Visiting teachers are not tested.** Visiting teachers only make requests for Ingenierías and Empresariales, which are not in the pilot, so accounts with several departments will only be tested at full rollout.
-- **Small sample.** The three pilot departments had about 38 entries (about 5,700 copies) in September 2026. That is enough to check that the app works and that totals are correct, and to get a first idea of registration speed and staff habits, but not under full load.
+- **Small sample.** The three pilot departments had about 38 entries in September 2026. That is enough to check that the app works and that totals are correct, and to get a first idea of registration speed and staff habits, but not under full load.

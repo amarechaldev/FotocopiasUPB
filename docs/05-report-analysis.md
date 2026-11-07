@@ -6,6 +6,8 @@ Analysis of the monthly report the operator delivers to the University, using th
 
 It also corrects some findings in [03-interview-synthesis.md](03-interview-synthesis.md). File 03 is kept unchanged; corrections are listed here.
 
+> **Fictitious figures.** For publication, all quantities and amounts in this document and in the Excel file are invented. The structure, the formulas, the prices and the summing errors are those of the real report.
+
 ## Structure of the Report
 
 The Excel file has two sheets.
@@ -27,7 +29,7 @@ A final row adds up every column. The header shows the month and year.
 
 Departments in September 2026: VRA, Administración, Empresariales, Ingenierías, DAAE Admisiones, DAAE Registros, Internacionalización, Voluntariado, Orientación, DAAE Cultura, DAAE Deportes, Marketing.
 
-September 2026 totals: **41,184 copies, 33 anillados, Bs 12,519.70.**
+September 2026 totals (fictitious): **25,633 copies, 30 anillados, Bs 7,840.90.**
 
 ### Sheet 2: Detail (working sheet)
 
@@ -81,12 +83,12 @@ Conversions into equivalent copies remain the operator's responsibility; that fi
 
 File 03 reframed H2: errors were thought to happen at entry, not when adding up. The report shows that **adding up also produces errors**. Several sum formulas in the detail sheet leave out a row:
 
-- **Empresariales:** one column sum skips its last entry, so **70 copies** are not counted.
-- **Ingenierías:** two column sums each skip one entry, so **47 copies** (28 + 19) are not counted.
+- **Empresariales:** one column sum skips its last entry, so **51 copies** are not counted.
+- **Ingenierías:** two column sums each skip one entry, so **32 copies** (18 + 14) are not counted.
 - **Anillados tables:** the amount total skips the first row (7 mm) in VRA, DAAE Admisiones, Ingenierías, Marketing and Empresariales. In DAAE Admisiones this has an effect: the detail table shows Bs 14, while the summary shows Bs 18 (the correct value, typed by hand).
 - **Typed totals:** some cells in the summary (e.g. the totals for Internacionalización and Voluntariado) are typed numbers rather than formulas, so they do not update if an entry changes.
 
-In September 2026, about **117 copies (≈ Bs 35)** appear to be under-billed. The amount is small, but it is lost income for the operator and confirms that the manual process is error-prone. The operator confirmed these are mistakes.
+In September 2026, about **83 copies (≈ Bs 25)** appear to be under-billed (fictitious figures). The amount is small, but it is lost income for the operator and confirms that the manual process is error-prone. The operator confirmed these are mistakes.
 
 **Updated H2:** Errors happen both at entry (wrong department, illegible handwriting) and when adding up (sums that skip entries, totals typed by hand), leading to wrong totals per department.
 
