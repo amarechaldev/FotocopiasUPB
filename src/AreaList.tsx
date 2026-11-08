@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArchiveForm } from './ArchiveForm'
 import { ConfirmPanel } from './ConfirmPanel'
+import { filterByArea } from './domain/accountList'
 import { affectedAccounts, affectedAccountsWarning } from './domain/lists'
 import { periodName, type BillingPeriod } from './domain/periods'
 import { useScrolledIntoView } from './scrollToTop'
@@ -175,9 +176,9 @@ export function AreaList({ onChanged }: Props) {
         </ArchiveForm>
       )}
       {open?.kind === 'delete' && (
-        <ConfirmPanel
-          question={`¿Eliminar el área ${open.area.name}?`}
-          detail="No se puede deshacer. Las descripciones usuales la pierden, y las que solo eran de esta área se eliminan."
+        <DeleteAreaPanel
+          area={open.area}
+          accounts={accounts}
           onConfirm={() => remove(open.area)}
           onCancel={() => setOpen(null)}
         />
@@ -242,6 +243,55 @@ export function AreaList({ onChanged }: Props) {
         </table>
       </div>
     </section>
+  )
+}
+
+// Deleting a department: only if no account has it, archived accounts included (0022). Otherwise
+// it says which accounts to change first, instead of offering a delete the database would refuse.
+function DeleteAreaPanel({
+  area,
+  accounts,
+  onConfirm,
+  onCancel,
+}: {
+  area: ListedArea
+  accounts: AdminAccount[]
+  onConfirm: () => Promise<void>
+  onCancel: () => void
+}) {
+  const holders = filterByArea(accounts, area.id)
+  if (holders.length === 0) {
+    return (
+      <ConfirmPanel
+        question={`¿Eliminar el área ${area.name}?`}
+        detail="No se puede deshacer. Las descripciones usuales la pierden, y las que solo eran de esta área se eliminan."
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      />
+    )
+  }
+  return (
+    <ConfirmPanel
+      question={`El área ${area.name} todavía no se puede eliminar`}
+      detail={
+        holders.length === 1
+          ? 'Esta cuenta la tiene. Quítele el área en «Cuentas» (puede filtrar por área) y vuelva a intentarlo:'
+          : 'Estas cuentas la tienen. Quíteles el área en «Cuentas» (puede filtrar por área) y vuelva a intentarlo:'
+      }
+      canConfirm={false}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    >
+      <ul>
+        {holders.map((account) => (
+          <li key={account.id}>
+            {account.name}
+            {account.defaultAreaId === area.id && ' (área principal)'}
+            {account.archived && ' (cuenta archivada)'}
+          </li>
+        ))}
+      </ul>
+    </ConfirmPanel>
   )
 }
 

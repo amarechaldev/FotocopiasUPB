@@ -341,7 +341,7 @@ export function VagueDescriptionList() {
   async function remove(description: string) {
     try {
       await deleteVagueDescription(description)
-      done(`✓ «${description}» eliminada: ya se acepta como descripción.`)
+      done(`✓ Descripción demasiado vaga «${description}» eliminada.`)
     } catch (error) {
       setOpen(null)
       setActionError(listErrorMessage(error))
@@ -367,7 +367,7 @@ export function VagueDescriptionList() {
       {open?.kind === 'delete' && (
         <ConfirmPanel
           question={`¿Eliminar «${open.description}» de las descripciones demasiado vagas?`}
-          detail="Desde ahora se aceptará como descripción. Los pedidos guardados no cambian."
+          detail="Los pedidos guardados no cambian."
           onConfirm={() => remove(open.description)}
           onCancel={() => setOpen(null)}
         />
@@ -377,7 +377,11 @@ export function VagueDescriptionList() {
           editing={open.editing}
           onCancel={() => setOpen(null)}
           onSaved={(description) =>
-            done(open.editing ? `✓ «${description}» guardada.` : `✓ «${description}» agregada.`)
+            done(
+              open.editing
+                ? `✓ Descripción demasiado vaga «${description}» guardada.`
+                : `✓ Descripción demasiado vaga «${description}» agregada.`,
+            )
           }
         />
       )}

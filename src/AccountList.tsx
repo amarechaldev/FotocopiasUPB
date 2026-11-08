@@ -4,6 +4,7 @@ import {
   defaultAccountSort,
   describeAreas,
   filterArchived,
+  filterByArea,
   isDefaultAccountSort,
   nextAccountSort,
   sortAccounts,
@@ -13,27 +14,29 @@ import {
 } from './domain/accountList'
 import { filterByName } from './domain/names'
 import { accountAdminErrorMessage, fetchAdminAccounts, type AdminAccount } from './lib/adminAccounts'
-import { fetchAreas, type Area } from './lib/entries'
+import { fetchAllAreas, type ListedArea } from './lib/lists'
 import { scrollToTop } from './scrollToTop'
 
 type Loaded =
   | { kind: 'loading' }
-  | { kind: 'loaded'; accounts: AdminAccount[]; areas: Area[] }
+  | { kind: 'loaded'; accounts: AdminAccount[]; areas: ListedArea[] } // archived departments too
   | { kind: 'failed'; message: string }
 
 // The operator's list of staff accounts (#31): archived ones included (always last), with a
-// search, a filter on archived accounts and sorting by column.
+// search, filters on department and on archived accounts, and sorting by column.
 export function AccountList() {
   const [loaded, setLoaded] = useState<Loaded>({ kind: 'loading' })
   const [reloads, setReloads] = useState(0) // +1 = fetch the accounts again
   const [query, setQuery] = useState('')
   const [archivedFilter, setArchivedFilter] = useState<ArchivedFilter>('all')
+  // A department: e.g. to find who still has one before deleting it (#33).
+  const [areaFilter, setAreaFilter] = useState<number | null>(null)
   const [sortOrder, setSortOrder] = useState<AccountSortOrder>(defaultAccountSort)
   const [editing, setEditing] = useState<AdminAccount | null>(null)
   const [confirmation, setConfirmation] = useState<string | null>(null)
 
   useEffect(() => {
-    Promise.all([fetchAdminAccounts(), fetchAreas()])
+    Promise.all([fetchAdminAccounts(), fetchAllAreas()])
       .then(([accounts, areas]) => setLoaded({ kind: 'loaded', accounts, areas }))
       .catch((error) => setLoaded({ kind: 'failed', message: accountAdminErrorMessage(error) }))
   }, [reloads])
@@ -44,7 +47,12 @@ export function AccountList() {
   }, [confirmation])
 
   const areaNames = useMemo(
-    () => new Map(loaded.kind === 'loaded' ? loaded.areas.map((area) => [area.id, area.name]) : []),
+    () =>
+      new Map(
+        loaded.kind === 'loaded'
+          ? loaded.areas.map((area) => [area.id, area.archivedFrom ? `${area.name} (archivada)` : area.name])
+          : [],
+      ),
     [loaded],
   )
   // The order she chose wins over the search's best-match order.
@@ -52,12 +60,12 @@ export function AccountList() {
     () =>
       loaded.kind === 'loaded'
         ? sortAccounts(
-            filterByName(filterArchived(loaded.accounts, archivedFilter), query),
+            filterByName(filterByArea(filterArchived(loaded.accounts, archivedFilter), areaFilter), query),
             sortOrder,
             areaNames,
           )
         : [],
-    [loaded, archivedFilter, query, sortOrder, areaNames],
+    [loaded, archivedFilter, areaFilter, query, sortOrder, areaNames],
   )
 
   if (loaded.kind === 'loading') return <p className="notice">Cargando…</p>
@@ -77,7 +85,7 @@ export function AccountList() {
       <section className="entry-list">
         <AccountEditor
           account={editing}
-          areas={loaded.areas}
+          areas={loaded.areas.filter((area) => !area.archivedFrom)} // a new choice must be in use
           onDone={(message) => {
             setEditing(null)
             setConfirmation(message)
@@ -113,7 +121,7 @@ export function AccountList() {
   }
 
   const total = loaded.accounts.length
-  const filtered = query.trim() !== '' || archivedFilter !== 'all'
+  const filtered = query.trim() !== '' || archivedFilter !== 'all' || areaFilter !== null
 
   return (
     <section className="entry-list account-list">
@@ -121,6 +129,20 @@ export function AccountList() {
         <label>
           Buscar
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </label>
+        <label>
+          Área
+          <select
+            value={areaFilter ?? ''}
+            onChange={(e) => setAreaFilter(e.target.value === '' ? null : Number(e.target.value))}
+          >
+            <option value="">Todas</option>
+            {loaded.areas.map((area) => (
+              <option key={area.id} value={area.id}>
+                {areaNames.get(area.id)}
+              </option>
+            ))}
+          </select>
         </label>
         <label>
           Mostrar
@@ -140,6 +162,7 @@ export function AccountList() {
           onClick={() => {
             setQuery('')
             setArchivedFilter('all')
+            setAreaFilter(null)
           }}
         >
           Quitar filtros

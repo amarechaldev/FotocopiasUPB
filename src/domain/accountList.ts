@@ -32,6 +32,13 @@ export function filterArchived<T extends ListedAccount>(accounts: T[], filter: A
   return accounts.filter((a) => a.archived === (filter === 'archived'))
 }
 
+// Only the accounts that have this department, as main or as another one (null: every account).
+// Used by the area filter of the list, and before deleting a department (#33).
+export function filterByArea<T extends Pick<ListedAccount, 'areaIds'>>(accounts: T[], areaId: number | null): T[] {
+  if (areaId === null) return accounts
+  return accounts.filter((a) => a.areaIds.includes(areaId))
+}
+
 export type AccountSortKey = 'name' | 'area' | 'entries'
 export type AccountSort = { key: AccountSortKey; descending: boolean }
 
