@@ -103,11 +103,11 @@ select pg_temp.expect_error(pg_temp.own_edit(acc.two, '2222', 'PRUEBA PROPIA TRÃ
 select update_own_account(acc.two, '2222', 'Prueba Propia Dos', array[t.area_a], t.area_a) from acc, t;
 
 -- A department archived later (#33) stays valid for an account that already has it, not for others.
-update areas set active = false from t where id = t.area_b;
+update areas set archived_from = date_trunc('month', current_date)::date from t where id = t.area_b;
 select update_own_account(acc.three, '3333', 'Prueba Propia Tres', array[t.area_b], t.area_b) from acc, t;
 select pg_temp.expect_error(pg_temp.own_edit(acc.two, '2222', 'Prueba Propia Dos', array[t.area_b], t.area_b),
                             'area_invalid') from acc, t;
-update areas set active = true from t where id = t.area_b;
+update areas set archived_from = null from t where id = t.area_b;
 
 -- Changing the PIN --------------------------------------------------------------------------
 
