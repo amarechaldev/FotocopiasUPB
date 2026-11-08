@@ -21,6 +21,10 @@ export const ADMIN_MESSAGES: Record<string, string> = {
   // check_entry, since 0014.
   description_vague: VAGUE_DESCRIPTION_MESSAGE,
   date_before_first_period: EARLY_DATE_MESSAGE,
+  // The deferred checks of 0020 and 0021: archived, or not yet priced, for the entry's period.
+  area_not_valid: 'Esa área está archivada para la fecha del pedido. Elija otra área o cambie la fecha.',
+  anillado_size_not_valid:
+    'Uno de los tamaños de anillado no se puede usar en la fecha del pedido (archivado, o sin precio en ese periodo). Elija otro tamaño o cambie la fecha.',
   // set_period_end (migrations 0011 and 0012). The date field only offers valid dates, so the
   // last two appear only if the periods changed meanwhile.
   period_locked:

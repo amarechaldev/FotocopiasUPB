@@ -491,8 +491,9 @@ main.wide select {
   flex-basis: 100%;
 }
 
-/* Changing the end of the period shown (PeriodBar) */
-.period-end {
+/* Changing the end of the period shown (PeriodBar), or an item of the lists (ListsScreen) */
+.period-end,
+.list-form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -504,7 +505,8 @@ main.wide select {
   border-radius: var(--radius);
 }
 
-.period-end .hint {
+.period-end .hint,
+.list-form .hint {
   margin: 0;
 }
 
@@ -744,5 +746,37 @@ td.number {
 }
 
 .account-action .hint {
+  margin: 0;
+}
+
+/* Lists (ListsScreen) ------------------------------------------------------- */
+
+.lists h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: var(--color-primary);
+}
+
+.lists .hint {
+  margin: 0;
+}
+
+/* Inside a list's card, a form keeps the padding of its panel */
+.entry-list form.list-form {
+  padding: 1rem;
+}
+
+/* A description's departments can be several: let them wrap */
+.lists td:nth-child(2) {
+  white-space: normal;
+}
+
+/* Archived departments and sizes stay listed (to be reactivated), dimmed */
+.lists tr.archived td:not(.row-actions) {
+  color: var(--color-muted);
+}
+
+/* The department checkboxes of a common description */
+.list-form .choices {
   margin: 0;
 }

@@ -23,25 +23,29 @@ export type AccountEntry = {
   anillados: Anillado[]
 }
 
-// Active departments, in the order of the monthly report.
-export async function fetchAreas(): Promise<Area[]> {
+// Active departments, in the order of the monthly report, plus the archived ones in `keep` (an
+// entry being edited keeps its department).
+export async function fetchAreas(keep: number[] = []): Promise<Area[]> {
   const { data, error } = await supabase
     .from('areas')
-    .select('id, name')
-    .eq('active', true)
+    .select('id, name, active')
     .order('id')
   if (error) throw error
   return data
+    .filter((row) => row.active || keep.includes(row.id))
+    .map((row) => ({ id: row.id, name: row.name }))
 }
 
-// Anillado sizes in mm, smallest first.
-export async function fetchAnilladoSizes(): Promise<number[]> {
+// Anillado sizes in mm, smallest first: the active ones, plus the archived ones in `keep`.
+export async function fetchAnilladoSizes(keep: number[] = []): Promise<number[]> {
   const { data, error } = await supabase
     .from('anillado_sizes')
-    .select('size_mm')
+    .select('size_mm, archived_from')
     .order('size_mm')
   if (error) throw error
-  return data.map((row) => row.size_mm)
+  return data
+    .filter((row) => row.archived_from === null || keep.includes(row.size_mm))
+    .map((row) => row.size_mm)
 }
 
 // The too-vague descriptions (migration 0014), as the operator wrote them.

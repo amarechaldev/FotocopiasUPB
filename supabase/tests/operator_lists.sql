@@ -1,4 +1,5 @@
--- Tests for the operator's lists (0021). Paste into the SQL Editor of the TEST project only, after 0021.
+-- Tests for the operator's lists (0021 to 0023). Paste into the SQL Editor of the TEST project only,
+-- after 0023.
 -- Everything runs in one transaction that is rolled back: no data is left behind. The first failed
 -- check stops the script with its message; success = no error at the end.
 -- Dates are pretended with p_today: "today" is 10/03/2027, so the current period is March 2027
@@ -280,6 +281,66 @@ select pg_temp.expect_error($$insert into vague_descriptions values ('Prueba con
                             'description_in_both_lists');
 select pg_temp.expect_error($$insert into common_descriptions values (pg_temp.area('a'), 'cópias')$$,
                             'description_in_both_lists');
+
+-- Deleting a department (0022): only without entries and without accounts -------------------------
+
+select pg_temp.as_stranger();
+select pg_temp.expect_error($$select * from list_area_usage()$$, 'not_admin');
+select pg_temp.expect_error($$select delete_area(pg_temp.area('c'))$$, 'not_admin');
+select pg_temp.as_operator();
+
+-- B: two entries (15/02 and 05/03; the others were moved to Alfa) and three accounts.
+do $$ begin
+  assert (select entry_count from list_area_usage() where area_id = pg_temp.area('b')) = 2, 'B: 2 entries';
+  assert (select account_count from list_area_usage() where area_id = pg_temp.area('b')) = 3, 'B: 3 accounts';
+  assert (select entry_count from list_area_usage() where area_id = pg_temp.area('c')) = 0, 'C: no entries';
+end $$;
+
+select pg_temp.expect_error($$select delete_area(pg_temp.area('b'))$$, 'area_has_entries');
+select pg_temp.expect_error($$select delete_area(32000::smallint)$$, 'area_invalid');
+
+-- D: no entries, but an account has it.
+insert into d values ('d', create_area('Prueba Depto D'));
+insert into acc values
+  ('cuatro', create_account('Prueba Listas Cuatro', '8888', array[pg_temp.area('d')], pg_temp.area('d')));
+select pg_temp.expect_error($$select delete_area(pg_temp.area('d'))$$, 'area_has_accounts');
+
+-- C: archived, no entries, no accounts, one usual description of its own ("Prueba con C bis").
+-- Another description has C and Alfa: it keeps Alfa.
+select pg_temp.ok($$select save_common_description(null, 'Prueba C y Alfa', array[pg_temp.area('a')])$$);
+insert into common_descriptions values (pg_temp.area('c'), 'Prueba C y Alfa'); -- C is archived: directly
+select pg_temp.ok($$select delete_area(pg_temp.area('c'))$$);
+do $$ begin
+  assert not exists (select from areas where id = pg_temp.area('c')), 'C deleted';
+  assert not exists (select from common_descriptions where description = 'Prueba con C bis'), 'its description gone';
+  assert (select array_agg(area_id) from common_descriptions where description = 'Prueba C y Alfa')
+         = array[pg_temp.area('a')], 'the shared description keeps Alfa';
+end $$;
+
+-- Deleting an anillado size (0023): only without entries -------------------------------------------
+
+select pg_temp.as_stranger();
+select pg_temp.expect_error($$select * from list_size_usage()$$, 'not_admin');
+select pg_temp.expect_error($$select delete_anillado_size(98::smallint)$$, 'not_admin');
+select pg_temp.as_operator();
+
+-- 96 mm, used by one entry; 98 mm (added above) used by none.
+select pg_temp.ok($$select apply_new_size(96::smallint, '2027-03-01', 700, '2027-03-10')$$);
+select pg_temp.ok(format($$select register_manual_entry(%s, '2027-03-05', %s::smallint, 'Prueba listas 0021', 0,
+  '[{"size_mm": 96, "quantity": 2}]')$$, pg_temp.account('uno'), pg_temp.area('a')));
+do $$ begin
+  assert (select entry_count from list_size_usage() where size_mm = 96) = 1, '96: 1 entry';
+  assert (select entry_count from list_size_usage() where size_mm = 98) = 0, '98: no entries';
+end $$;
+
+select pg_temp.expect_error($$select delete_anillado_size(96::smallint)$$, 'anillado_size_has_entries');
+select pg_temp.expect_error($$select delete_anillado_size(32000::smallint)$$, 'size_invalid');
+select pg_temp.ok($$select delete_anillado_size(98::smallint)$$);
+do $$ begin
+  assert not exists (select from anillado_sizes where size_mm = 98), '98 deleted';
+  assert not exists (select from anillado_prices where size_mm = 98), 'its prices too';
+  assert exists (select from anillado_sizes where size_mm = 96), '96 kept';
+end $$;
 
 -- Reached only if every check above passed (the SQL Editor shows the last result).
 select 'All operator list tests passed' as result;

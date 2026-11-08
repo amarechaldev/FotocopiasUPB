@@ -1,4 +1,4 @@
-import { addDays } from './dates'
+import { addDays, formatDate } from './dates'
 
 // Billing periods come from the database (migration 0011), where the operator can move their
 // end dates; the rule that computes them lives only there. These helpers only look things up
@@ -39,4 +39,9 @@ export function nextAfterNewEnd(next: Period, newEnd: string): Period | null {
 // The period a date belongs to, or null if it is outside the list (e.g. before the first period).
 export function periodContaining<P extends Period>(periods: P[], date: string): P | null {
   return periods.find((period) => period.start <= date && date <= period.end) ?? null
+}
+
+// How a period is named to the operator: 23/10/2026 – 22/11/2026.
+export function periodName(period: Period): string {
+  return `${formatDate(period.start)} – ${formatDate(period.end)}`
 }

@@ -17,6 +17,9 @@ export const ENTRY_MESSAGES: Record<string, string> = {
   pin_reset_pending: 'Su PIN fue reiniciado: elija un PIN nuevo.',
   pin_reset_not_pending: 'El reinicio de su PIN fue cancelado: use su PIN de siempre.',
   pin_invalid: 'El PIN debe tener 4 números.',
+  // Archived by the operator after the form was loaded (0020, 0021).
+  area_not_valid: 'Esa área ya no está disponible. Recargue la página y elija otra.',
+  anillado_size_not_valid: 'Ese tamaño de anillado ya no está disponible. Recargue la página y elija otro.',
 }
 
 function errorCode(error: unknown): string {

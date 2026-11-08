@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { pricesForPeriod, type AnilladoPriceRow, type CopyPriceRow } from './prices'
+import { parseBs, pricesForPeriod, type AnilladoPriceRow, type CopyPriceRow } from './prices'
 
 const copyRows: CopyPriceRow[] = [
   { fromMonth: '2026-11-01', priceCentavos: 30 },
@@ -51,5 +51,23 @@ describe('pricesForPeriod', () => {
   test('no copy price for the period is an error', () => {
     expect(() => pricesForPeriod(copyRows, anilladoRows, '2026-10-01')).toThrow(/precio de la copia/)
     expect(() => pricesForPeriod([], anilladoRows, '2026-11-01')).toThrow(/precio de la copia/)
+  })
+})
+
+describe('parseBs', () => {
+  test('a dot or a comma for decimals, one or two decimals, or none', () => {
+    expect(parseBs('1.50')).toBe(150)
+    expect(parseBs('1,50')).toBe(150)
+    expect(parseBs('1,5')).toBe(150)
+    expect(parseBs('0,29')).toBe(29)
+    expect(parseBs('0.3')).toBe(30)
+    expect(parseBs('20')).toBe(2000)
+    expect(parseBs(' 5,50 ')).toBe(550)
+  })
+
+  test('not a positive amount with at most two decimals: null', () => {
+    for (const text of ['', ' ', '0', '0,00', '-1', '1,505', '1.', ',50', 'abc', '1 000', '1.000,50', '1e3']) {
+      expect(parseBs(text), text).toBeNull()
+    }
   })
 })
