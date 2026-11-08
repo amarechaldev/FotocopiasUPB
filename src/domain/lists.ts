@@ -34,3 +34,33 @@ export function affectedAccounts<A extends AccountAreas>(
     other: having.filter((a) => a.defaultAreaId !== areaId),
   }
 }
+
+// The warning on the staff form for departments of the person that were archived (#115).
+export function archivedAreasNotice(names: string[]): string {
+  if (names.length === 1) return `El área ${names[0]} fue archivada: ya no se puede usar en los pedidos.`
+  const list = `${names.slice(0, -1).join(', ')} y ${names[names.length - 1]}`
+  return `Las áreas ${list} fueron archivadas: ya no se pueden usar en los pedidos.`
+}
+
+// The warning before archiving a department, from the names of the active accounts that have it,
+// with the verbs in singular or plural (null: nobody in that group).
+export function affectedAccountsWarning(
+  main: string[],
+  other: string[],
+): { main: string | null; other: string | null } {
+  const one = (names: string[]) => names.length === 1
+  return {
+    main:
+      main.length === 0
+        ? null
+        : one(main)
+          ? `Es el área principal de: ${main[0]}. La próxima vez que elija su nombre en la tablet, deberá elegir otra área principal.`
+          : `Es el área principal de: ${main.join(', ')}. La próxima vez que elijan su nombre en la tablet, deberán elegir otra área principal.`,
+    other:
+      other.length === 0
+        ? null
+        : one(other)
+          ? `También la tiene: ${other[0]}. Verá un aviso la próxima vez que elija su nombre.`
+          : `También la tienen: ${other.join(', ')}. Verán un aviso la próxima vez que elijan su nombre.`,
+  }
+}

@@ -1,5 +1,6 @@
 import { useState, type FormEvent, type ReactNode } from 'react'
 import { periodName, type BillingPeriod } from './domain/periods'
+import { useScrolledIntoView } from './scrollToTop'
 import { listErrorMessage } from './lib/lists'
 
 type Props = {
@@ -18,6 +19,7 @@ type Status = { kind: 'idle' } | { kind: 'saving' } | { kind: 'failed'; message:
 export function ArchiveForm({ title, choices, children, archive, onCancel, onDone }: Props) {
   const [month, setMonth] = useState(choices[0].month)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
   const period = choices.find((p) => p.month === month) ?? choices[0]
 
   async function handleSubmit(event: FormEvent) {
@@ -32,7 +34,7 @@ export function ArchiveForm({ title, choices, children, archive, onCancel, onDon
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>{title}</strong>
 
       {status.kind === 'failed' && (

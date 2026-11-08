@@ -31,6 +31,12 @@ export function accountErrorMessage(error: unknown): string {
   return ACCOUNT_MESSAGES[errorCode(error)] ?? errorDetail(error)
 }
 
+// True when the database refused a change to one's own account for a reason the person can fix
+// right away (e.g. a wrong PIN), as opposed to a connection or server failure.
+export function isOwnAccountRefusal(error: unknown): boolean {
+  return Object.hasOwn(OWN_ACCOUNT_MESSAGES, errorCode(error))
+}
+
 // A Spanish message for the person editing their own account, from whatever was thrown.
 export function ownAccountErrorMessage(error: unknown): string {
   return OWN_ACCOUNT_MESSAGES[errorCode(error)] ?? errorDetail(error)

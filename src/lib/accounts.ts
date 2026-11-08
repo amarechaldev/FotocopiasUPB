@@ -7,6 +7,10 @@ export type Account = {
   areaIds: number[]
   defaultAreaId: number
   pinResetPending: boolean // the operator launched a PIN reset: a new PIN must be chosen (#31)
+  // Departments archived by the operator (#33, #115): the main one must be replaced before
+  // registering; the others are a warning, shown until dismissed.
+  defaultAreaArchived: boolean
+  archivedAreaNames: string[]
 }
 
 export type NewAccount = {
@@ -22,6 +26,8 @@ type AccountRow = {
   area_ids: number[]
   default_area_id: number
   pin_reset_pending: boolean
+  default_area_archived: boolean
+  archived_area_names: string[]
 }
 
 // Creates the account and returns its id. The PIN is hashed by the database;
@@ -49,6 +55,8 @@ export async function fetchAccounts(): Promise<Account[]> {
     areaIds: row.area_ids,
     defaultAreaId: row.default_area_id,
     pinResetPending: row.pin_reset_pending,
+    defaultAreaArchived: row.default_area_archived ?? false,
+    archivedAreaNames: row.archived_area_names ?? [],
   }))
 }
 
@@ -93,6 +101,15 @@ export async function updateOwnAccount(
       p_default_area_id: changes.defaultAreaId,
       p_new_pin: changes.newPin,
     })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
+}
+
+// The person has seen the warning about their archived departments (migration 0021). No PIN: it
+// only hides a message.
+export async function dismissAreaNotices(accountId: number): Promise<void> {
+  const { error } = await supabase
+    .rpc('dismiss_area_notices', { p_account_id: accountId })
     .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
   if (error) throw error
 }

@@ -15,6 +15,7 @@ import {
   reactivateSize,
   type ListedSize,
 } from './lib/lists'
+import { useScrolledIntoView } from './scrollToTop'
 import { fetchPeriods } from './lib/periods'
 import {
   fetchPriceRows,
@@ -339,6 +340,7 @@ function PriceForm({ item, current, choices, onCancel, onSaved }: FormProps) {
   const [price, setPrice] = useState(current ? bs(current.priceCentavos) : '')
   const [month, setMonth] = useState(choices[0].month)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
   const period = choices.find((p) => p.month === month) ?? choices[0]
 
   async function handleSubmit(event: FormEvent) {
@@ -359,7 +361,7 @@ function PriceForm({ item, current, choices, onCancel, onSaved }: FormProps) {
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>Nuevo precio: {itemName(item)}</strong>
       <Failure status={status} title="No se guardó el precio" />
       <label>
@@ -393,6 +395,7 @@ function NewSizeForm({
   const [price, setPrice] = useState('')
   const [month, setMonth] = useState(choices[0].month)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
   const period = choices.find((p) => p.month === month) ?? choices[0]
 
   async function handleSubmit(event: FormEvent) {
@@ -419,7 +422,7 @@ function NewSizeForm({
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>Nuevo tamaño de anillado</strong>
       <Failure status={status} title="No se agregó el tamaño" />
       <label>

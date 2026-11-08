@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useScrolledIntoView } from './scrollToTop'
 
 type Props = {
   question: string // e.g. "¿Eliminar el área Marketing?"
@@ -12,11 +13,10 @@ type Props = {
 // deletes nothing.
 export function ConfirmPanel({ question, detail, onConfirm, onCancel }: Props) {
   const [busy, setBusy] = useState(false)
-  const panel = useRef<HTMLDivElement>(null)
+  const panel = useScrolledIntoView<HTMLDivElement>('center')
   const cancel = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    panel.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
     cancel.current?.focus({ preventScroll: true })
   }, [])
 

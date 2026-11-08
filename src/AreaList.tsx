@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArchiveForm } from './ArchiveForm'
 import { ConfirmPanel } from './ConfirmPanel'
-import { affectedAccounts } from './domain/lists'
+import { affectedAccounts, affectedAccountsWarning } from './domain/lists'
 import { periodName, type BillingPeriod } from './domain/periods'
+import { useScrolledIntoView } from './scrollToTop'
 import { fetchAdminAccounts, type AdminAccount } from './lib/adminAccounts'
 import {
   archiveArea,
@@ -250,20 +251,14 @@ function AffectedAccounts({ accounts, area }: { accounts: AdminAccount[]; area: 
   if (main.length === 0 && other.length === 0) {
     return <p className="hint">Ninguna cuenta activa tiene esta área.</p>
   }
+  const warning = affectedAccountsWarning(
+    main.map((a) => a.name),
+    other.map((a) => a.name),
+  )
   return (
     <div className="warning" role="status">
-      {main.length > 0 && (
-        <p>
-          ⚠ Es el área principal de: {main.map((a) => a.name).join(', ')}. La próxima vez que elijan su
-          nombre en la tablet, deberán elegir otra área principal.
-        </p>
-      )}
-      {other.length > 0 && (
-        <p>
-          ⚠ También la tienen: {other.map((a) => a.name).join(', ')}. Verán un aviso la próxima vez que
-          elijan su nombre.
-        </p>
-      )}
+      {warning.main && <p>⚠ {warning.main}</p>}
+      {warning.other && <p>⚠ {warning.other}</p>}
     </div>
   )
 }
@@ -285,6 +280,7 @@ function AreaNameForm({
 }) {
   const [name, setName] = useState(initial)
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -299,7 +295,7 @@ function AreaNameForm({
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>{title}</strong>
       {status.kind === 'failed' && (
         <div className="message error" role="alert">

@@ -26,3 +26,15 @@ export function toggleArea(selection: AreaSelection, areaId: number): AreaSelect
 export function chooseDefault(selection: AreaSelection, areaId: number): AreaSelection {
   return selection.areaIds.includes(areaId) ? { ...selection, defaultAreaId: areaId } : selection
 }
+
+// A new main department after the old one was archived (#115): the account keeps its departments
+// still in use, plus the one chosen, which becomes the default. Archived ones are dropped: they can
+// no longer be used for entries.
+export function withNewDefault(
+  areaIds: number[],
+  activeAreaIds: number[],
+  chosen: number,
+): { areaIds: number[]; defaultAreaId: number } {
+  const kept = areaIds.filter((id) => activeAreaIds.includes(id) && id !== chosen)
+  return { areaIds: [chosen, ...kept], defaultAreaId: chosen }
+}

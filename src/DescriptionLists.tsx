@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ConfirmPanel } from './ConfirmPanel'
 import { groupCommonDescriptions, type GroupedDescription } from './domain/lists'
+import { useScrolledIntoView } from './scrollToTop'
 import { fetchCommonDescriptions, fetchVagueDescriptions } from './lib/entries'
 import {
   deleteCommonDescription,
@@ -232,6 +233,7 @@ function CommonDescriptionForm({
   const [description, setDescription] = useState(editing?.description ?? '')
   const [areaIds, setAreaIds] = useState<number[]>(editing?.areaIds ?? [])
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
   const offered = areas.filter((area) => !area.archivedFrom || editing?.areaIds.includes(area.id))
 
   function toggle(id: number) {
@@ -255,7 +257,7 @@ function CommonDescriptionForm({
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>{editing ? `Editar «${editing.description}»` : 'Nueva descripción usual'}</strong>
       <Failure status={status} />
       <label>
@@ -436,6 +438,7 @@ function VagueDescriptionForm({
 }) {
   const [description, setDescription] = useState(editing ?? '')
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
+  const panel = useScrolledIntoView<HTMLFormElement>()
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault()
@@ -450,7 +453,7 @@ function VagueDescriptionForm({
   }
 
   return (
-    <form className="list-form" onSubmit={handleSubmit}>
+    <form className="list-form" onSubmit={handleSubmit} ref={panel}>
       <strong>{editing ? `Editar «${editing}»` : 'Nueva descripción demasiado vaga'}</strong>
       <Failure status={status} />
       <label>
