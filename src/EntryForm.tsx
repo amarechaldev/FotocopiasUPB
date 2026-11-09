@@ -12,9 +12,10 @@ import {
   newEntryPeriodWarning,
 } from './domain/entryRules'
 import { pinDigits } from './domain/pin'
+import { archivedAreasNotice } from './domain/lists'
 import { describeContents } from './domain/summary'
 import type { CreatedAccount } from './AccountForm'
-import { fetchAccounts, type Account } from './lib/accounts'
+import { dismissAreaNotices, fetchAccounts, type Account } from './lib/accounts'
 import {
   fetchAnilladoSizes,
   fetchAreas,
@@ -26,6 +27,7 @@ import {
   type CurrentPeriod,
 } from './lib/entries'
 import { ENTRY_MESSAGES, entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { NewDefaultAreaStep } from './NewDefaultAreaStep'
 import { NewPinStep } from './NewPinStep'
 import { scrollToTop } from './scrollToTop'
 
@@ -81,6 +83,8 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
   // the green message once the new PIN is saved.
   const [pinNotice, setPinNotice] = useState<string | null>(null)
   const [pinSaved, setPinSaved] = useState(false)
+  // A new main department was just chosen, after the old one was archived (#115).
+  const [areaSaved, setAreaSaved] = useState(false)
 
   // A counter that survives redraws without causing one (unlike state).
   const lastKey = useRef(0)
@@ -145,17 +149,45 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
     setSavedProfile(null) // the next person has started
     setPinNotice(null)
     setPinSaved(false)
+    setAreaSaved(false)
     if (chosen) update('areaId', String(chosen.defaultAreaId))
     setOutsideConfirmed(false)
     clearConfirmation()
   }
 
-  // The operator started or cancelled a reset after the list was loaded: the chosen account and
-  // the list follow the database.
-  function markPinReset(accountId: number, pending: boolean) {
-    const change = (a: Account) => (a.id === accountId ? { ...a, pinResetPending: pending } : a)
+  // The chosen account and the list follow what the database now says about this account.
+  function patchAccount(accountId: number, patch: Partial<Account>) {
+    const change = (a: Account) => (a.id === accountId ? { ...a, ...patch } : a)
     setAccount((current) => (current ? change(current) : current))
     setLists((current) => current && { ...current, accounts: current.accounts.map(change) })
+  }
+
+  // The operator started or cancelled a reset after the list was loaded.
+  function markPinReset(accountId: number, pending: boolean) {
+    patchAccount(accountId, { pinResetPending: pending })
+  }
+
+  // The new main department is saved (#115): the form opens on it, with the PIN already filled
+  // (typed just now). Archived departments left the account, so their warning is no longer needed.
+  function handleNewDefault(changes: { areaIds: number[]; defaultAreaId: number; pin: string }) {
+    if (!account) return
+    patchAccount(account.id, {
+      areaIds: changes.areaIds,
+      defaultAreaId: changes.defaultAreaId,
+      defaultAreaArchived: false,
+      archivedAreaNames: [],
+    })
+    void dismissAreaNotices(account.id).catch(() => {}) // if it fails, the warning shows next time
+    setPin(changes.pin)
+    update('areaId', String(changes.defaultAreaId))
+    setAreaSaved(true)
+  }
+
+  // "Entendido" under the warning about archived departments: not shown again.
+  function dismissNotices() {
+    if (!account) return
+    patchAccount(account.id, { archivedAreaNames: [] })
+    void dismissAreaNotices(account.id).catch(() => {}) // if it fails, the warning shows next time
   }
 
   // The new PIN is saved: the form opens, with the PIN field already filled (typed twice just now).
@@ -224,6 +256,7 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
       setWelcome(null)
       setSavedProfile(null)
       setPinSaved(false)
+      setAreaSaved(false)
       setPin('')
       setOutsideConfirmed(false)
       setFields(emptyFields())
@@ -254,8 +287,9 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
   }
 
   // Nothing can be filled before a real name is chosen (#56), nor before a new PIN is chosen
-  // after a reset (#31); what was typed is kept. A disabled fieldset disables every field inside it.
-  const locked = account === null || account.pinResetPending
+  // after a reset (#31), nor before a new main department replaces an archived one (#115); what
+  // was typed is kept. A disabled fieldset disables every field inside it.
+  const locked = account === null || account.pinResetPending || account.defaultAreaArchived
   const periodWarning = newEntryPeriodWarning(fields.entryDate, lists.period.current)
 
   return (
@@ -283,6 +317,12 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
         {pinSaved && (status.kind === 'idle' || status.kind === 'saving') && (
           <div className="message success" role="status">
             <strong>✓ PIN nuevo guardado</strong>
+            <p>Ahora registre su pedido.</p>
+          </div>
+        )}
+        {areaSaved && (status.kind === 'idle' || status.kind === 'saving') && (
+          <div className="message success" role="status">
+            <strong>✓ Área principal guardada</strong>
             <p>Ahora registre su pedido.</p>
           </div>
         )}
@@ -333,6 +373,25 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
               setStatus({ kind: 'rejected', message })
             }}
           />
+        )}
+
+        {/* After the new PIN, if both: saving the department needs the PIN. */}
+        {account && !account.pinResetPending && account.defaultAreaArchived && (
+          <NewDefaultAreaStep
+            key={account.id} // another person: empty fields
+            account={account}
+            areas={lists.areas}
+            onSaved={handleNewDefault}
+          />
+        )}
+
+        {account && !account.defaultAreaArchived && account.archivedAreaNames.length > 0 && (
+          <div className="warning" role="status">
+            <p>⚠ {archivedAreasNotice(account.archivedAreaNames)}</p>
+            <button type="button" className="secondary" onClick={dismissNotices}>
+              Entendido
+            </button>
+          </div>
         )}
 
         <fieldset disabled={locked}>

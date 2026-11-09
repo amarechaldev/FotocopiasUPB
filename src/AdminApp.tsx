@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { currentAdmin, signIn, signOut, type Admin } from './lib/admin'
 import { AccountList } from './AccountList'
 import { EntryList } from './EntryList'
+import { ListsScreen } from './ListsScreen'
 import { adminErrorMessage } from './lib/adminErrors'
 
 // The operator's area, at /admin on her own computer.
@@ -10,9 +11,9 @@ type State =
   | { kind: 'login' }
   | { kind: 'home'; admin: Admin }
 
-// Her two screens: switching just draws the other one, which fetches its data again (so a
-// renamed account shows in the entries).
-type View = 'entries' | 'accounts'
+// Her screens: switching just draws the other one, which fetches its data again (so a renamed
+// account shows in the entries).
+type View = 'entries' | 'accounts' | 'lists'
 
 export function AdminApp() {
   const [state, setState] = useState<State>({ kind: 'checking' })
@@ -55,6 +56,13 @@ export function AdminApp() {
           >
             Cuentas
           </button>
+          <button
+            type="button"
+            aria-current={view === 'lists' ? 'page' : undefined}
+            onClick={() => setView('lists')}
+          >
+            Listas
+          </button>
         </nav>
       )}
       {/* The list needs a computer-wide screen; the login form stays narrow. */}
@@ -75,7 +83,9 @@ export function AdminApp() {
             </div>
           </section>
         )}
-        {state.kind === 'home' && (view === 'entries' ? <EntryList /> : <AccountList />)}
+        {state.kind === 'home' && view === 'entries' && <EntryList />}
+        {state.kind === 'home' && view === 'accounts' && <AccountList />}
+        {state.kind === 'home' && view === 'lists' && <ListsScreen />}
       </main>
     </>
   )

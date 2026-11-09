@@ -35,6 +35,9 @@ export async function fetchAdminAccounts(): Promise<AdminAccount[]> {
     defaultAreaId: row.default_area_id,
     archived: row.archived,
     pinResetPending: row.pin_reset_pending,
+    // The staff form's concern (#115); her screens show the departments themselves.
+    defaultAreaArchived: false,
+    archivedAreaNames: [],
     entryCount: row.entry_count,
   }))
 }

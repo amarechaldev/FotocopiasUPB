@@ -117,11 +117,11 @@ select pg_temp.expect_error(format('select update_account(%s, %L, array[%s]::sma
 select update_account(acc.two, 'Prueba Cuenta Dos', array[t.area_a], t.area_a) from acc, t;
 
 -- A department archived later (#33) stays valid for an account that already has it.
-update areas set active = false from t where id = t.area_b;
+update areas set archived_from = date_trunc('month', current_date)::date from t where id = t.area_b;
 select update_account(acc.three, 'Prueba Cuenta Tres', array[t.area_b], t.area_b) from acc, t;
 select pg_temp.expect_error(format('select update_account(%s, %L, array[%s]::smallint[], %s::smallint)',
   acc.two, 'Prueba Cuenta Dos', t.area_b, t.area_b), 'area_invalid') from acc, t;
-update areas set active = true from t where id = t.area_b;
+update areas set archived_from = null from t where id = t.area_b;
 
 -- Archiving --------------------------------------------------------------------------------
 

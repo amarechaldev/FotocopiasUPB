@@ -3,6 +3,7 @@ import {
   defaultAccountSort,
   describeAreas,
   filterArchived,
+  filterByArea,
   isDefaultAccountSort,
   nextAccountSort,
   sortAccounts,
@@ -120,5 +121,25 @@ describe('filterArchived', () => {
     expect(names(filterArchived(accounts, 'all'))).toEqual(['Ana', 'Zoe'])
     expect(names(filterArchived(accounts, 'active'))).toEqual(['Ana'])
     expect(names(filterArchived(accounts, 'archived'))).toEqual(['Zoe'])
+  })
+})
+
+describe('filterByArea', () => {
+  const accounts = [
+    { name: 'Ana', areaIds: [1, 2] },
+    { name: 'Beto', areaIds: [3] },
+    { name: 'Carla', areaIds: [2] },
+  ]
+
+  test('the accounts with the department, as main or as another one', () => {
+    expect(filterByArea(accounts, 2).map((a) => a.name)).toEqual(['Ana', 'Carla'])
+  })
+
+  test('no department chosen: every account', () => {
+    expect(filterByArea(accounts, null)).toEqual(accounts)
+  })
+
+  test('nobody has it', () => {
+    expect(filterByArea(accounts, 9)).toEqual([])
   })
 })

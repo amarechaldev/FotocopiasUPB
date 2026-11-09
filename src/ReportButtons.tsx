@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { todayInBolivia } from './domain/dates'
 import { buildDetailedReport, reportRange } from './domain/detailedReport'
 import { buildGlobalReport } from './domain/globalReport'
-import type { Period } from './domain/periods'
+import type { BillingPeriod } from './domain/periods'
 import { fetchEntries } from './lib/adminEntries'
 import { adminErrorMessage } from './lib/adminErrors'
 import type { Area } from './lib/entries'
 import { fetchPrices } from './lib/prices'
 
 type Props = {
-  period: Period // the period shown in the list
+  period: BillingPeriod // the period shown in the list
   areas: Area[] // every active department, in the order of the monthly report
 }
 
@@ -25,13 +25,13 @@ const LABELS: Record<Report, string> = {
   global: 'Reporte global (PDF)',
 }
 
-// Fetched again (not the list's copy), so the report is up to date.
-async function downloadReport(report: Report, period: Period, areas: Area[]): Promise<void> {
+// Fetched again (not the list's copy), so the report is up to date. Prices are the period's own.
+async function downloadReport(report: Report, period: BillingPeriod, areas: Area[]): Promise<void> {
   const generatedAt = new Date()
   const range = reportRange(period, todayInBolivia())
   const [entries, prices] = await Promise.all([
     fetchEntries(range),
-    report === 'global' ? fetchPrices() : null,
+    report === 'global' ? fetchPrices(period.month) : null,
   ])
   const detailed = buildDetailedReport(entries, areas, range)
   // Only now: the PDF code and its library are loaded the first time a report is made.

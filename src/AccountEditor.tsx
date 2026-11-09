@@ -1,5 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { AreaChoices } from './AreaChoices'
+import { ConfirmPanel } from './ConfirmPanel'
 import type { AreaSelection } from './domain/areaSelection'
 import { cleanName, nameChanged } from './domain/names'
 import {
@@ -29,6 +30,7 @@ export function AccountEditor({ account, areas, onDone, onCancel }: Props) {
     defaultAreaId: account.defaultAreaId,
   })
   const [busy, setBusy] = useState(false)
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
   // An object, not a string: the same message twice in a row still scrolls to it.
   const [problem, setProblem] = useState<{ message: string } | null>(null)
 
@@ -64,9 +66,10 @@ export function AccountEditor({ account, areas, onDone, onCancel }: Props) {
     )
   }
 
-  function handleDelete() {
-    if (!window.confirm(`¿Eliminar la cuenta de ${account.name}? No se puede deshacer.`)) return
-    void act(() => deleteAccount(account.id), `✓ Cuenta de ${account.name} eliminada.`)
+  // After "Sí, eliminar" in the confirmation panel.
+  async function handleDelete() {
+    setConfirmingDelete(false)
+    await act(() => deleteAccount(account.id), `✓ Cuenta de ${account.name} eliminada.`)
   }
 
   return (
@@ -195,9 +198,23 @@ export function AccountEditor({ account, areas, onDone, onCancel }: Props) {
         {account.entryCount === 0 ? (
           <>
             <p className="hint">Esta cuenta no tiene pedidos, así que se puede eliminar.</p>
-            <button type="button" className="danger" disabled={busy} onClick={handleDelete}>
-              Eliminar cuenta
-            </button>
+            {confirmingDelete ? (
+              <ConfirmPanel
+                question={`¿Eliminar la cuenta de ${account.name}?`}
+                detail="No se puede deshacer."
+                onConfirm={handleDelete}
+                onCancel={() => setConfirmingDelete(false)}
+              />
+            ) : (
+              <button
+                type="button"
+                className="danger"
+                disabled={busy}
+                onClick={() => setConfirmingDelete(true)}
+              >
+                Eliminar cuenta
+              </button>
+            )}
           </>
         ) : (
           <p className="hint">

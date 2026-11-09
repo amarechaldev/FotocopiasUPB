@@ -64,14 +64,21 @@ export function EntryEditor({ entry, periods, onSaved, onCancel }: Props) {
   const [problem, setProblem] = useState<{ message: string } | null>(null)
 
   useEffect(() => {
-    Promise.all([fetchAreas(), fetchAnilladoSizes(), fetchAdminAccounts(), fetchVagueDescriptions()])
+    // An edit keeps showing its department and sizes, even if archived since (#33); the database
+    // says whether they are still valid for the date.
+    Promise.all([
+      fetchAreas(entry ? [entry.areaId] : []),
+      fetchAnilladoSizes(entry?.anillados.map((a) => a.sizeMm) ?? []),
+      fetchAdminAccounts(),
+      fetchVagueDescriptions(),
+    ])
       .then(([areas, sizes, all, vague]) => {
         // Archived accounts can't be chosen for a new entry, but an entry of one keeps its name.
         const accounts = all.filter((a) => !a.archived || a.id === entry?.accountId)
         setLists({ areas, sizes, accounts, vague })
       })
       .catch(() => setListsError(true))
-  }, [entry?.accountId])
+  }, [entry])
 
   // The message is at the top, the buttons at the bottom: scroll up on every new message.
   useEffect(() => {
