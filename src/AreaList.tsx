@@ -26,7 +26,6 @@ type Loaded =
       kind: 'loaded'
       areas: ListedArea[]
       periods: BillingPeriod[]
-      accounts: AdminAccount[]
       usage: Map<number, AreaUsage>
     }
   | { kind: 'failed'; message: string }
@@ -54,9 +53,9 @@ export function AreaList({ onChanged }: Props) {
   const top = useRef<HTMLElement>(null)
 
   useEffect(() => {
-    Promise.all([fetchAllAreas(), fetchPeriods(), fetchAdminAccounts(), fetchAreaUsage()])
-      .then(([areas, periods, accounts, usage]) =>
-        setLoaded({ kind: 'loaded', areas, periods, accounts, usage }),
+    Promise.all([fetchAllAreas(), fetchPeriods(), fetchAreaUsage()])
+      .then(([areas, periods, usage]) =>
+        setLoaded({ kind: 'loaded', areas, periods, usage }),
       )
       .catch((error) => setLoaded({ kind: 'failed', message: listErrorMessage(error) }))
   }, [reloads])
@@ -77,7 +76,7 @@ export function AreaList({ onChanged }: Props) {
     )
   }
 
-  const { areas, periods, accounts, usage } = loaded
+  const { areas, periods, usage } = loaded
   const choices = periods.filter((period) => period.changeable).reverse() // current first
 
   function startOf(month: string): string {
@@ -172,13 +171,12 @@ export function AreaList({ onChanged }: Props) {
           onCancel={() => setOpen(null)}
           onDone={(period) => done(`✓ Área ${open.area.name} archivada desde el periodo ${periodName(period)}.`)}
         >
-          <AffectedAccounts accounts={accounts} area={open.area} />
+          <AffectedAccounts area={open.area} />
         </ArchiveForm>
       )}
       {open?.kind === 'delete' && (
         <DeleteAreaPanel
           area={open.area}
-          accounts={accounts}
           onConfirm={() => remove(open.area)}
           onCancel={() => setOpen(null)}
         />
@@ -246,19 +244,52 @@ export function AreaList({ onChanged }: Props) {
   )
 }
 
+// The accounts as they are now, fetched when a panel that depends on them opens: staff may have
+// changed their departments on the tablet since this screen was loaded (found in #103).
+function useFreshAccounts(): AdminAccount[] | 'loading' | 'failed' {
+  const [accounts, setAccounts] = useState<AdminAccount[] | 'loading' | 'failed'>('loading')
+  useEffect(() => {
+    fetchAdminAccounts()
+      .then((fresh) => setAccounts(fresh))
+      .catch(() => setAccounts('failed'))
+  }, [])
+  return accounts
+}
+
+const CHECKING = <p className="notice">Comprobando las cuentas…</p>
+const CHECK_FAILED = (
+  <div className="message error" role="alert">
+    <strong>✗ No se pudieron comprobar las cuentas</strong>
+    <p>Recargue la página y vuelva a intentarlo.</p>
+  </div>
+)
+
 // Deleting a department: only if no account has it, archived accounts included (0022). Otherwise
 // it says which accounts to change first, instead of offering a delete the database would refuse.
 function DeleteAreaPanel({
   area,
-  accounts,
   onConfirm,
   onCancel,
 }: {
   area: ListedArea
-  accounts: AdminAccount[]
   onConfirm: () => Promise<void>
   onCancel: () => void
 }) {
+  const accounts = useFreshAccounts()
+  if (accounts === 'loading') return CHECKING
+  if (accounts === 'failed') {
+    return (
+      <ConfirmPanel
+        question={`¿Eliminar el área ${area.name}?`}
+        detail=""
+        canConfirm={false}
+        onConfirm={onConfirm}
+        onCancel={onCancel}
+      >
+        {CHECK_FAILED}
+      </ConfirmPanel>
+    )
+  }
   const holders = filterByArea(accounts, area.id)
   if (holders.length === 0) {
     return (
@@ -296,7 +327,10 @@ function DeleteAreaPanel({
 }
 
 // Who will notice the archive, before she confirms it.
-function AffectedAccounts({ accounts, area }: { accounts: AdminAccount[]; area: ListedArea }) {
+function AffectedAccounts({ area }: { area: ListedArea }) {
+  const accounts = useFreshAccounts()
+  if (accounts === 'loading') return CHECKING
+  if (accounts === 'failed') return CHECK_FAILED
   const { main, other } = affectedAccounts(accounts, area.id)
   if (main.length === 0 && other.length === 0) {
     return <p className="hint">Ninguna cuenta activa tiene esta área.</p>
