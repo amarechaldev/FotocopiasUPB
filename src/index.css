@@ -423,6 +423,20 @@ fieldset:disabled fieldset {
   gap: 0.75rem;
 }
 
+/* The daily backup (BackupPanel), under the session line */
+.backup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.backup button.primary {
+  font-size: 1.1rem;
+}
+
 /* Admin screens are used on a computer: more width, smaller text than the tablet */
 main.wide {
   max-width: 80rem;
