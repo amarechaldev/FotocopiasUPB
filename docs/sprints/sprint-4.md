@@ -14,10 +14,11 @@
 4. [#30 Staff edits own profile](https://github.com/amarechaldev/FotocopiasUPB/issues/30) (E5)
 5. [#114 Operator password reset](https://github.com/amarechaldev/FotocopiasUPB/issues/114) (E5): added on November 5, after the operator forgot her password and it was reset manually. **Closed as won't do on November 6:** the operator prefers a manual reset by the developer if it ever happens again
 6. [#33 Operator edits the lists](https://github.com/amarechaldev/FotocopiasUPB/issues/33) (E6): first to be cut if time runs short
+7. [#51 Local backups](https://github.com/amarechaldev/FotocopiasUPB/issues/51) (E6): added on November 8, after all the planned stories were in production
 
-**Cut line:** if time runs short, #33 moves to Sprint 5 (November 12–18), which still allows a handover in November.
+**Cut line:** if time runs short, #33 moves to Sprint 5 (November 12–18), which still allows a handover in November. #33 reached production on November 8. #51 was added above the plan: any of its tasks not done by November 11 move to Sprint 5.
 
-**Next in the backlog** (top of Sprint 5): [#51 Local backups](https://github.com/amarechaldev/FotocopiasUPB/issues/51) (E6), [#20 Undo button](https://github.com/amarechaldev/FotocopiasUPB/issues/20) (E1).
+**Next in the backlog** (top of Sprint 5): [#20 Undo button](https://github.com/amarechaldev/FotocopiasUPB/issues/20) (E1), the last story of the Handover milestone. It can be pulled into this sprint if #51 is done with time left.
 
 **PO work:**
 
@@ -29,6 +30,7 @@
 - #16: the database must stay active from the end of the pilot (November 22) until the full rollout in January, more than six weeks without entries. This cannot be tested by waiting: the Dev provides evidence of how it works.
 - Archive what past entries refer to: departments and anillado sizes. Departments and anillados sizes can be deleted if not used. Entries and descriptions can be deleted (#31, #33).
 - Prices (#33): a price change applies from a chosen period; reports for earlier periods keep the old prices.
+- Backups (#51, decision log 2026-10-26): the operator starts the backup with one button and keeps the file on her computer; the app reminds her 23 hours after the last one. A backup is restored once on the test database to prove it is complete.
 - #58 depends on access to the operator's second computer: arrange a time with her.
 - The pilot is running: test on the preview first, then a short check in production (Definition of Done, action C2).
 
@@ -61,7 +63,11 @@
 | 15 (#102) | "Listas" screen: departments, anillado sizes, common descriptions with departments, too-vague descriptions | #33 | 2 | 0.8 | 0.5 |
 | 16 (#115) | Staff form: archived department, choose a new default / one-time warning (added on November 8, after the PO's answer on archiving departments; done before #103 so #33 reaches production complete) | #33 | 1.25 | 0.5 | 0.3 |
 | 17 (#103) | Test #33 (earlier reports keep old prices), PR, production | #33 | 1 | 1 | 0.75 |
-| | **Dev total** | | **~21.5** | **~11.5** | |
+| 18 (#104) | DB: backup function (operator only, every table, PIN hashes included) and date of the last backup; SQL tests (added on November 8 with #51) | #51 | 1.25 | 0.5 | 0.15 |
+| 19 (#105) | Operator screen: backup button, file download, last backup date, reminder after 23 hours | #51 | 1.5 | 0.6 | 0.25 |
+| 20 (#106) | Restore script: turns a backup file into SQL for the SQL Editor | #51 | 1.5 | 0.6 | 0.16 |
+| 21 (#107) | Restore once in the test database and check nothing is missing; PR; production | #51 | 1 | 1 | |
+| | **Dev total** | | **~26.75** (21.5 planned + 5.25 for #51) | **~14.2** (11.5 planned + 2.7 for #51) | |
 
 ## Daily Log
 
@@ -92,11 +98,13 @@ done: review, retro and planning / next is #16 starting with #88 / no blocks / w
 
 07/11 b) #99 and #100, DB on operator lists / next #101, frontend for operators lists / no blocks / worked 50 minutes / yes
 
-08/11 a) #101, 102, 115 and 103, operators lists finished / next is #51 starting with 105 / no blocks / worked 110 minutes / yes
+08/11 a) #101, 102, 115 and 103, operators lists finished / next is #51 starting with #104 / no blocks / worked 110 minutes / yes
+
+08/11 b) #104, #105, #106, backups / next is #107 test backups and PR / no blocks / worked 45 minutes
 
 Total this sprint:
 PO: 3 hours
-Dev: 6 hours 15 minutes
+Dev: 7 hours 0 minutes
 
 ## Review
 

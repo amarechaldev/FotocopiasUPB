@@ -46,6 +46,7 @@ The user has a CS PhD but has never built or deployed a web app.
 - `npm run build`: production build (must pass before pushing)
 - `npm run test`: unit tests
 - `npm run lint`: oxlint (config in `.oxlintrc.json`)
+- `npm run restore-sql -- <backup .json>`: SQL that restores a backup (`docs/maintenance.md`)
 
 ## Layout (to be created in Sprint 1)
 

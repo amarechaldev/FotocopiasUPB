@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { currentAdmin, signIn, signOut, type Admin } from './lib/admin'
 import { AccountList } from './AccountList'
+import { BackupPanel } from './BackupPanel'
 import { EntryList } from './EntryList'
 import { ListsScreen } from './ListsScreen'
 import { adminErrorMessage } from './lib/adminErrors'
@@ -81,6 +82,7 @@ export function AdminApp() {
                 Cerrar sesión
               </button>
             </div>
+            <BackupPanel />
           </section>
         )}
         {state.kind === 'home' && view === 'entries' && <EntryList />}
