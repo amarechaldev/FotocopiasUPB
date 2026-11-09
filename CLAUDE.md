@@ -2,7 +2,7 @@
 
 ## What this project is
 
-Fotocopias UPB: staff register photocopy/anillado requests on a shared tablet; the operator gets the
+Fotocopias UPB: staff register photocopy/anillado requests on a shared phone; the operator gets the
 monthly billing reports (detailed + per-department summary) without manual sums.
 Product truth lives in `docs/`. Read `docs/06-product-brief.md`, `docs/07-epics.md`,
 `docs/decision-log.md`, `docs/definition-of-done.md` and the current `docs/sprints/sprint-N.md`
@@ -80,8 +80,10 @@ The user has a CS PhD but has never built or deployed a web app.
 
 ## Constraints that drive the design
 
-- Target device: Android tablet browser (Chrome), touch, used standing while copies print:
-  big touch targets, numeric keyboard for numbers, as few taps as possible.
+- Target device for staff: a shared phone's browser (the operator's old phone, from January 2027;
+  decision log 2026-11-08, the tablet was dropped), touch, used standing while copies print: big
+  touch targets, numeric keyboard for numbers, as few taps as possible, a phone-width screen. The
+  operator's screens are used on her computer.
 - Connection may drop: no offline sync in the MVP (decision log), but the UI must show clearly whether
   each entry was saved or failed, so staff can fall back to paper.
 - Volume is tiny (≤500 entries/month): favour simplicity over performance.
@@ -89,7 +91,7 @@ The user has a CS PhD but has never built or deployed a web app.
 ## Workflow
 
 - One branch per story (e.g. `story/1-service-registration`), small commits, PR into `main`.
-- A story is done only per `docs/definition-of-done.md`: deployed, tested on the Android tablet from
+- A story is done only per `docs/definition-of-done.md`: deployed, tested on a phone from
   the deployed URL, in Spanish, pushed, issue moved to Done.
 - Board (GitHub Projects): the user moves cards to In Progress and Ready for review; only the PO moves
   them to Done. Claude has no Projects access and **never closes issues** (closing triggers the board's
