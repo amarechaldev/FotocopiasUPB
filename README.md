@@ -12,7 +12,7 @@ The work itself took about an hour, but with constant interruptions at the count
 
 ## The result
 
-- Staff register each request on a shared phone or tablet, with a personal account and PIN, while their copies are printing.
+- Staff register each request on a shared phone at the counter, with a personal account and PIN, while their copies are printing.
 - The operator reviews and corrects entries, and prints both monthly reports, the detailed record and the summary signed by managers, in a few clicks, with no manual sums.
 - **The MVP was finished in three weeks** and launched in a pilot with three departments.
 - **The University and all stakeholders accepted the app** before the first real billing period closed.
@@ -82,7 +82,7 @@ Start with the [product brief](docs/06-product-brief.md) for an overview, or a [
 
 ## Development
 
-**Technology:** a React web app (Vite, TypeScript), deployed on Vercel, with Supabase for storage. Staff use it from the browser of a shared phone or tablet.
+**Technology:** a React web app (Vite, TypeScript), deployed on Vercel, with Supabase for storage. Staff use it from the browser of a shared phone.
 
 Requires [Node.js](https://nodejs.org/) 24 or later.
 

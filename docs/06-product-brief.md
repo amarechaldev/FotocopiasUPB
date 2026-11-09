@@ -13,7 +13,7 @@ Every month, the operator must deliver a report of her billable services to the 
 | Who | Role | Why they matter |
 | --- | --- | --- |
 | **Operator** | Primary user and customer. Reviews and corrects entries, registers entries on behalf of others, produces the monthly report. Edits staff profiles, resets forgotten PINs and manages prices, departments and description lists from the handover. | Owns the problem and decides whether the app is adopted. |
-| **Staff** (internal staff and visiting teachers) | Each one has a personal account (name, one or more departments, PIN) and registers each service they use on the shared phone or tablet at the service. | If registering is harder than writing on paper, they will keep using paper. |
+| **Staff** (internal staff and visiting teachers) | Each one has a personal account (name, one or more departments, PIN) and registers each service they use on the shared phone at the service. | If registering is harder than writing on paper, they will keep using paper. |
 | **University Administrator** (and her assistant) | Receives the monthly report, checks it and collects the managers' signatures. Requires each entry to be made from a personal account protected by a PIN (non-negotiable). | Can reject the record; actively shapes the product. |
 | **Department managers** | Sign the monthly summary for their department, which is charged to their budget. | Need correct totals per department. |
 
@@ -61,7 +61,7 @@ Payments are not included in this project, nor accounting. Conversion of service
 ## Constraints
 
 - **Internet only through the operator's connection.** Both Wi-Fi and mobile data are extremely unreliable at the service location, but the operator has a private connection that works. The shared device uses that connection; staff never need one of their own. If the connection drops, staff fall back to the paper notebook, and the operator enters those entries in the app later.
-- **Shared phone or tablet at the service.** Staff register on a shared device at the service location, provided by the operator: an old phone or a tablet, her choice. The app must work well on a phone-sized screen. Using staff's own phones was discarded (October 2026). The operator also has a computer, which she uses to prepare the report today.
+- **Shared phone at the service.** Staff register on a shared phone at the service location, provided by the operator: her old phone, from January 2027. The app must work well on a phone screen. Using staff's own phones was discarded (October 2026). The operator also has a computer, which she uses to prepare the report today.
 - **Up-to-date browsers only.** The app works on devices with an up-to-date browser. Of the operator's four computers, three work; the fourth does not (probably an old antivirus) and is not used for the app.
 - **PIN-protected personal accounts.** The University requires every entry to be made from a personal account protected by a PIN (non-negotiable). Staff use the service only occasionally, so PINs will be forgotten.
 - **Registration as quick as paper.** Staff register while their copies are printing; it must take no longer than writing on paper.

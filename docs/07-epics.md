@@ -4,7 +4,7 @@ Epics derived from the MVP scope in [06-product-brief.md](06-product-brief.md): 
 
 ## E1: Service Registration
 
-Staff register each service they use, on the shared phone or tablet at the service.
+Staff register each service they use, on the shared phone at the service.
 
 - **Value:** every request is recorded legibly, under a department chosen from a list, without a paper notebook.
 - **Goals served:** 1 (reliable recording), 4 (University acceptance, through proof of each request).
