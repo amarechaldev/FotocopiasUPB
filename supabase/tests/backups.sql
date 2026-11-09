@@ -1,4 +1,5 @@
--- Tests for the backups (0024). Paste into the SQL Editor of the TEST project only, after 0024.
+-- Tests for the backups (0024). Paste into the SQL Editor of the TEST project only, after 0024,
+-- and again after 0025 (it rewrote backup_data).
 -- Everything runs in one transaction that is rolled back: no data is left behind. The first failed
 -- check stops the script with its message; success = no error at the end.
 -- The project needs a row in admins and at least one staff account.
@@ -55,7 +56,7 @@ declare
   cols text;
   diff integer;
 begin
-  assert b ->> 'app' = 'fotocopias-upb' and b ->> 'format' = '1' and b ->> 'migration' = '0024',
+  assert b ->> 'app' = 'fotocopias-upb' and b ->> 'format' = '1' and b ->> 'migration' = schema_migration(),
          'header: ' || (b - 'tables')::text;
 
   assert (select array_agg(k order by k) from jsonb_object_keys(b -> 'tables') k)
