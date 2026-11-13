@@ -22,7 +22,7 @@ export const ENTRY_MESSAGES: Record<string, string> = {
   anillado_size_not_valid: 'Ese tamaño de anillado ya no está disponible. Recargue la página y elija otro.',
 }
 
-function errorCode(error: unknown): string {
+export function errorCode(error: unknown): string {
   return typeof error === 'object' && error !== null && 'message' in error
     ? String(error.message)
     : ''

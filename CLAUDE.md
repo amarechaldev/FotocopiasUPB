@@ -75,6 +75,8 @@ The user has a CS PhD but has never built or deployed a web app.
 - Writes go through Postgres functions called with `supabase.rpc(...)` (e.g. `register_account_entry`), not
   direct inserts: one transaction per entry, and the browser gets no direct access to `entries`.
 - New tables: `revoke all` from `anon, authenticated`, then grant only what the app uses (see 0010).
+- Every migration ends by replacing `schema_migration()` with its own number (see 0025): backup files
+  record it, and a restore needs a database at the same migration.
 - Migrations are applied by pasting them into the Supabase SQL Editor, in order, once each per project:
   first in the test project (then check the branch preview), and in production only after the PR is
   merged, unless the migration says it is safe earlier.

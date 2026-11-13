@@ -794,3 +794,18 @@ td.number {
 .list-form .choices {
   margin: 0;
 }
+
+/* Undo (#20): "Deshacer" and the PIN prompt inside the saved message (EntryForm, UndoPrompt) */
+.result .message > button,
+.undo button {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.undo {
+  margin-top: 0.75rem;
+}
+
+.undo-message {
+  font-weight: 600;
+}
