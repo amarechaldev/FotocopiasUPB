@@ -99,3 +99,18 @@ export async function registerAccountEntry(entry: AccountEntry): Promise<number>
   if (error) throw error
   return data
 }
+
+export type UndoResult = { kind: 'undone' } | { kind: 'pin_wrong'; attemptsLeft: number }
+
+// Removes an entry just saved, with its account's PIN (migration 0025). A wrong PIN is a result,
+// with the attempts left; the other refusals come back as codes (see undoMessages).
+export async function undoEntry(entryId: number, pin: string): Promise<UndoResult> {
+  const { data, error } = await supabase
+    .rpc('undo_entry', { p_entry_id: entryId, p_pin: pin })
+    .abortSignal(AbortSignal.timeout(SAVE_TIMEOUT_MS))
+  if (error) throw error
+  const row = data as { result: string; attempts_left?: number }
+  return row.result === 'undone'
+    ? { kind: 'undone' }
+    : { kind: 'pin_wrong', attemptsLeft: row.attempts_left ?? 0 }
+}

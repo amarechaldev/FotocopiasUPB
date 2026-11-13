@@ -27,14 +27,39 @@ import {
   type CurrentPeriod,
 } from './lib/entries'
 import { ENTRY_MESSAGES, entryErrorMessage, isRefusal } from './lib/entryErrors'
+import { UNDO_OFFER_MS } from './lib/undoMessages'
 import { NewDefaultAreaStep } from './NewDefaultAreaStep'
 import { NewPinStep } from './NewPinStep'
 import { scrollToTop } from './scrollToTop'
+import { UndoPrompt } from './UndoPrompt'
+
+// What the form held when the entry was saved: an undo (#20) puts it back, to be fixed.
+type Restore = {
+  account: Account
+  fields: Fields
+  anillados: AnilladoRow[]
+  outsideConfirmed: boolean
+}
+
+// "Deshacer" under the saved message: offered for 10 seconds, then hidden; the PIN prompt; or
+// closed by the prompt, with a message saying the entry stays saved.
+type Undo = { step: 'offered' } | { step: 'hidden' } | { step: 'prompt' } | { step: 'closed'; message: string }
+
+type Saved = {
+  kind: 'saved'
+  id: number
+  name: string
+  areaName: string
+  contents: string
+  restore: Restore
+  undo: Undo
+}
 
 type Status =
   | { kind: 'idle' }
   | { kind: 'saving' }
-  | { kind: 'saved'; id: number; name: string; areaName: string; contents: string }
+  | Saved
+  | { kind: 'undone'; id: number }
   // Something the person can fix right away (name, wrong PIN): no need for the notebook.
   | { kind: 'rejected'; message: string }
   // The entry could not be saved (connection, server): the notebook takes over.
@@ -85,6 +110,9 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
   const [pinSaved, setPinSaved] = useState(false)
   // A new main department was just chosen, after the old one was archived (#115).
   const [areaSaved, setAreaSaved] = useState(false)
+  // An undo is on its way (at most SAVE_TIMEOUT_MS): the form is locked, so its answer can never
+  // land on the next person's entry.
+  const [undoing, setUndoing] = useState(false)
 
   // A counter that survives redraws without causing one (unlike state).
   const lastKey = useRef(0)
@@ -126,15 +154,51 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
   // The Guardar button is at the bottom of a long form, so the result message
   // would appear off screen: scroll up on every new message.
   useEffect(() => {
-    if (status.kind === 'saved' || status.kind === 'rejected' || status.kind === 'failed') {
+    if (
+      status.kind === 'saved' ||
+      status.kind === 'undone' ||
+      status.kind === 'rejected' ||
+      status.kind === 'failed'
+    ) {
       scrollToTop()
     }
   }, [status])
 
+  // "Deshacer" is offered for UNDO_OFFER_MS after each save; an open PIN prompt stays.
+  const savedId = status.kind === 'saved' ? status.id : null
+  useEffect(() => {
+    if (savedId === null) return
+    const timer = setTimeout(() => {
+      setStatus((current) =>
+        current.kind === 'saved' && current.id === savedId && current.undo.step === 'offered'
+          ? { ...current, undo: { step: 'hidden' } }
+          : current,
+      )
+    }, UNDO_OFFER_MS)
+    return () => clearTimeout(timer)
+  }, [savedId])
+
   // The confirmation belongs to the previous person: hide it as soon as
-  // someone starts a new entry. A failure message stays until the next save.
+  // someone starts a new entry; an open undo prompt goes with it (#20). A failure message stays
+  // until the next save.
   function clearConfirmation() {
+    if (undoing) return
     setStatus((current) => (current.kind === 'saved' ? { kind: 'idle' } : current))
+  }
+
+  function setUndo(undo: Undo) {
+    setStatus((current) => (current.kind === 'saved' ? { ...current, undo } : current))
+  }
+
+  // The entry is gone: the form gets it back, with the same name and the PIN just typed (as after a
+  // new PIN, #31), so a fix is one tap on Guardar.
+  function handleUndone(saved: Saved, undoPin: string) {
+    setAccount(saved.restore.account)
+    setFields(saved.restore.fields)
+    setAnillados(saved.restore.anillados)
+    setOutsideConfirmed(saved.restore.outsideConfirmed)
+    setPin(undoPin)
+    setStatus({ kind: 'undone', id: saved.id })
   }
 
   function update(field: keyof Fields, value: string) {
@@ -250,6 +314,8 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
           entry.copias,
           entry.anillados.map((a) => a.quantity),
         ),
+        restore: { account, fields, anillados, outsideConfirmed },
+        undo: { step: 'offered' },
       })
       // Logged out: the next person must choose their name and type their PIN.
       setAccount(null)
@@ -289,7 +355,7 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
   // Nothing can be filled before a real name is chosen (#56), nor before a new PIN is chosen
   // after a reset (#31), nor before a new main department replaces an archived one (#115); what
   // was typed is kept. A disabled fieldset disables every field inside it.
-  const locked = account === null || account.pinResetPending || account.defaultAreaArchived
+  const locked = account === null || account.pinResetPending || account.defaultAreaArchived || undoing
   const periodWarning = newEntryPeriodWarning(fields.entryDate, lists.period.current)
 
   return (
@@ -333,6 +399,26 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
               {status.name} · {status.areaName} · {status.contents}
             </p>
             <p>Sesión cerrada. Para otro pedido, elija su nombre de nuevo.</p>
+            {status.undo.step === 'offered' && (
+              <button type="button" className="secondary" onClick={() => setUndo({ step: 'prompt' })}>
+                Deshacer
+              </button>
+            )}
+            {status.undo.step === 'prompt' && (
+              <UndoPrompt
+                entryId={status.id}
+                onBusy={setUndoing}
+                onUndone={(undoPin) => handleUndone(status, undoPin)}
+                onClosed={(message) => setUndo({ step: 'closed', message })}
+              />
+            )}
+            {status.undo.step === 'closed' && <p className="undo-message">{status.undo.message}</p>}
+          </div>
+        )}
+        {status.kind === 'undone' && (
+          <div className="message success" role="status">
+            <strong>✓ Registro n.º {status.id} eliminado</strong>
+            <p>Sus datos están abajo: corríjalos y toque Guardar.</p>
           </div>
         )}
         {status.kind === 'rejected' && (
@@ -350,7 +436,8 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
         )}
       </div>
 
-      <fieldset>
+      {/* Disabled while an undo is on its way: the name picker is outside the locked fields. */}
+      <fieldset disabled={undoing}>
         <legend>Datos</legend>
 
         <AccountPicker
