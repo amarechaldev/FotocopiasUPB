@@ -418,7 +418,7 @@ export function EntryForm({ createdAccount = null, profileSaved = null, onCreate
         {status.kind === 'undone' && (
           <div className="message success" role="status">
             <strong>✓ Registro n.º {status.id} eliminado</strong>
-            <p>Sus datos están abajo: corríjalos y toque Guardar.</p>
+            <p>Los datos del registro eliminado están abajo: corríjalos y toque Guardar.</p>
           </div>
         )}
         {status.kind === 'rejected' && (
